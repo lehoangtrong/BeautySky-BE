@@ -68,13 +68,14 @@ namespace BeautySky.Controllers
                     u.Password == loginRequest.Password);
 
             // Kiểm tra nếu không tìm thấy người dùng hoặc mật khẩu sai
-            if (user.IsActive == false)
-            {
-                return Unauthorized("Tài khoản của bạn đã bị vô hiệu hóa.");
-            }
+            
             if (user == null)
             {
                 return Unauthorized("Tên đăng nhập hoặc mật khẩu không chính xác.");
+            }
+            if (user.IsActive == false)
+            {
+                return Unauthorized("Tài khoản của bạn đã bị vô hiệu hóa.");
             }
             user.Password = null;
             var token = GenerateJwtToken(user);
@@ -85,25 +86,23 @@ namespace BeautySky.Controllers
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
             string roleName = "Customer";
             if (user.RoleId.HasValue)
             {
-                using (var context = new ProjectSwpContext())
-                {
-                    roleName = context.Roles
-                        .Where(r => r.RoleId == user.RoleId)
-                        .Select(r => r.RoleName)
-                        .FirstOrDefault() ?? "Customer";
-                }
+                roleName = _context.Roles
+                    .Where(r => r.RoleId == user.RoleId)
+                    .Select(r => r.RoleName)
+                    .FirstOrDefault() ?? "Customer";
             }
 
             var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, roleName)
-            };
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Role, roleName)
+    };
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
@@ -115,6 +114,7 @@ namespace BeautySky.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
 
     }
 }

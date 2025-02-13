@@ -355,7 +355,6 @@ C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\runtimes\
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Drawing.Common.dll
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Security.Cryptography.ProtectedData.dll
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\runtimes\win\lib\net7.0\System.Windows.Extensions.dll
-C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\appsettings.json
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.exe
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.deps.json
