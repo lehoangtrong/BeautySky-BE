@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BeautySky.Models;
 
@@ -13,7 +14,9 @@ public partial class UserCarePlan
 
     public DateTime? DateCreate { get; set; }
 
+    [JsonIgnore]
     public virtual CarePlan? CarePlan { get; set; }
 
+    [JsonIgnore]
     public virtual User? User { get; set; }
 }
