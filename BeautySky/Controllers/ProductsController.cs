@@ -44,6 +44,58 @@ namespace BeautySky.Controllers
             return product;
         }
 
+        // GET: api/Products/Sort
+        [HttpGet("Sort")]
+        [Authorize(Roles = "Manager, Staff")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetSortedProducts(
+            [FromQuery] string sortBy = "ProductName",
+            [FromQuery] string order = "asc")
+        {
+            IQueryable<Product> products = _context.Products;
+
+            // Xử lý sắp xếp
+            switch (sortBy.ToLower())
+            {
+                case "productname":
+                    products = (order.ToLower() == "desc")
+                        ? products.OrderByDescending(p => p.ProductName)
+                        : products.OrderBy(p => p.ProductName);
+                    break;
+                case "price":
+                    products = (order.ToLower() == "desc")
+                        ? products.OrderByDescending(p => p.Price)
+                        : products.OrderBy(p => p.Price);
+                    break;
+                default:
+                    return BadRequest("Invalid sortBy parameter. Use 'ProductName' or 'Price'.");
+            }
+
+            return await products.ToListAsync();
+        }
+
+        // GET: api/Products/Search
+        [HttpGet("Search")]
+        [Authorize(Roles = "Manager, Staff")]
+        public async Task<ActionResult<IEnumerable<Product>>> SearchProducts([FromQuery] string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest("Product name cannot be empty.");
+            }
+
+            var products = await _context.Products
+                .Where(p => p.ProductName.Contains(name))
+                .ToListAsync();
+
+            if (!products.Any())
+            {
+                return NotFound("No products found.");
+            }
+
+            return products;
+        }
+
+
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("Update Product By ID")]
