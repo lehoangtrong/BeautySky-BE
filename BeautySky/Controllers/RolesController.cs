@@ -21,14 +21,14 @@ namespace BeautySky.Controllers
         }
 
         // GET: api/Roles
-        [HttpGet]
+        [HttpGet("Get all Role that can only be used by Staff, Manager")]
         public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
         {
             return await _context.Roles.ToListAsync();
         }
 
         // GET: api/Roles/5
-        [HttpGet("{id}")]
+        [HttpGet("Get all Role By ID that can only be used by Staff, Manager")]
         public async Task<ActionResult<Role>> GetRole(int id)
         {
             var role = await _context.Roles.FindAsync(id);
@@ -43,7 +43,7 @@ namespace BeautySky.Controllers
 
         // PUT: api/Roles/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("Update Role that can only be used by Staff, Manager")]
         public async Task<IActionResult> PutRole(int id, Role role)
         {
             if (id != role.RoleId)
@@ -74,7 +74,7 @@ namespace BeautySky.Controllers
 
         // POST: api/Roles
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("Add Role that can only be used by Staff, Manager")]
         public async Task<ActionResult<Role>> PostRole(Role role)
         {
             _context.Roles.Add(role);
@@ -84,7 +84,7 @@ namespace BeautySky.Controllers
         }
 
         // DELETE: api/Roles/5
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete Role By ID that can only be used by Staff, Manager")]
         public async Task<IActionResult> DeleteRole(int id)
         {
             var role = await _context.Roles.FindAsync(id);

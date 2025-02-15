@@ -21,14 +21,14 @@ namespace BeautySky.Controllers
         }
 
         // GET: api/Users
-        [HttpGet]
+        [HttpGet("Get All User that that can only be used by Staff, Manager")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
         // GET: api/Users/5
-        [HttpGet("{id}")]
+        [HttpGet("Get User By ID that that can only be used by Staff, Manager")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -43,7 +43,7 @@ namespace BeautySky.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("Update User By ID that that can only be used by Staff, Manager")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
             if (id != user.UserId)
@@ -74,7 +74,7 @@ namespace BeautySky.Controllers
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("Register")]
+        [HttpPost("Register that can only use by Staff, Manager")]
         public async Task<ActionResult<User>> Register(User user)
         {
 
@@ -85,6 +85,10 @@ namespace BeautySky.Controllers
             {
                 return BadRequest("Email hoặc Username đã được sử dụng.");
             }
+            if (user.Password != user.ConfirmPassword)
+            {
+                return BadRequest("Mật khẩu và xác nhận mật khẩu không khớp.");
+            }
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
@@ -92,7 +96,7 @@ namespace BeautySky.Controllers
         }
 
         // DELETE: api/Users/5
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete User By ID that can only be used by Staff, Manager")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -100,8 +104,8 @@ namespace BeautySky.Controllers
             {
                 return NotFound();
             }
-            user.IsActive = false;
-            _context.Users.Update(user);
+            //user.IsActive = false;
+            _context.Users.Remove(user);
             await _context.SaveChangesAsync();
 
             return NoContent();

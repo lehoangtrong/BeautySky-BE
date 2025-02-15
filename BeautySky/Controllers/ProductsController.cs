@@ -23,14 +23,15 @@ namespace BeautySky.Controllers
 
         // GET: api/Products
         [HttpGet]
-        [Authorize(Roles = "Manager")]
+        [Authorize(Roles = "Manager, Staff")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
             return await _context.Products.ToListAsync();
         }
 
         // GET: api/Products/5
-        [HttpGet("{id}")]
+        [HttpGet("Get Product By ID")]
+        [Authorize(Roles = "Manager, Staff")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
@@ -45,7 +46,8 @@ namespace BeautySky.Controllers
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("Update Product By ID")]
+        [Authorize(Roles = "Manager, Staff")]
         public async Task<IActionResult> PutProduct(int id, Product product)
         {
             if (id != product.ProductId)
@@ -76,7 +78,8 @@ namespace BeautySky.Controllers
 
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("Add Product")]
+        [Authorize(Roles = "Manager, Staff")]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
             _context.Products.Add(product);
@@ -86,7 +89,8 @@ namespace BeautySky.Controllers
         }
 
         // DELETE: api/Products/5
-        [HttpDelete("{id}")]
+        [HttpDelete("Delete Product By ID")]
+        [Authorize(Roles = "Manager")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var product = await _context.Products.FindAsync(id);
