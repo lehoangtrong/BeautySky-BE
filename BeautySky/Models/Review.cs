@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BeautySky.Models;
 
@@ -16,8 +17,8 @@ public partial class Review
     public string? Comment { get; set; }
 
     public DateTime? ReviewDate { get; set; }
-
+    [JsonIgnore]
     public virtual Product? Product { get; set; }
-
+    [JsonIgnore]
     public virtual User? User { get; set; }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BeautySky.Models;
 
@@ -13,9 +14,12 @@ public partial class CarePlanProduct
 
     public string? ProductName { get; set; }
 
+    [JsonIgnore]
     public virtual CarePlan CarePlan { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual Product Product { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual CarePlanStep Step { get; set; } = null!;
 }
