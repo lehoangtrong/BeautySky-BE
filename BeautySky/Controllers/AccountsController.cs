@@ -1,0 +1,120 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using BeautySky.Models;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Threading.Tasks;
+using BeautySky.DTO;
+using System.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace BeautySky.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AccountsController : ControllerBase
+    {
+        private readonly ProjectSwpContext _context;
+        private readonly IConfiguration _configuration;
+
+        public AccountsController(ProjectSwpContext context, IConfiguration configuration)
+        {
+            _context = context;
+            _configuration = configuration;
+        }
+
+        // POST: api/Accounts/Register
+        [HttpPost("Register")]
+        public async Task<ActionResult<User>> Register([FromBody] User user)
+        {
+            // Kiểm tra nếu người dùng đã tồn tại trong hệ thống
+            var existingUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.UserName == user.UserName || u.Email == user.Email);
+            if (existingUser != null)
+            {
+                return BadRequest("Tên người dùng hoặc email đã tồn tại.");
+            }
+
+            // Kiểm tra mật khẩu và xác nhận mật khẩu có trùng khớp hay không
+            if (user.Password != user.ConfirmPassword)
+            {
+                return BadRequest("Mật khẩu và xác nhận mật khẩu không khớp.");
+            }
+
+            user.RoleId = 1; // Customer
+            user.IsActive = true;
+            user.DateCreate = DateTime.UtcNow;
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+            return Ok(user);
+        }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult<User>> Login([FromBody] LoginRequest loginRequest)
+        {
+            // Kiểm tra xem có nhập UserName hay Email
+            if (string.IsNullOrEmpty(loginRequest.UserName) && string.IsNullOrEmpty(loginRequest.Email))
+            {
+                return BadRequest("Bạn cần nhập tên đăng nhập hoặc email.");
+            }
+
+            // Tìm người dùng theo UserName hoặc Email
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u =>
+                    (u.UserName == loginRequest.UserName || u.Email == loginRequest.Email) &&
+                    u.Password == loginRequest.Password);
+
+            // Kiểm tra nếu không tìm thấy người dùng hoặc mật khẩu sai
+            
+            if (user == null)
+            {
+                return Unauthorized("Tên đăng nhập hoặc mật khẩu không chính xác.");
+            }
+            if (user.IsActive == false)
+            {
+                return Unauthorized("Tài khoản của bạn đã bị vô hiệu hóa.");
+            }
+            user.Password = null;
+            var token = GenerateJwtToken(user);
+
+            return Ok(new { Token = token });
+        }
+        private string GenerateJwtToken(User user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            string roleName = "Customer";
+            if (user.RoleId.HasValue)
+            {
+                roleName = _context.Roles
+                    .Where(r => r.RoleId == user.RoleId)
+                    .Select(r => r.RoleName)
+                    .FirstOrDefault() ?? "Customer";
+            }
+
+            var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+        new Claim(ClaimTypes.Name, user.UserName),
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Role, roleName)
+    };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(3),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+
+    }
+}
