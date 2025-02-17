@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BeautySky.Models;
 
@@ -13,7 +14,9 @@ public partial class Answer
 
     public bool? IsCorrect { get; set; }
 
+    [JsonIgnore]
     public virtual Question? Question { get; set; }
 
+    [JsonIgnore]
     public virtual ICollection<UserAnswer> UserAnswers { get; set; } = new List<UserAnswer>();
 }

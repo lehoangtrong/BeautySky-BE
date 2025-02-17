@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace BeautySky.Models;
 
@@ -19,5 +20,6 @@ public partial class Blog
 
     public string Status { get; set; } = null!;
 
+    [JsonIgnore]
     public virtual User? Author { get; set; }
 }
