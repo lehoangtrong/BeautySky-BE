@@ -34,7 +34,7 @@ namespace BeautySky.Controllers
         [HttpGet("google-respone")]
         public async Task<IActionResult> GoogleRespone()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
             var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
 
             if (!result.Succeeded)
