@@ -161,6 +161,42 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "BeautySky.Controllers.GoogleController",
+    "Method": "GoogleLogin",
+    "RelativePath": "api/Google/google-login",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.GoogleController",
+    "Method": "GoogleRespone",
+    "RelativePath": "api/Google/google-respone",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.GoogleController",
+    "Method": "UpdateProfile",
+    "RelativePath": "api/Google/update-profile",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "BeautySky.DTO.UpdateProfileModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "BeautySky.Controllers.NewsController",
     "Method": "GetNews",
     "RelativePath": "api/News",
