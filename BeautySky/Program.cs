@@ -1,5 +1,8 @@
 ﻿
+using Amazon;
+using Amazon.S3;
 using BeautySky.Models;
+using BeautySky.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -113,6 +116,20 @@ namespace BeautySky
                 };
 
             });
+
+            builder.Services.AddSingleton<IAmazonS3>(option =>
+            {
+                var configuration = option.GetRequiredService<IConfiguration>();
+                return new AmazonS3Client(
+                    configuration["AWS:AccessKey"],
+                    configuration["AWS:SecretKey"],
+                    RegionEndpoint.GetBySystemName(configuration["AWS:Region"])
+                );
+            });
+
+            builder.Services.AddSingleton<S3Service>();
+
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
