@@ -641,3 +641,5 @@ C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.pd
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.genruntimeconfig.cache
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\obj\Debug\net8.0\ref\BeautySky.dll
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.Google.dll
+C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\AWSSDK.Core.dll
+C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\AWSSDK.S3.dll
