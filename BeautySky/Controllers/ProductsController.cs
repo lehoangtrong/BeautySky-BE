@@ -24,87 +24,71 @@ namespace BeautySky.Controllers
         // GET: api/Products
         [HttpGet]
         //[Authorize(Roles = "Manager, Staff")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
-        {
-            return await _context.Products.ToListAsync();
-        }
-
-        // GET: api/Products/5
-        [HttpGet("Get Product By ID")]
-        //[Authorize(Roles = "Manager, Staff")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
-            {   
-                return NotFound();
-            }
-
-            return product;
-        }
-
-        // GET: api/Products/Sort
-        [HttpGet("Sort")]
-        //[Authorize(Roles = "Manager, Staff")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetSortedProducts(
-            [FromQuery] string sortBy = "ProductName",
-            [FromQuery] string order = "asc")
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
+            int? id = null,
+            string? sortBy = null,
+            string? order = null,
+            string? name = null)
         {
             IQueryable<Product> products = _context.Products;
 
-            // Xử lý sắp xếp
-            switch (sortBy.ToLower())
+            // Lấy theo ID
+            if (id.HasValue)
             {
-                case "productname":
-                    products = (order.ToLower() == "desc")
-                        ? products.OrderByDescending(p => p.ProductName)
-                        : products.OrderBy(p => p.ProductName);
-                    break;
-                case "price":
-                    products = (order.ToLower() == "desc")
-                        ? products.OrderByDescending(p => p.Price)
-                        : products.OrderBy(p => p.Price);
-                    break;
-                default:
-                    return BadRequest("Invalid sortBy parameter. Use 'ProductName' or 'Price'.");
+                var product = await _context.Products.FindAsync(id);
+
+                if (product == null)
+                {
+                    return NotFound("Product not found.");
+                }
+
+                return Ok(new List<Product> { product }); // Trả về một danh sách chứa sản phẩm
+            }
+
+            // Tìm kiếm theo tên
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                products = products.Where(p => p.ProductName.Contains(name));
+                if (!await products.AnyAsync())
+                {
+                    return NotFound("No products found matching the search criteria.");
+                }
+            }
+
+            // Sắp xếp
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "productname":
+                        products = (order?.ToLower() == "desc")
+                            ? products.OrderByDescending(p => p.ProductName)
+                            : products.OrderBy(p => p.ProductName);
+                        break;
+                    case "price":
+                        products = (order?.ToLower() == "desc")
+                            ? products.OrderByDescending(p => p.Price)
+                            : products.OrderBy(p => p.Price);
+                        break;
+                    default:
+                        return BadRequest("Invalid sortBy parameter. Use 'ProductName' or 'Price'.");
+                }
             }
 
             return await products.ToListAsync();
         }
 
-        // GET: api/Products/Search
-        [HttpGet("Search")]
-        //[Authorize(Roles = "Manager, Staff")]
-        public async Task<ActionResult<IEnumerable<Product>>> SearchProducts([FromQuery] string name)
-        {
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return BadRequest("Product name cannot be empty.");
-            }
-
-            var products = await _context.Products
-                .Where(p => p.ProductName.Contains(name))
-                .ToListAsync();
-
-            if (!products.Any())
-            {
-                return NotFound("No products found.");
-            }
-
-            return products;
-        }
 
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("Product")]
+        [HttpPut("{id}")]
         //[Authorize(Roles = "Manager, Staff")]
         public async Task<IActionResult> PutProduct(int id, Product product)
         {
             if (id != product.ProductId)
             {
-                return BadRequest();
+                return BadRequest("ID in the request body does not match the ID in the route.");
             }
 
             _context.Entry(product).State = EntityState.Modified;
@@ -117,45 +101,72 @@ namespace BeautySky.Controllers
             {
                 if (!ProductExists(id))
                 {
-                    return NotFound();
+                    return NotFound("Product not found.");
                 }
                 else
                 {
-                    throw;
+                    return StatusCode(500, "An error occurred while updating the product.  Please try again."); // More informative error.
                 }
             }
+            catch (Exception ex)
+            {
+                // Log the exception (important!)
+                Console.WriteLine($"Error updating product: {ex}");
+                return StatusCode(500, "An unexpected error occurred.");
+            }
 
-            return NoContent();
+            return Ok(new { message = "Product updated successfully." });
         }
+
 
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("Product")]
+        [HttpPost]
         //[Authorize(Roles = "Manager, Staff")]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
+                return CreatedAtAction(nameof(GetProducts), new { id = product.ProductId }, new { message = "Product created successfully.", product });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error creating product: {ex}");
+                return StatusCode(500, "An error occurred while creating the product.");
+            }
         }
 
+
         // DELETE: api/Products/5
-        [HttpDelete("Product")]
+        [HttpDelete("{id}")]
         //[Authorize(Roles = "Manager")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var product = await _context.Products.FindAsync(id);
+                if (product == null)
+                {
+                    return NotFound("Product not found.");
+                }
+
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Product deleted successfully." });
             }
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error deleting product: {ex}");
+                return StatusCode(500, "An error occurred while deleting the product.");
+            }
         }
+
 
         private bool ProductExists(int id)
         {
