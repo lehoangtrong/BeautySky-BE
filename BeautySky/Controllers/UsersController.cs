@@ -21,14 +21,14 @@ namespace BeautySky.Controllers
         }
 
         // GET: api/Users
-        [HttpGet("Get All User that that can only be used by Staff, Manager")]
+        [HttpGet("Get All User")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
         // GET: api/Users/5
-        [HttpGet("Get User By ID that that can only be used by Staff, Manager")]
+        [HttpGet("Get User By ID")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -43,7 +43,7 @@ namespace BeautySky.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("Update User By ID that that can only be used by Staff, Manager")]
+        [HttpPut("Update User By ID")]
         public async Task<IActionResult> PutUser(int id, User user)
         {
             if (id != user.UserId)
@@ -96,7 +96,7 @@ namespace BeautySky.Controllers
         }
 
         // DELETE: api/Users/5
-        [HttpDelete("Delete User By ID that can only be used by Staff, Manager")]
+        [HttpDelete("Delete User By ID")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);

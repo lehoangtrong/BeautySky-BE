@@ -1019,7 +1019,7 @@
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "PostRole",
-    "RelativePath": "api/Roles/Add Role that can only be used by Staff, Manager",
+    "RelativePath": "api/Roles/Add Role",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -1045,7 +1045,7 @@
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "DeleteRole",
-    "RelativePath": "api/Roles/Delete Role By ID that can only be used by Staff, Manager",
+    "RelativePath": "api/Roles/Delete Role By ID",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -1060,8 +1060,28 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
+    "Method": "GetRoles",
+    "RelativePath": "api/Roles/Get all Role",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Role, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "GetRole",
-    "RelativePath": "api/Roles/Get all Role By ID that can only be used by Staff, Manager",
+    "RelativePath": "api/Roles/Get Role By ID",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -1086,28 +1106,8 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
-    "Method": "GetRoles",
-    "RelativePath": "api/Roles/Get all Role that can only be used by Staff, Manager",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Role, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "PutRole",
-    "RelativePath": "api/Roles/Update Role that can only be used by Staff, Manager",
+    "RelativePath": "api/Roles/Update Role",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -1237,7 +1237,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "DeleteUser",
-    "RelativePath": "api/Users/Delete User By ID that can only be used by Staff, Manager",
+    "RelativePath": "api/Users/Delete User By ID",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -1253,7 +1253,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "GetUsers",
-    "RelativePath": "api/Users/Get All User that that can only be used by Staff, Manager",
+    "RelativePath": "api/Users/Get All User",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -1273,7 +1273,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "GetUser",
-    "RelativePath": "api/Users/Get User By ID that that can only be used by Staff, Manager",
+    "RelativePath": "api/Users/Get User By ID",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -1325,7 +1325,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "PutUser",
-    "RelativePath": "api/Users/Update User By ID that that can only be used by Staff, Manager",
+    "RelativePath": "api/Users/Update User By ID",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,

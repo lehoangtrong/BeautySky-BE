@@ -49,7 +49,7 @@ namespace BeautySky.Controllers
             user.DateCreate = DateTime.UtcNow;
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
-            return Ok(user);
+            return Ok("Đăng kí thành công");
         }
 
         [HttpPost("Login")]
@@ -63,6 +63,7 @@ namespace BeautySky.Controllers
 
             // Tìm người dùng theo UserName hoặc Email
             var user = await _context.Users
+                .Include(u => u.Role)
                 .FirstOrDefaultAsync(u =>
                     (u.UserName == loginRequest.UserName || u.Email == loginRequest.Email) &&
                     u.Password == loginRequest.Password);
@@ -79,8 +80,15 @@ namespace BeautySky.Controllers
             }
             user.Password = null;
             var token = GenerateJwtToken(user);
+            //string roleName = user.Role?.RoleName ?? "Customer";
 
-            return Ok(new { Token = token });
+            return Ok(new
+            {
+                Token = token,
+                RoleId = user.RoleId,
+                //RoleName = roleName
+            });
+
         }
         private string GenerateJwtToken(User user)
         {
@@ -97,12 +105,12 @@ namespace BeautySky.Controllers
             }
 
             var claims = new List<Claim>
-    {
+            {
                 new Claim("id", user.UserId.ToString()),
                 new Claim("name", user.UserName),
                 new Claim("email", user.Email),
                 new Claim("role", roleName)
-    };
+            };
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],
