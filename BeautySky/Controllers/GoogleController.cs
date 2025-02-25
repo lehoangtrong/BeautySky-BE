@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace BeautySky.Controllers
 {
@@ -42,7 +45,12 @@ namespace BeautySky.Controllers
             var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
             var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
-            return Ok(new { Name = name, Email = email });
+            if (email == null)
+                return BadRequest("Email not found in Google response.");
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var token = GenerateJwtToken(user);
+            return Ok(new { Email = email, Token = token, RoleId = user.RoleId, });
         }
 
 
@@ -62,6 +70,40 @@ namespace BeautySky.Controllers
             }
 
             return Ok("Không có thay đổi");
+        }
+
+
+        private string GenerateJwtToken(User user)
+        {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+            string roleName = "Customer";
+            if (user.RoleId.HasValue)
+            {
+                roleName = _context.Roles
+                    .Where(r => r.RoleId == user.RoleId)
+                    .Select(r => r.RoleName)
+                    .FirstOrDefault() ?? "Customer";
+            }
+
+            var claims = new List<Claim>
+            {
+                new Claim("id", user.UserId.ToString()),
+                new Claim("name", user.UserName),
+                new Claim("email", user.Email),
+                new Claim("role", roleName)
+            };
+
+            var token = new JwtSecurityToken(
+                issuer: _configuration["JWT:ValidIssuer"],
+                audience: _configuration["JWT:ValidAudience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(3),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
     }
