@@ -80,7 +80,7 @@ namespace BeautySky.Controllers
             user.Password = null;
             var token = GenerateJwtToken(user);
 
-            return Ok(new { Token = token });
+            return Ok(new { Token = token, role = user.Role });
         }
         private string GenerateJwtToken(User user)
         {

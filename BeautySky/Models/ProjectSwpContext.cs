@@ -410,7 +410,7 @@ public partial class ProjectSwpContext : DbContext
             entity.ToTable("SkinType");
 
             entity.Property(e => e.SkinTypeId).HasColumnName("SkinTypeID");
-            entity.Property(e => e.SkinType1)
+            entity.Property(e => e.SkinTypeName)
                 .HasMaxLength(255)
                 .HasColumnName("SkinType");
         });
