@@ -8,7 +8,7 @@ public partial class SkinType
 {
     public int SkinTypeId { get; set; }
 
-    public string SkinType1 { get; set; } = null!;
+    public string SkinTypeName { get; set; } = null!;
     [JsonIgnore]
     public virtual ICollection<CarePlan> CarePlans { get; set; } = new List<CarePlan>();
     [JsonIgnore]

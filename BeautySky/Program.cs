@@ -1,9 +1,16 @@
-
+﻿
+using Amazon;
+using Amazon.S3;
 using BeautySky.Models;
+using BeautySky.Service;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System;
+using System.Security.Claims;
 using System.Text;
 
 namespace BeautySky
@@ -47,16 +54,21 @@ namespace BeautySky
                 });
             });
 
+
+
             builder.Services.AddDbContext<ProjectSwpContext>(option =>
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"));
             });
+
+
+            // Authentication configuration
             builder.Services.AddAuthentication(option =>
             {
+                option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(option =>
+                option.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            }).AddCookie().AddJwtBearer(option =>
             {
                 option.SaveToken = true;
                 option.RequireHttpsMetadata = false;
@@ -68,7 +80,56 @@ namespace BeautySky
                     ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
                 };
+            }).AddGoogle(option =>
+            {
+                option.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                option.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+                option.CallbackPath = "/signin-google";
+                option.Events.OnCreatingTicket = async context =>
+                {
+                    var dbContext = context.HttpContext.RequestServices.GetService<ProjectSwpContext>();
+
+                    var email = context.Principal.FindFirstValue(ClaimTypes.Email);
+
+                    var name = context.Principal.FindFirstValue(ClaimTypes.Name);
+
+                    var existingUser = dbContext.Users.FirstOrDefault(u => u.Email == email);
+
+                    if (existingUser == null)
+                    {
+                        var newUser = new User
+                        {
+                            UserName = email.Split('@')[0],
+                            FullName = name,
+                            Email = email,
+                            Password = "GOOGLE_LOGIN",
+                            ConfirmPassword = "GOOGLE_LOGIN",
+                            Phone = "Chưa cập nhật",
+                            Address = "Chưa cập nhật",
+                            RoleId = 1,
+                            DateCreate = DateTime.UtcNow,
+                            IsActive = true
+                        };
+                        dbContext.Users.Add(newUser);
+                        await dbContext.SaveChangesAsync();
+                    }
+                };
+
             });
+
+            builder.Services.AddSingleton<IAmazonS3>(option =>
+            {
+                var configuration = option.GetRequiredService<IConfiguration>();
+                return new AmazonS3Client(
+                    configuration["AWS:AccessKey"],
+                    configuration["AWS:SecretKey"],
+                    RegionEndpoint.GetBySystemName(configuration["AWS:Region"])
+                );
+            });
+
+            builder.Services.AddSingleton<S3Service>();
+
+
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",

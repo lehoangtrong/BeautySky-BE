@@ -1,0 +1,68 @@
+﻿using BeautySky.DTO;
+using BeautySky.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
+namespace BeautySky.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class GoogleController : ControllerBase
+    {
+
+        private readonly ProjectSwpContext _context;
+        private readonly IConfiguration _configuration;
+
+        public GoogleController(ProjectSwpContext context, IConfiguration configuration)
+        {
+            _context = context;
+            _configuration = configuration;
+        }
+
+        [HttpGet("google-login")]
+        public IActionResult GoogleLogin()
+        {
+            var properties = new AuthenticationProperties { RedirectUri = Url.Action("GoogleRespone") };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet("google-respone")]
+        public async Task<IActionResult> GoogleRespone()
+        {
+            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
+
+            if (!result.Succeeded)
+                return BadRequest("Google Authentication Failed");
+
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            return Ok(new { Name = name, Email = email });
+        }
+
+
+        [HttpPost("update-profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileModel model)
+        {
+            var user = await _context.Users.FindAsync(model.UserId);
+            if (user == null)
+                return NotFound("Không tìm thấy User");
+
+            user.Phone = string.IsNullOrWhiteSpace(model.Phone) ? user.Phone ?? "Chưa cập nhật" : model.Phone;
+            user.Address = string.IsNullOrWhiteSpace(model.Address) ? user.Address ?? "Chưa cập nhật" : model.Address;
+            if (_context.Entry(user).State == EntityState.Modified)
+            {
+                await _context.SaveChangesAsync();
+                return Ok("Cập nhật thành công");
+            }
+
+            return Ok("Không có thay đổi");
+        }
+
+    }
+}
