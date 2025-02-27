@@ -415,55 +415,19 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "BeautySky.Controllers.ProductsController",
-    "Method": "GetProducts",
-    "RelativePath": "api/Products",
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "GetAllOrders",
+    "RelativePath": "api/Orders",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Product, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
+    "ReturnTypes": []
   },
   {
-    "ContainingType": "BeautySky.Controllers.ProductsController",
-    "Method": "GetProduct",
-    "RelativePath": "api/Products/Get Product By ID",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "BeautySky.Models.Product",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.ProductsController",
-    "Method": "PutProduct",
-    "RelativePath": "api/Products/Product",
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "UpdateOrder",
+    "RelativePath": "api/Orders/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -471,46 +435,20 @@
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": false
+        "IsRequired": true
       },
       {
-        "Name": "product",
-        "Type": "BeautySky.Models.Product",
+        "Name": "order",
+        "Type": "BeautySky.Models.Order",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "BeautySky.Controllers.ProductsController",
-    "Method": "PostProduct",
-    "RelativePath": "api/Products/Product",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "product",
-        "Type": "BeautySky.Models.Product",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "BeautySky.Models.Product",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.ProductsController",
-    "Method": "DeleteProduct",
-    "RelativePath": "api/Products/Product",
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "DeleteOrder",
+    "RelativePath": "api/Orders/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -518,19 +456,60 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "CreateOrder",
+    "RelativePath": "api/Orders/order-products",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userID",
+        "Type": "System.Int32",
         "IsRequired": false
+      },
+      {
+        "Name": "promotionID",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "products",
+        "Type": "System.Collections.Generic.List\u00601[[BeautySky.Controllers.OrderProductRequest, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
     "ContainingType": "BeautySky.Controllers.ProductsController",
-    "Method": "SearchProducts",
-    "RelativePath": "api/Products/Search",
+    "Method": "GetProducts",
+    "RelativePath": "api/Products",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "sortBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "order",
+        "Type": "System.String",
+        "IsRequired": false
+      },
       {
         "Name": "name",
         "Type": "System.String",
@@ -551,72 +530,21 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.ProductsController",
-    "Method": "GetSortedProducts",
-    "RelativePath": "api/Products/Sort",
-    "HttpMethod": "GET",
+    "Method": "PostProduct",
+    "RelativePath": "api/Products",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "sortBy",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "order",
-        "Type": "System.String",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Product, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.ProductsImagesController",
-    "Method": "GetProductsImages",
-    "RelativePath": "api/ProductsImages",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.ProductsImage, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.ProductsImagesController",
-    "Method": "GetProductsImage",
-    "RelativePath": "api/ProductsImages/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
+        "Name": "product",
+        "Type": "BeautySky.Models.Product",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "BeautySky.Models.ProductsImage",
+        "Type": "BeautySky.Models.Product",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -627,9 +555,9 @@
     ]
   },
   {
-    "ContainingType": "BeautySky.Controllers.ProductsImagesController",
-    "Method": "PutProductsImage",
-    "RelativePath": "api/ProductsImages/{id}",
+    "ContainingType": "BeautySky.Controllers.ProductsController",
+    "Method": "PutProduct",
+    "RelativePath": "api/Products/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -640,17 +568,17 @@
         "IsRequired": true
       },
       {
-        "Name": "productsImage",
-        "Type": "BeautySky.Models.ProductsImage",
+        "Name": "product",
+        "Type": "BeautySky.Models.Product",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
   },
   {
-    "ContainingType": "BeautySky.Controllers.ProductsImagesController",
-    "Method": "DeleteProductsImage",
-    "RelativePath": "api/ProductsImages/{id}",
+    "ContainingType": "BeautySky.Controllers.ProductsController",
+    "Method": "DeleteProduct",
+    "RelativePath": "api/Products/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -659,32 +587,6 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.ProductsImagesController",
-    "Method": "UploadImage",
-    "RelativePath": "api/ProductsImages/UploadFile",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "productId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "file",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
-      },
-      {
-        "Name": "imageDescription",
-        "Type": "System.String",
-        "IsRequired": false
       }
     ],
     "ReturnTypes": []
