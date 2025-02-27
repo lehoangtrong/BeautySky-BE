@@ -45,12 +45,12 @@ namespace BeautySky.Controllers
             var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
             var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
             if (email == null)
                 return BadRequest("Email not found in Google response.");
-
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             var token = GenerateJwtToken(user);
-            return Ok(new { Email = email, Token = token, RoleId = user.RoleId, });
+            return Ok(new { Email = email, Token = token, RoleId = user.RoleId});
         }
 
 

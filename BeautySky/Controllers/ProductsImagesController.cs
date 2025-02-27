@@ -47,16 +47,64 @@ namespace BeautySky.Controllers
         }
 
         // PUT: api/ProductsImages/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProductsImage(int id, ProductsImage productsImage)
+
+        [HttpPut("UpdateImage/{id}")]
+        public async Task<IActionResult> PutProductsImage(int id, IFormFile? file, [FromForm] string? imageDescription)
         {
-            if (id != productsImage.ProductsImageId)
+            var existingImage = await _context.ProductsImages.FindAsync(id);
+            if (existingImage == null)
             {
-                return BadRequest();
+                return NotFound("Image not found");
             }
 
-            _context.Entry(productsImage).State = EntityState.Modified;
+            // Cập nhật ImageDescription nếu có
+            if (!string.IsNullOrEmpty(imageDescription))
+            {
+                existingImage.ImageDescription = imageDescription;
+            }
+
+            // Nếu không có file ảnh mới, chỉ cập nhật ImageDescription
+            if (file == null)
+            {
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Image description updated successfully", imageUrl = existingImage.ImageUrl, imageDescription = existingImage.ImageDescription });
+            }
+
+            // Xóa ảnh cũ trong S3 nếu có
+            string oldImageUrl = existingImage.ImageUrl;
+            if (!string.IsNullOrEmpty(oldImageUrl))
+            {
+                var oldFileName = Path.GetFileName(oldImageUrl);
+                var deleteRequest = new DeleteObjectRequest
+                {
+                    BucketName = "beautysky",
+                    Key = $"products/{oldFileName}"
+                };
+
+                var s3Client = new AmazonS3Client(Amazon.RegionEndpoint.APSoutheast2);
+                await s3Client.DeleteObjectAsync(deleteRequest);
+            }
+
+            // Tạo file mới với GUID để tránh trùng tên
+            var newFileName = $"{Guid.NewGuid()}_{file.FileName}";
+            var newFilePath = $"products/{newFileName}";
+
+            using (var stream = file.OpenReadStream())
+            {
+                var uploadRequest = new PutObjectRequest
+                {
+                    BucketName = "beautysky",
+                    Key = newFilePath,
+                    InputStream = stream,
+                    ContentType = file.ContentType
+                };
+
+                var s3Client = new AmazonS3Client(Amazon.RegionEndpoint.APSoutheast2);
+                await s3Client.PutObjectAsync(uploadRequest);
+            }
+
+            // Cập nhật URL ảnh mới trong database
+            existingImage.ImageUrl = $"https://beautysky.s3.amazonaws.com/{newFilePath}";
 
             try
             {
@@ -64,21 +112,15 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductsImageExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the image.");
             }
 
-            return NoContent();
+            return Ok(new { message = "Image updated successfully", imageUrl = existingImage.ImageUrl});
         }
 
+
+
         // POST: api/ProductsImages
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 
         [HttpPost("UploadFile")]
 
@@ -129,8 +171,6 @@ namespace BeautySky.Controllers
             }
 
         }
-
-
         //[HttpPost]
         //public async Task<ActionResult<ProductsImage>> PostProductsImage(ProductsImage productsImage)
         //{

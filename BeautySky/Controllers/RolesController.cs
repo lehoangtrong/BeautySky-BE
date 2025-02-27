@@ -44,14 +44,15 @@ namespace BeautySky.Controllers
         // PUT: api/Roles/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("Update Role")]
-        public async Task<IActionResult> PutRole(int id, Role role)
+        public async Task<IActionResult> PutRole(int id, [FromBody] Role updatedRole)
         {
-            if (id != role.RoleId)
+            var existingRole = await _context.Roles.FindAsync(id);
+            if (existingRole == null)
             {
-                return BadRequest();
+                return NotFound();
             }
-
-            _context.Entry(role).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updatedRole.RoleName))
+                existingRole.RoleName = updatedRole.RoleName;
 
             try
             {
@@ -59,17 +60,10 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!RoleExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the Roles.");
             }
 
-            return NoContent();
+            return Ok("Update Successful");
         }
 
         // POST: api/Roles

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
+using System.Text.Json;
+using BeautySky.DTO;
 
 namespace BeautySky.Controllers
 {
@@ -43,34 +45,48 @@ namespace BeautySky.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("Update User By ID")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        [HttpPut("UpdateUser/{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest updatedUser)
         {
-            if (id != user.UserId)
+            var existingUser = await _context.Users.FindAsync(id);
+            if (existingUser == null)
             {
-                return BadRequest();
+                return NotFound(new { message = "User not found." });
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updatedUser.UserName))
+                existingUser.UserName = updatedUser.UserName;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            if (!string.IsNullOrEmpty(updatedUser.FullName))
+                existingUser.FullName = updatedUser.FullName;
 
-            return NoContent();
+            if (!string.IsNullOrEmpty(updatedUser.Email))
+                existingUser.Email = updatedUser.Email;
+
+            if (!string.IsNullOrEmpty(updatedUser.Password))
+                existingUser.Password = updatedUser.Password;
+
+            if (!string.IsNullOrEmpty(updatedUser.ConfirmPassword))
+                existingUser.ConfirmPassword = updatedUser.ConfirmPassword;
+
+            if (updatedUser.RoleId.HasValue)
+                existingUser.RoleId = updatedUser.RoleId;
+
+            if (!string.IsNullOrEmpty(updatedUser.Phone))
+                existingUser.Phone = updatedUser.Phone;
+
+            if (!string.IsNullOrEmpty(updatedUser.Address))
+                existingUser.Address = updatedUser.Address;
+
+            if (updatedUser.IsActive.HasValue)
+                existingUser.IsActive = updatedUser.IsActive;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Update Successful", user = existingUser });
         }
+
+
+
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -92,7 +108,7 @@ namespace BeautySky.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
+            return Ok("Update Success");
         }
 
         // DELETE: api/Users/5

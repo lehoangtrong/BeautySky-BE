@@ -15,9 +15,9 @@ public partial class User
     public string? FullName { get; set; }
     [Required, EmailAddress]
     public string Email { get; set; } = null!;
-    
+    [Required]
     public string Password { get; set; } = null!;
-    
+    [Required]
     public string ConfirmPassword { get; set; } = null!;
 
     public int? RoleId { get; set; }
@@ -27,6 +27,7 @@ public partial class User
     [RegularExpression(@"^\d+$", ErrorMessage = "Số điện thoại chỉ được chứa chữ số.")]
     [DefaultValue("string")]
     public string? Phone { get; set; }
+
     [Required]
     public string? Address { get; set; }
 
