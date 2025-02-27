@@ -98,16 +98,36 @@ namespace BeautySky.Controllers
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("Product")]
+        [HttpPut("UpdateProductById/{id}")]
         //[Authorize(Roles = "Manager, Staff")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<IActionResult> PutProduct(int id, [FromBody] Product updatedProduct)
         {
-            if (id != product.ProductId)
+            var existingProduct = await _context.Products.FindAsync(id);
+            if (existingProduct == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updatedProduct.ProductName))
+                existingProduct.ProductName = updatedProduct.ProductName;
+
+            if (updatedProduct.Price > 0)
+                existingProduct.Price = updatedProduct.Price;
+
+            if (updatedProduct.Quantity >= 0)
+                existingProduct.Quantity = updatedProduct.Quantity;
+
+            if (!string.IsNullOrEmpty(updatedProduct.Description))
+                existingProduct.Description = updatedProduct.Description;
+
+            if (!string.IsNullOrEmpty(updatedProduct.Ingredient))
+                existingProduct.Ingredient = updatedProduct.Ingredient;
+
+            if (updatedProduct.CategoryId > 0)
+                existingProduct.CategoryId = updatedProduct.CategoryId;
+
+            if (updatedProduct.SkinTypeId > 0)
+                existingProduct.SkinTypeId = updatedProduct.SkinTypeId;
 
             try
             {
@@ -115,17 +135,10 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the product.");
             }
 
-            return NoContent();
+            return Ok();
         }
 
         // POST: api/Products
