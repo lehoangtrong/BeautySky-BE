@@ -44,22 +44,14 @@ namespace BeautySky.Controllers
         // PUT: api/Questions/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutQuestion(int id, [FromBody] Question updatedQuestion)
+        public async Task<IActionResult> PutQuestion(int id, Question question)
         {
-            var existingQuestion = await _context.Questions.FindAsync(id);
-            if (existingQuestion == null)
+            if (id != question.QuestionId)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (updatedQuestion.QuestionId > 0)
-                existingQuestion.QuestionId = updatedQuestion.QuestionId;
-
-            if (!string.IsNullOrEmpty(updatedQuestion.QuestionText))
-                existingQuestion.QuestionText = updatedQuestion.QuestionText;
-
-            if (updatedQuestion.OrderNumber > 0)
-                existingQuestion.OrderNumber = updatedQuestion.OrderNumber;
+            _context.Entry(question).State = EntityState.Modified;
 
             try
             {
@@ -67,10 +59,17 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                return StatusCode(500, "Concurrency error occurred while updating the Question.");
+                if (!QuestionExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            return Ok("Update Successful");
+            return NoContent();
         }
 
         // POST: api/Questions

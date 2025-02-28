@@ -161,38 +161,65 @@ namespace BeautySky.Controllers
             {
                 return StatusCode(500, "Concurrency error occurred while updating the product.");
             }
+            catch (Exception ex)
+            {
+                // Log the exception (important!)
+                Console.WriteLine($"Error updating product: {ex}");
+                return StatusCode(500, "An unexpected error occurred.");
+            }
 
             return Ok();
         }
 
+
         // POST: api/Products
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("Product")]
+        [HttpPost]
         //[Authorize(Roles = "Manager, Staff")]
         public async Task<ActionResult<Product>> PostProduct(Product product)
         {
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetProduct", new { id = product.ProductId }, product);
+                return CreatedAtAction(nameof(GetProducts), new { id = product.ProductId }, new { message = "Product created successfully.", product });
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error creating product: {ex}");
+                return StatusCode(500, "An error occurred while creating the product.");
+            }
         }
 
+
         // DELETE: api/Products/5
-        [HttpDelete("Product")]
+        [HttpDelete("{id}")]
         //[Authorize(Roles = "Manager")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                var product = await _context.Products.FindAsync(id);
+                if (product == null)
+                {
+                    return NotFound("Product not found.");
+                }
+
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Product deleted successfully." });
             }
-
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                // Log the exception
+                Console.WriteLine($"Error deleting product: {ex}");
+                return StatusCode(500, "An error occurred while deleting the product.");
+            }
         }
+
 
         private bool ProductExists(int id)
         {

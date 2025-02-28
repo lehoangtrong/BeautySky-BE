@@ -44,16 +44,14 @@ namespace BeautySky.Controllers
         // PUT: api/SkinTypes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSkinType(int id, [FromBody] SkinType updatedSkinType)
+        public async Task<IActionResult> PutSkinType(int id, SkinType skinType)
         {
-            var existingSkinTypes = await _context.SkinTypes.FindAsync(id);
-            if (existingSkinTypes == null)
+            if (id != skinType.SkinTypeId)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (!string.IsNullOrEmpty(updatedSkinType.SkinTypeName))
-                existingSkinTypes.SkinTypeName = updatedSkinType.SkinTypeName;
+            _context.Entry(skinType).State = EntityState.Modified;
 
             try
             {
@@ -61,10 +59,17 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                return StatusCode(500, "Concurrency error occurred while updating the skinType.");
+                if (!SkinTypeExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            return Ok("Update Successful");
+            return NoContent();
         }
 
         // POST: api/SkinTypes

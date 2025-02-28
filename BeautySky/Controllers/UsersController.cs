@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
-using System.Text.Json;
-using BeautySky.DTO;
 
 namespace BeautySky.Controllers
 {
@@ -23,14 +21,14 @@ namespace BeautySky.Controllers
         }
 
         // GET: api/Users
-        [HttpGet("Get All User")]
+        [HttpGet("Get All User that that can only be used by Staff, Manager")]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
         // GET: api/Users/5
-        [HttpGet("Get User By ID")]
+        [HttpGet("Get User By ID that that can only be used by Staff, Manager")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -45,48 +43,34 @@ namespace BeautySky.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("UpdateUser/{id}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest updatedUser)
+        [HttpPut("Update User By ID that that can only be used by Staff, Manager")]
+        public async Task<IActionResult> PutUser(int id, User user)
         {
-            var existingUser = await _context.Users.FindAsync(id);
-            if (existingUser == null)
+            if (id != user.UserId)
             {
-                return NotFound(new { message = "User not found." });
+                return BadRequest();
             }
 
-            if (!string.IsNullOrEmpty(updatedUser.UserName))
-                existingUser.UserName = updatedUser.UserName;
+            _context.Entry(user).State = EntityState.Modified;
 
-            if (!string.IsNullOrEmpty(updatedUser.FullName))
-                existingUser.FullName = updatedUser.FullName;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!UserExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
 
-            if (!string.IsNullOrEmpty(updatedUser.Email))
-                existingUser.Email = updatedUser.Email;
-
-            if (!string.IsNullOrEmpty(updatedUser.Password))
-                existingUser.Password = updatedUser.Password;
-
-            if (!string.IsNullOrEmpty(updatedUser.ConfirmPassword))
-                existingUser.ConfirmPassword = updatedUser.ConfirmPassword;
-
-            if (updatedUser.RoleId.HasValue)
-                existingUser.RoleId = updatedUser.RoleId;
-
-            if (!string.IsNullOrEmpty(updatedUser.Phone))
-                existingUser.Phone = updatedUser.Phone;
-
-            if (!string.IsNullOrEmpty(updatedUser.Address))
-                existingUser.Address = updatedUser.Address;
-
-            if (updatedUser.IsActive.HasValue)
-                existingUser.IsActive = updatedUser.IsActive;
-
-            await _context.SaveChangesAsync();
-            return Ok(new { message = "Update Successful", user = existingUser });
+            return NoContent();
         }
-
-
-
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -108,11 +92,11 @@ namespace BeautySky.Controllers
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
 
-            return Ok("Update Success");
+            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
         }
 
         // DELETE: api/Users/5
-        [HttpDelete("Delete User By ID")]
+        [HttpDelete("Delete User By ID that can only be used by Staff, Manager")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);

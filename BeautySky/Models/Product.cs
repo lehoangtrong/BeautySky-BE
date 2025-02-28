@@ -8,14 +8,19 @@ namespace BeautySky.Models;
 public partial class Product
 {
     public int ProductId { get; set; }
+    [Required]
     public string ProductName { get; set; } = null!;
     [Range(0, double.MaxValue)]
     public decimal Price { get; set; }
     [Range(0, 1000)]
-    public int? Quantity { get; set; }
+    public int Quantity { get; set; }
+    [Required]
     public string? Description { get; set; }
+    [Required]
     public string? Ingredient { get; set; }
+    [Required]
     public int? CategoryId { get; set; }
+    [Required]
     public int? SkinTypeId { get; set; }
 
     [JsonIgnore]
