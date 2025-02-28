@@ -164,6 +164,7 @@ namespace BeautySky.Controllers
                 await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Upload successful", imageUrl = fileUrl });
+
             }
             catch (Exception ex)
             {

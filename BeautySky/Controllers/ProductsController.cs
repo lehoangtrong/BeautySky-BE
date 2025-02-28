@@ -21,78 +21,102 @@ namespace BeautySky.Controllers
             _context = context;
         }
 
-        // GET: api/Products
+
+
         [HttpGet]
         //[Authorize(Roles = "Manager, Staff")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
+    int? id = null,
+    string? sortBy = null,
+    string? order = null,
+    string? name = null)
         {
-            return await _context.Products.ToListAsync();
-        }
+            IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages);
 
-        // GET: api/Products/5
-        [HttpGet("Get Product By ID")]
-        //[Authorize(Roles = "Manager, Staff")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
+            // Lấy theo ID
+            if (id.HasValue)
+            {
+                var product = await _context.Products.Include(p => p.ProductsImages).FirstOrDefaultAsync(p => p.ProductId == id);
 
-            if (product == null)
-            {   
-                return NotFound();
+                if (product == null)
+                {
+                    return NotFound("Product not found.");
+                }
+
+                return Ok(new List<Product> { product }); // Trả về một danh sách chứa sản phẩm
             }
 
-            return product;
-        }
-
-        // GET: api/Products/Sort
-        [HttpGet("Sort")]
-        //[Authorize(Roles = "Manager, Staff")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetSortedProducts(
-            [FromQuery] string sortBy = "ProductName",
-            [FromQuery] string order = "asc")
-        {
-            IQueryable<Product> products = _context.Products;
-
-            // Xử lý sắp xếp
-            switch (sortBy.ToLower())
+            // Tìm kiếm theo tên
+            if (!string.IsNullOrWhiteSpace(name))
             {
-                case "productname":
-                    products = (order.ToLower() == "desc")
-                        ? products.OrderByDescending(p => p.ProductName)
-                        : products.OrderBy(p => p.ProductName);
-                    break;
-                case "price":
-                    products = (order.ToLower() == "desc")
-                        ? products.OrderByDescending(p => p.Price)
-                        : products.OrderBy(p => p.Price);
-                    break;
-                default:
-                    return BadRequest("Invalid sortBy parameter. Use 'ProductName' or 'Price'.");
+                products = products.Where(p => p.ProductName.Contains(name));
+                if (!await products.AnyAsync())
+                {
+                    return NotFound("No products found matching the search criteria.");
+                }
+            }
+
+            // Sắp xếp
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "productname":
+                        products = (order?.ToLower() == "desc")
+                            ? products.OrderByDescending(p => p.ProductName)
+                            : products.OrderBy(p => p.ProductName);
+                        break;
+                    case "price":
+                        products = (order?.ToLower() == "desc")
+                            ? products.OrderByDescending(p => p.Price)
+                            : products.OrderBy(p => p.Price);
+                        break;
+                    default:
+                        return BadRequest("Invalid sortBy parameter. Use 'ProductName' or 'Price'.");
+                }
             }
 
             return await products.ToListAsync();
         }
 
-        // GET: api/Products/Search
-        [HttpGet("Search")]
-        //[Authorize(Roles = "Manager, Staff")]
-        public async Task<ActionResult<IEnumerable<Product>>> SearchProducts([FromQuery] string name)
+
+        // GET: api/Products
+        //[HttpGet]
+        ////[Authorize(Roles = "Manager, Staff")]
+        //public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        //{
+        //    var products = await _context.Products.Include(p => p.ProductsImages).ToListAsync();
+
+        //    foreach (var product in products)
+        //    {
+        //        foreach (var image in product.ProductsImages)
+        //        {
+        //            image.ImageUrl = image.ImageUrl;
+        //        }
+        //    }
+
+        //    return Ok(products);
+        //}
+
+        // GET: api/Products/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            if (string.IsNullOrWhiteSpace(name))
+            var product = await _context.Products
+                .Include(p => p.ProductsImages) 
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
             {
-                return BadRequest("Product name cannot be empty.");
+                return NotFound();
             }
 
-            var products = await _context.Products
-                .Where(p => p.ProductName.Contains(name))
-                .ToListAsync();
-
-            if (!products.Any())
+            foreach (var image in product.ProductsImages)
             {
-                return NotFound("No products found.");
+                image.ImageUrl = image.ImageUrl;
             }
 
-            return products;
+            return Ok(product);
         }
 
 
