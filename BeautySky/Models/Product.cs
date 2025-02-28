@@ -29,7 +29,7 @@ public partial class Product
     public virtual Category? Category { get; set; }
     [JsonIgnore]
     public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
-    [JsonIgnore]
+    //[JsonIgnore]
     public virtual ICollection<ProductsImage> ProductsImages { get; set; } = new List<ProductsImage>();
     [JsonIgnore]
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();

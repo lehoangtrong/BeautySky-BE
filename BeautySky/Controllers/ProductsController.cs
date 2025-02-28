@@ -25,17 +25,17 @@ namespace BeautySky.Controllers
         [HttpGet]
         //[Authorize(Roles = "Manager, Staff")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
-            int? id = null,
-            string? sortBy = null,
-            string? order = null,
-            string? name = null)
+    int? id = null,
+    string? sortBy = null,
+    string? order = null,
+    string? name = null)
         {
-            IQueryable<Product> products = _context.Products;
+            IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages);
 
             // Lấy theo ID
             if (id.HasValue)
             {
-                var product = await _context.Products.FindAsync(id);
+                var product = await _context.Products.Include(p => p.ProductsImages).FirstOrDefaultAsync(p => p.ProductId == id);
 
                 if (product == null)
                 {
@@ -77,7 +77,6 @@ namespace BeautySky.Controllers
 
             return await products.ToListAsync();
         }
-
 
 
         // PUT: api/Products/5
