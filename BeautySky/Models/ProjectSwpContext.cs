@@ -176,7 +176,7 @@ public partial class ProjectSwpContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__News__3214EC279CD70D25");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Content).HasMaxLength(255);
+            entity.Property(e => e.Content).HasColumnType("text");
             entity.Property(e => e.CreateDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");

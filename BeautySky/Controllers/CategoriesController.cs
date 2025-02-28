@@ -44,25 +44,32 @@ namespace BeautySky.Controllers
         // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, [FromBody] Category updateCategory)
+        public async Task<IActionResult> PutCategory(int id, Category category)
         {
-            var existingCategory = await _context.Categories.FindAsync(id);
-            if (existingCategory == null)
+            if (id != category.CategoryId)
             {
-                return NotFound();
+                return BadRequest();
             }
-            if (!string.IsNullOrEmpty(updateCategory.CategoryName))
-                existingCategory.CategoryName = updateCategory.CategoryName;
+
+            _context.Entry(category).State = EntityState.Modified;
+
             try
             {
                 await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                return StatusCode(500, "Concurrency error occurred while updating the category.");
+                if (!CategoryExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
-            return Ok("Update Successful");
+            return NoContent();
         }
 
         // POST: api/Categories
