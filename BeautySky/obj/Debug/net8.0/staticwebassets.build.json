@@ -1,12 +1,11 @@
 {
   "Version": 1,
-  "Hash": "GbB0HCkGgw5oVnwI1uVIkXsifQxxxZWUiZItQEtYTrs=",
+  "Hash": "SfUfEEAt16ct8UnETcXv3/QzMh5uIICpIIlKGaaGPkg=",
   "Source": "BeautySky",
   "BasePath": "_content/BeautySky",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [],
   "DiscoveryPatterns": [],
-  "Assets": [],
-  "Endpoints": []
+  "Assets": []
 }
