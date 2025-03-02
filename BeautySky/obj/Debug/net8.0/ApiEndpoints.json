@@ -246,7 +246,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updateCategory",
+        "Name": "category",
         "Type": "BeautySky.Models.Category",
         "IsRequired": true
       }
@@ -391,7 +391,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updatedNews",
+        "Name": "news",
         "Type": "BeautySky.Models.News",
         "IsRequired": true
       }
@@ -409,6 +409,79 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "GetAllOrders",
+    "RelativePath": "api/Orders",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "UpdateOrder",
+    "RelativePath": "api/Orders/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "order",
+        "Type": "BeautySky.Models.Order",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "DeleteOrder",
+    "RelativePath": "api/Orders/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "CreateOrder",
+    "RelativePath": "api/Orders/order-products",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userID",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "promotionID",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "products",
+        "Type": "System.Collections.Generic.List\u00601[[BeautySky.Controllers.OrderProductRequest, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": true
       }
     ],
@@ -457,6 +530,32 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.ProductsController",
+    "Method": "PostProduct",
+    "RelativePath": "api/Products",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "product",
+        "Type": "BeautySky.Models.Product",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BeautySky.Models.Product",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.ProductsController",
     "Method": "GetProduct",
     "RelativePath": "api/Products/{id}",
     "HttpMethod": "GET",
@@ -483,34 +582,8 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.ProductsController",
-    "Method": "PostProduct",
-    "RelativePath": "api/Products/Product",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "product",
-        "Type": "BeautySky.Models.Product",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "BeautySky.Models.Product",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.ProductsController",
     "Method": "DeleteProduct",
-    "RelativePath": "api/Products/Product",
+    "RelativePath": "api/Products/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -518,7 +591,7 @@
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": false
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -592,24 +665,8 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.ProductsImagesController",
-    "Method": "DeleteProductsImage",
-    "RelativePath": "api/ProductsImages/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.ProductsImagesController",
     "Method": "PutProductsImage",
-    "RelativePath": "api/ProductsImages/UpdateImage/{id}",
+    "RelativePath": "api/ProductsImages/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -628,6 +685,22 @@
         "Name": "imageDescription",
         "Type": "System.String",
         "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.ProductsImagesController",
+    "Method": "DeleteProductsImage",
+    "RelativePath": "api/ProductsImages/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -744,7 +817,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updatedQuestion",
+        "Name": "question",
         "Type": "BeautySky.Models.Question",
         "IsRequired": true
       }
@@ -853,7 +926,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updatedQuiz",
+        "Name": "quiz",
         "Type": "BeautySky.Models.Quiz",
         "IsRequired": true
       }
@@ -988,7 +1061,7 @@
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "PostRole",
-    "RelativePath": "api/Roles/Add Role",
+    "RelativePath": "api/Roles/Add Role that can only be used by Staff, Manager",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -1014,7 +1087,7 @@
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "DeleteRole",
-    "RelativePath": "api/Roles/Delete Role By ID",
+    "RelativePath": "api/Roles/Delete Role By ID that can only be used by Staff, Manager",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -1029,28 +1102,8 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
-    "Method": "GetRoles",
-    "RelativePath": "api/Roles/Get all Role",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Role, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "GetRole",
-    "RelativePath": "api/Roles/Get Role By ID",
+    "RelativePath": "api/Roles/Get all Role By ID that can only be used by Staff, Manager",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -1075,8 +1128,28 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
+    "Method": "GetRoles",
+    "RelativePath": "api/Roles/Get all Role that can only be used by Staff, Manager",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Role, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "PutRole",
-    "RelativePath": "api/Roles/Update Role",
+    "RelativePath": "api/Roles/Update Role that can only be used by Staff, Manager",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -1087,7 +1160,7 @@
         "IsRequired": false
       },
       {
-        "Name": "updatedRole",
+        "Name": "role",
         "Type": "BeautySky.Models.Role",
         "IsRequired": true
       }
@@ -1180,7 +1253,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updatedSkinType",
+        "Name": "skinType",
         "Type": "BeautySky.Models.SkinType",
         "IsRequired": true
       }
@@ -1206,7 +1279,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "DeleteUser",
-    "RelativePath": "api/Users/Delete User By ID",
+    "RelativePath": "api/Users/Delete User By ID that can only be used by Staff, Manager",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -1222,7 +1295,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "GetUsers",
-    "RelativePath": "api/Users/Get All User",
+    "RelativePath": "api/Users/Get All User that that can only be used by Staff, Manager",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -1242,7 +1315,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "GetUser",
-    "RelativePath": "api/Users/Get User By ID",
+    "RelativePath": "api/Users/Get User By ID that that can only be used by Staff, Manager",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -1293,8 +1366,8 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
-    "Method": "UpdateUser",
-    "RelativePath": "api/Users/UpdateUser/{id}",
+    "Method": "PutUser",
+    "RelativePath": "api/Users/Update User By ID that that can only be used by Staff, Manager",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -1302,11 +1375,11 @@
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       },
       {
-        "Name": "updatedUser",
-        "Type": "BeautySky.DTO.UpdateUserRequest",
+        "Name": "user",
+        "Type": "BeautySky.Models.User",
         "IsRequired": true
       }
     ],

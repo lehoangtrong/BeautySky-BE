@@ -26,10 +26,11 @@ namespace BeautySky.Controllers
         [HttpGet]
         //[Authorize(Roles = "Manager, Staff")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
-    int? id = null,
-    string? sortBy = null,
-    string? order = null,
-    string? name = null)
+
+            int? id = null,
+            string? sortBy = null,
+            string? order = null,
+            string? name = null)
         {
             IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages);
 
@@ -78,25 +79,6 @@ namespace BeautySky.Controllers
 
             return await products.ToListAsync();
         }
-
-
-        // GET: api/Products
-        //[HttpGet]
-        ////[Authorize(Roles = "Manager, Staff")]
-        //public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
-        //{
-        //    var products = await _context.Products.Include(p => p.ProductsImages).ToListAsync();
-
-        //    foreach (var product in products)
-        //    {
-        //        foreach (var image in product.ProductsImages)
-        //        {
-        //            image.ImageUrl = image.ImageUrl;
-        //        }
-        //    }
-
-        //    return Ok(products);
-        //}
 
         // GET: api/Products/5
         [HttpGet("{id}")]
@@ -218,12 +200,6 @@ namespace BeautySky.Controllers
                 Console.WriteLine($"Error deleting product: {ex}");
                 return StatusCode(500, "An error occurred while deleting the product.");
             }
-        }
-
-
-        private bool ProductExists(int id)
-        {
-            return _context.Products.Any(e => e.ProductId == id);
         }
     }
 }
