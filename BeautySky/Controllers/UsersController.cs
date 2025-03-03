@@ -22,14 +22,14 @@ namespace BeautySky.Controllers
         }
 
         // GET: api/Users
-        [HttpGet("Get All User")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
         // GET: api/Users/5
-        [HttpGet("Get User By ID")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -44,7 +44,7 @@ namespace BeautySky.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("UpdateUser/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest updatedUser)
         {
             var existingUser = await _context.Users.FindAsync(id);
@@ -85,7 +85,7 @@ namespace BeautySky.Controllers
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("Register")]
+        [HttpPost]
         public async Task<ActionResult<User>> Register(User user)
         {
 
@@ -107,7 +107,7 @@ namespace BeautySky.Controllers
         }
 
         // DELETE: api/Users/5
-        [HttpDelete("Delete User By ID")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
