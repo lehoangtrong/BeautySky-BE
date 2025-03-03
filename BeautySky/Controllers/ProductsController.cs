@@ -21,14 +21,16 @@ namespace BeautySky.Controllers
             _context = context;
         }
 
-        // GET: api/Products
+
+
         [HttpGet]
         //[Authorize(Roles = "Manager, Staff")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
-    int? id = null,
-    string? sortBy = null,
-    string? order = null,
-    string? name = null)
+
+            int? id = null,
+            string? sortBy = null,
+            string? order = null,
+            string? name = null)
         {
             IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages);
 
@@ -78,19 +80,60 @@ namespace BeautySky.Controllers
             return await products.ToListAsync();
         }
 
+        // GET: api/Products/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> GetProduct(int id)
+        {
+            var product = await _context.Products
+                .Include(p => p.ProductsImages) 
+                .FirstOrDefaultAsync(p => p.ProductId == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var image in product.ProductsImages)
+            {
+                image.ImageUrl = image.ImageUrl;
+            }
+
+            return Ok(product);
+        }
+
 
         // PUT: api/Products/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("UpdateProductById/{id}")]
         //[Authorize(Roles = "Manager, Staff")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<IActionResult> PutProduct(int id, [FromBody] Product updatedProduct)
         {
-            if (id != product.ProductId)
+            var existingProduct = await _context.Products.FindAsync(id);
+            if (existingProduct == null)
             {
-                return BadRequest("ID in the request body does not match the ID in the route.");
+                return NotFound();
             }
 
-            _context.Entry(product).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updatedProduct.ProductName))
+                existingProduct.ProductName = updatedProduct.ProductName;
+
+            if (updatedProduct.Price > 0)
+                existingProduct.Price = updatedProduct.Price;
+
+            if (updatedProduct.Quantity >= 0)
+                existingProduct.Quantity = updatedProduct.Quantity;
+
+            if (!string.IsNullOrEmpty(updatedProduct.Description))
+                existingProduct.Description = updatedProduct.Description;
+
+            if (!string.IsNullOrEmpty(updatedProduct.Ingredient))
+                existingProduct.Ingredient = updatedProduct.Ingredient;
+
+            if (updatedProduct.CategoryId > 0)
+                existingProduct.CategoryId = updatedProduct.CategoryId;
+
+            if (updatedProduct.SkinTypeId > 0)
+                existingProduct.SkinTypeId = updatedProduct.SkinTypeId;
 
             try
             {
@@ -98,14 +141,7 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProductExists(id))
-                {
-                    return NotFound("Product not found.");
-                }
-                else
-                {
-                    return StatusCode(500, "An error occurred while updating the product.  Please try again."); // More informative error.
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the product.");
             }
             catch (Exception ex)
             {
@@ -114,7 +150,7 @@ namespace BeautySky.Controllers
                 return StatusCode(500, "An unexpected error occurred.");
             }
 
-            return Ok(new { message = "Product updated successfully." });
+            return Ok();
         }
 
 
@@ -164,12 +200,6 @@ namespace BeautySky.Controllers
                 Console.WriteLine($"Error deleting product: {ex}");
                 return StatusCode(500, "An error occurred while deleting the product.");
             }
-        }
-
-
-        private bool ProductExists(int id)
-        {
-            return _context .Products.Any(e => e.ProductId == id);
         }
     }
 }

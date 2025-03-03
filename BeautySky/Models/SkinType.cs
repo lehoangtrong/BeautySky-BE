@@ -13,4 +13,6 @@ public partial class SkinType
     public virtual ICollection<CarePlan> CarePlans { get; set; } = new List<CarePlan>();
     [JsonIgnore]
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+    [JsonIgnore]
+    public virtual ICollection<UserAnswer> UserAnswers { get; set; } = new List<UserAnswer>();
 }

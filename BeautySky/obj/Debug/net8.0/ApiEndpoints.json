@@ -674,9 +674,9 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.ProductsController",
-    "Method": "PutProduct",
+    "Method": "GetProduct",
     "RelativePath": "api/Products/{id}",
-    "HttpMethod": "PUT",
+    "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [
@@ -684,14 +684,19 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
-      },
-      {
-        "Name": "product",
-        "Type": "BeautySky.Models.Product",
-        "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "BeautySky.Models.Product",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "BeautySky.Controllers.ProductsController",
@@ -704,6 +709,27 @@
       {
         "Name": "id",
         "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.ProductsController",
+    "Method": "PutProduct",
+    "RelativePath": "api/Products/UpdateProductById/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "updatedProduct",
+        "Type": "BeautySky.Models.Product",
         "IsRequired": true
       }
     ],
