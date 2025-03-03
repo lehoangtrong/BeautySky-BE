@@ -19,7 +19,6 @@ public partial class Blog
     public DateTime? UpdatedDate { get; set; }
 
     public string Status { get; set; } = null!;
-
     [JsonIgnore]
     public virtual User? Author { get; set; }
 }

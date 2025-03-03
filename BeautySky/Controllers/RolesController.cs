@@ -21,14 +21,14 @@ namespace BeautySky.Controllers
         }
 
         // GET: api/Roles
-        [HttpGet("Get all Role that can only be used by Staff, Manager")]
+        [HttpGet("Get all Role")]
         public async Task<ActionResult<IEnumerable<Role>>> GetRoles()
         {
             return await _context.Roles.ToListAsync();
         }
 
         // GET: api/Roles/5
-        [HttpGet("Get all Role By ID that can only be used by Staff, Manager")]
+        [HttpGet("Get Role By ID")]
         public async Task<ActionResult<Role>> GetRole(int id)
         {
             var role = await _context.Roles.FindAsync(id);
@@ -43,15 +43,17 @@ namespace BeautySky.Controllers
 
         // PUT: api/Roles/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("Update Role that can only be used by Staff, Manager")]
-        public async Task<IActionResult> PutRole(int id, Role role)
+        [HttpPut("Update Role")]
+        public async Task<IActionResult> PutRole(int id, [FromBody] Role updatedRole)
         {
-            if (id != role.RoleId)
+            var existingRole = await _context.Roles.FindAsync(id);
+            if (existingRole == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(role).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updatedRole.RoleName))
+                existingRole.RoleName = updatedRole.RoleName;
 
             try
             {
@@ -59,22 +61,15 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!RoleExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the Roles.");
             }
 
-            return NoContent();
+            return Ok("Update Successful");
         }
 
         // POST: api/Roles
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("Add Role that can only be used by Staff, Manager")]
+        [HttpPost("Add Role")]
         public async Task<ActionResult<Role>> PostRole(Role role)
         {
             _context.Roles.Add(role);
@@ -84,7 +79,7 @@ namespace BeautySky.Controllers
         }
 
         // DELETE: api/Roles/5
-        [HttpDelete("Delete Role By ID that can only be used by Staff, Manager")]
+        [HttpDelete("Delete Role")]
         public async Task<IActionResult> DeleteRole(int id)
         {
             var role = await _context.Roles.FindAsync(id);

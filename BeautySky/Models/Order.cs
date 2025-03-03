@@ -23,16 +23,12 @@ public partial class Order
     public int? PaymentId { get; set; }
 
     public string Status { get; set; } = null!;
-
     [JsonIgnore]
     public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
-
     [JsonIgnore]
     public virtual Payment? Payment { get; set; }
-
     [JsonIgnore]
     public virtual Promotion? Promotion { get; set; }
-
     [JsonIgnore]
     public virtual User? User { get; set; }
 }

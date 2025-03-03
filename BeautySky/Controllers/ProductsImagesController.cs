@@ -173,16 +173,6 @@ namespace BeautySky.Controllers
 
         }
 
-
-        //[HttpPost]
-        //public async Task<ActionResult<ProductsImage>> PostProductsImage(ProductsImage productsImage)
-        //{
-        //    _context.ProductsImages.Add(productsImage);
-        //    await _context.SaveChangesAsync();
-
-        //    return CreatedAtAction("GetProductsImage", new { id = productsImage.ProductsImageId }, productsImage);
-        //}
-
         // DELETE: api/ProductsImages/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProductsImage(int id)

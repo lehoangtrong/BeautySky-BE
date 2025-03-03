@@ -44,14 +44,21 @@ namespace BeautySky.Controllers
         // PUT: api/Quizs/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutQuiz(int id, Quiz quiz)
+        public async Task<IActionResult> PutQuiz(int id, [FromBody] Quiz updatedQuiz)
         {
-            if (id != quiz.QuizId)
+            var existingQuiz = await _context.Quizzes.FindAsync(id);
+            if (existingQuiz == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(quiz).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updatedQuiz.QuizName))
+                existingQuiz.QuizName = updatedQuiz.QuizName;
+
+            if (!string.IsNullOrEmpty(updatedQuiz.Description))
+                existingQuiz.Description = updatedQuiz.Description;
+            if (updatedQuiz.DateCreated.HasValue)
+                existingQuiz.DateCreated = updatedQuiz.DateCreated;
 
             try
             {
@@ -59,17 +66,10 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!QuizExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the Quiz.");
             }
 
-            return NoContent();
+            return Ok("Update Successful");
         }
 
         // POST: api/Quizs

@@ -98,7 +98,7 @@ namespace BeautySky.Controllers
 
             var claims = new List<Claim>
     {
-                new Claim("id", user.UserId.ToString()),
+                new Claim("userId", user.UserId.ToString()),
                 new Claim("name", user.UserName),
                 new Claim("email", user.Email),
                 new Claim("role", roleName)

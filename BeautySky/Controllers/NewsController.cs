@@ -44,14 +44,31 @@ namespace BeautySky.Controllers
         // PUT: api/News/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutNews(int id, News news)
+        public async Task<IActionResult> PutNews(int id, [FromBody] News updatedNews)
         {
-            if (id != news.Id)
+            var existingNews = await _context.News.FindAsync(id);
+            if (existingNews == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(news).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updatedNews.Title))
+                existingNews.Title = updatedNews.Title;
+
+            if (!string.IsNullOrEmpty(updatedNews.Content))
+                existingNews.Content = updatedNews.Content;
+
+            if (updatedNews.CreateDate.HasValue)
+                existingNews.CreateDate = updatedNews.CreateDate;
+
+            if (updatedNews.StartDate.HasValue)
+                existingNews.StartDate = updatedNews.StartDate;
+
+            if (updatedNews.EndDate.HasValue)
+                existingNews.EndDate = updatedNews.EndDate;
+
+            if (!string.IsNullOrEmpty(updatedNews.ImageUrl))
+                existingNews.ImageUrl = updatedNews.ImageUrl;
 
             try
             {
@@ -59,17 +76,10 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!NewsExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the News.");
             }
 
-            return NoContent();
+            return Ok("Update Successful");
         }
 
         // POST: api/News
