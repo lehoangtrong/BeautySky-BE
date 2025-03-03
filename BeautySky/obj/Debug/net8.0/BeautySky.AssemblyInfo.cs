@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("BeautySky")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+530b7a2e809902287601e190ff0fa4a51cab0883")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9eaa0caa4190e3daf6972b56def7c52efc2abe49")]
 [assembly: System.Reflection.AssemblyProductAttribute("BeautySky")]
 [assembly: System.Reflection.AssemblyTitleAttribute("BeautySky")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

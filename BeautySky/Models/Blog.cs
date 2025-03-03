@@ -19,6 +19,12 @@ public partial class Blog
     public DateTime? UpdatedDate { get; set; }
 
     public string Status { get; set; } = null!;
+    public string? SkinType { get; set; }
+    public string? Category { get; set; }
+
+    public string? ImgURL { get; set; }
+
+
     [JsonIgnore]
     public virtual User? Author { get; set; }
 }

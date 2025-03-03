@@ -437,7 +437,7 @@
         "IsRequired": true
       },
       {
-        "Name": "category",
+        "Name": "updateCategory",
         "Type": "BeautySky.Models.Category",
         "IsRequired": true
       }
@@ -582,7 +582,7 @@
         "IsRequired": true
       },
       {
-        "Name": "news",
+        "Name": "updatedNews",
         "Type": "BeautySky.Models.News",
         "IsRequired": true
       }
@@ -935,7 +935,7 @@
         "IsRequired": true
       },
       {
-        "Name": "question",
+        "Name": "updatedQuestion",
         "Type": "BeautySky.Models.Question",
         "IsRequired": true
       }
@@ -1044,7 +1044,7 @@
         "IsRequired": true
       },
       {
-        "Name": "quiz",
+        "Name": "updatedQuiz",
         "Type": "BeautySky.Models.Quiz",
         "IsRequired": true
       }
@@ -1179,7 +1179,7 @@
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "PostRole",
-    "RelativePath": "api/Roles/Add Role that can only be used by Staff, Manager",
+    "RelativePath": "api/Roles/Add Role",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -1205,7 +1205,7 @@
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "DeleteRole",
-    "RelativePath": "api/Roles/Delete Role By ID that can only be used by Staff, Manager",
+    "RelativePath": "api/Roles/Delete Role",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -1220,8 +1220,28 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
+    "Method": "GetRoles",
+    "RelativePath": "api/Roles/Get all Role",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Role, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "GetRole",
-    "RelativePath": "api/Roles/Get all Role By ID that can only be used by Staff, Manager",
+    "RelativePath": "api/Roles/Get Role By ID",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -1246,28 +1266,8 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.RolesController",
-    "Method": "GetRoles",
-    "RelativePath": "api/Roles/Get all Role that can only be used by Staff, Manager",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Role, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.RolesController",
     "Method": "PutRole",
-    "RelativePath": "api/Roles/Update Role that can only be used by Staff, Manager",
+    "RelativePath": "api/Roles/Update Role",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -1278,7 +1278,7 @@
         "IsRequired": false
       },
       {
-        "Name": "role",
+        "Name": "updatedRole",
         "Type": "BeautySky.Models.Role",
         "IsRequired": true
       }
@@ -1371,7 +1371,7 @@
         "IsRequired": true
       },
       {
-        "Name": "skinType",
+        "Name": "updatedSkinType",
         "Type": "BeautySky.Models.SkinType",
         "IsRequired": true
       }
@@ -1395,9 +1395,25 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "BeautySky.Controllers.TestSkinTypeController",
+    "Method": "SubmitQuiz",
+    "RelativePath": "api/TestSkinType/SubmitQuiz",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userAnswers",
+        "Type": "System.Collections.Generic.List\u00601[[BeautySky.DTO.UserAnswerDto, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "DeleteUser",
-    "RelativePath": "api/Users/Delete User By ID that can only be used by Staff, Manager",
+    "RelativePath": "api/Users/Delete User By ID",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -1413,7 +1429,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "GetUsers",
-    "RelativePath": "api/Users/Get All User that that can only be used by Staff, Manager",
+    "RelativePath": "api/Users/Get All User",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -1433,7 +1449,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "GetUser",
-    "RelativePath": "api/Users/Get User By ID that that can only be used by Staff, Manager",
+    "RelativePath": "api/Users/Get User By ID",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -1459,7 +1475,7 @@
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
     "Method": "Register",
-    "RelativePath": "api/Users/Register that can only use by Staff, Manager",
+    "RelativePath": "api/Users/Register",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -1484,8 +1500,8 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.UsersController",
-    "Method": "PutUser",
-    "RelativePath": "api/Users/Update User By ID that that can only be used by Staff, Manager",
+    "Method": "UpdateUser",
+    "RelativePath": "api/Users/UpdateUser/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -1493,35 +1509,14 @@
       {
         "Name": "id",
         "Type": "System.Int32",
-        "IsRequired": false
+        "IsRequired": true
       },
       {
-        "Name": "user",
-        "Type": "BeautySky.Models.User",
+        "Name": "updatedUser",
+        "Type": "BeautySky.DTO.UpdateUserRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.WeatherForecastController",
-    "Method": "Get",
-    "RelativePath": "WeatherForecast",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.WeatherForecast, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ],
-    "EndpointName": "GetWeatherForecast"
   }
 ]
