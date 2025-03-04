@@ -3,6 +3,7 @@ using Amazon;
 using Amazon.S3;
 using BeautySky.Models;
 using BeautySky.Service;
+using BeautySky.Services.Vnpay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -22,6 +23,21 @@ namespace BeautySky
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            // Load configuration
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+            // Kiểm tra VNPayConfig
+            var hashSecret = builder.Configuration["VNPayConfig:HashSecret"];
+            Console.WriteLine($"VNPay HashSecret: {hashSecret}");
+
+            if (string.IsNullOrEmpty(hashSecret))
+            {
+                throw new Exception("VNPay HashSecret is missing!");
+            }
+
+            // Add services to the container
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
+
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -60,7 +76,6 @@ namespace BeautySky
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"));
             });
-
 
             // Authentication configuration
             builder.Services.AddAuthentication(option =>
@@ -148,6 +163,7 @@ namespace BeautySky
             app.UseCors("AllowAll");
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

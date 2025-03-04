@@ -15,16 +15,12 @@ public partial class Payment
     public int? PaymentStatusId { get; set; }
 
     public DateTime? PaymentDate { get; set; }
-
     [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
-
     [JsonIgnore]
     public virtual PaymentStatus? PaymentStatus { get; set; }
-
     [JsonIgnore]
     public virtual PaymentType? PaymentType { get; set; }
-
     [JsonIgnore]
     public virtual User? User { get; set; }
 }
