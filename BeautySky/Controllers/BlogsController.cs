@@ -95,7 +95,7 @@ namespace BeautySky.Controllers
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)] // Thêm response type cho BadRequest
-        public async Task<ActionResult<object>> PostBlog(BlogCreateRequest blogCreateRequest)
+        public async Task<ActionResult<object>> PostBlog(DTO.BlogCreateRequest blogCreateRequest)
         {
             // 1. Tạo đối tượng Blog mới từ dữ liệu nhận được
             Blog blog = new Blog
@@ -179,17 +179,5 @@ namespace BeautySky.Controllers
 
             return Ok(blogs);
         }
-    }
-
-    // Tạo một class riêng biệt để định nghĩa Request Body
-    public class BlogCreateRequest
-    {
-        public string Title { get; set; } = null!;
-        public string Content { get; set; } = null!;
-        public int? AuthorId { get; set; }
-        public string Status { get; set; } = null!;
-        public string? SkinType { get; set; }
-        public string? Category { get; set; }
-        public string? ImgURL { get; set; }
     }
 }
