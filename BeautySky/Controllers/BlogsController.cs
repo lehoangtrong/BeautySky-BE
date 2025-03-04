@@ -94,12 +94,42 @@ namespace BeautySky.Controllers
         /// <param name="blog">Blog object</param>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
-        public async Task<ActionResult<Blog>> PostBlog(Blog blog)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)] // Thêm response type cho BadRequest
+        public async Task<ActionResult<object>> PostBlog(BlogCreateRequest blogCreateRequest)
         {
+            // 1. Tạo đối tượng Blog mới từ dữ liệu nhận được
+            Blog blog = new Blog
+            {
+                Title = blogCreateRequest.Title,
+                Content = blogCreateRequest.Content,
+                AuthorId = blogCreateRequest.AuthorId,
+                Status = blogCreateRequest.Status,
+                SkinType = blogCreateRequest.SkinType,
+                Category = blogCreateRequest.Category,
+                ImgURL = blogCreateRequest.ImgURL,
+
+                // 2. Các trường tự động tạo
+                CreatedDate = DateTime.UtcNow, // Sử dụng UtcNow để đảm bảo tính nhất quán
+                UpdatedDate = DateTime.UtcNow,
+            };
+
+            // 3. Thêm blog vào database
             _context.Blogs.Add(blog);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetBlog", new { id = blog.BlogId }, blog);
+            // 4. Tạo đối tượng response chỉ chứa các trường mong muốn
+            var response = new
+            {
+                Title = blog.Title,
+                Content = blog.Content,
+                AuthorId = blog.AuthorId,
+                SkinType = blog.SkinType,
+                Category = blog.Category,
+                ImgURL = blog.ImgURL
+            };
+
+            // 5. Trả về response với status code 201 (Created)
+            return CreatedAtAction("GetBlog", new { id = blog.BlogId }, response);
         }
 
         /// <summary>
@@ -127,6 +157,7 @@ namespace BeautySky.Controllers
         {
             return _context.Blogs.Any(e => e.BlogId == id);
         }
+
         [HttpGet("by-skin-type/{skinType}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<Blog>>> GetBlogsBySkinType(string skinType)
@@ -148,5 +179,17 @@ namespace BeautySky.Controllers
 
             return Ok(blogs);
         }
+    }
+
+    // Tạo một class riêng biệt để định nghĩa Request Body
+    public class BlogCreateRequest
+    {
+        public string Title { get; set; } = null!;
+        public string Content { get; set; } = null!;
+        public int? AuthorId { get; set; }
+        public string Status { get; set; } = null!;
+        public string? SkinType { get; set; }
+        public string? Category { get; set; }
+        public string? ImgURL { get; set; }
     }
 }
