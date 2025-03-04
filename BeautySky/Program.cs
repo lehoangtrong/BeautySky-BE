@@ -61,7 +61,6 @@ namespace BeautySky
                 option.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"));
             });
 
-
             // Authentication configuration
             builder.Services.AddAuthentication(option =>
             {
@@ -148,6 +147,7 @@ namespace BeautySky
             app.UseCors("AllowAll");
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

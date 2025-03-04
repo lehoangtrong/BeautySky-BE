@@ -13,7 +13,6 @@ public partial class ProductsImage
     public string ImageUrl { get; set; } = null!;
 
     public int? ProductId { get; set; }
-
     [JsonIgnore]
     public virtual Product? Product { get; set; }
 }

@@ -13,10 +13,8 @@ public partial class Quiz
     public string? Description { get; set; }
 
     public DateTime? DateCreated { get; set; }
-
     [JsonIgnore]
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
-
     [JsonIgnore]
     public virtual ICollection<UserQuiz> UserQuizzes { get; set; } = new List<UserQuiz>();
 }

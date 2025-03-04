@@ -13,13 +13,10 @@ public partial class UserQuiz
     public int? QuizId { get; set; }
 
     public DateTime? DateTaken { get; set; }
-
     [JsonIgnore]
     public virtual Quiz? Quiz { get; set; }
-
     [JsonIgnore]
     public virtual User? User { get; set; }
-
     [JsonIgnore]
     public virtual ICollection<UserAnswer> UserAnswers { get; set; } = new List<UserAnswer>();
 }

@@ -13,10 +13,8 @@ public partial class UserCarePlan
     public int? CarePlanId { get; set; }
 
     public DateTime? DateCreate { get; set; }
-
     [JsonIgnore]
     public virtual CarePlan? CarePlan { get; set; }
-
     [JsonIgnore]
     public virtual User? User { get; set; }
 }
