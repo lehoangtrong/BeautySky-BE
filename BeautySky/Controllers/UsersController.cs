@@ -139,8 +139,8 @@ namespace BeautySky.Controllers
             {
                 return NotFound();
             }
-            //user.IsActive = false;
-            _context.Users.Remove(user);
+            user.IsActive = false;
+            _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
             return NoContent();

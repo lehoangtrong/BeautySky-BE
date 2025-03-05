@@ -6,7 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
-using Microsoft.AspNetCore.Authorization;
+using Amazon.S3.Model;
+using Amazon.S3;
+using Newtonsoft.Json;
+using BeautySky.DTO;
 
 namespace BeautySky.Controllers
 {
@@ -15,18 +18,17 @@ namespace BeautySky.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly ProjectSwpContext _context;
+        private readonly IAmazonS3 _amazonS3;
+        private readonly string _bucketName = "beautysky";
 
-        public ProductsController(ProjectSwpContext context)
+        public ProductsController(ProjectSwpContext context, IAmazonS3 amazonS3)
         {
             _context = context;
+            _amazonS3 = amazonS3;
         }
 
-
-
         [HttpGet]
-        //[Authorize(Roles = "Manager, Staff")]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
-
             int? id = null,
             string? sortBy = null,
             string? order = null,
@@ -34,20 +36,16 @@ namespace BeautySky.Controllers
         {
             IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages);
 
-            // Lấy theo ID
             if (id.HasValue)
             {
                 var product = await _context.Products.Include(p => p.ProductsImages).FirstOrDefaultAsync(p => p.ProductId == id);
-
                 if (product == null)
                 {
                     return NotFound("Product not found.");
                 }
-
-                return Ok(new List<Product> { product }); // Trả về một danh sách chứa sản phẩm
+                return Ok(product);
             }
 
-            // Tìm kiếm theo tên
             if (!string.IsNullOrWhiteSpace(name))
             {
                 products = products.Where(p => p.ProductName.Contains(name));
@@ -57,20 +55,15 @@ namespace BeautySky.Controllers
                 }
             }
 
-            // Sắp xếp
             if (!string.IsNullOrEmpty(sortBy))
             {
                 switch (sortBy.ToLower())
                 {
                     case "productname":
-                        products = (order?.ToLower() == "desc")
-                            ? products.OrderByDescending(p => p.ProductName)
-                            : products.OrderBy(p => p.ProductName);
+                        products = (order?.ToLower() == "desc") ? products.OrderByDescending(p => p.ProductName) : products.OrderBy(p => p.ProductName);
                         break;
                     case "price":
-                        products = (order?.ToLower() == "desc")
-                            ? products.OrderByDescending(p => p.Price)
-                            : products.OrderBy(p => p.Price);
+                        products = (order?.ToLower() == "desc") ? products.OrderByDescending(p => p.Price) : products.OrderBy(p => p.Price);
                         break;
                     default:
                         return BadRequest("Invalid sortBy parameter. Use 'ProductName' or 'Price'.");
@@ -80,126 +73,162 @@ namespace BeautySky.Controllers
             return await products.ToListAsync();
         }
 
-        // GET: api/Products/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
-        {
-            var product = await _context.Products
-                .Include(p => p.ProductsImages) 
-                .FirstOrDefaultAsync(p => p.ProductId == id);
-
-            if (product == null)
-            {
-                return NotFound();
-            }
-
-            foreach (var image in product.ProductsImages)
-            {
-                image.ImageUrl = image.ImageUrl;
-            }
-
-            return Ok(product);
-        }
-
-
-        // PUT: api/Products/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        //[Authorize(Roles = "Manager, Staff")]
-        public async Task<IActionResult> PutProduct(int id, [FromBody] Product updatedProduct)
-        {
-            var existingProduct = await _context.Products.FindAsync(id);
-            if (existingProduct == null)
-            {
-                return NotFound();
-            }
-
-            if (!string.IsNullOrEmpty(updatedProduct.ProductName))
-                existingProduct.ProductName = updatedProduct.ProductName;
-
-            if (updatedProduct.Price > 0)
-                existingProduct.Price = updatedProduct.Price;
-
-            if (updatedProduct.Quantity >= 0)
-                existingProduct.Quantity = updatedProduct.Quantity;
-
-            if (!string.IsNullOrEmpty(updatedProduct.Description))
-                existingProduct.Description = updatedProduct.Description;
-
-            if (!string.IsNullOrEmpty(updatedProduct.Ingredient))
-                existingProduct.Ingredient = updatedProduct.Ingredient;
-
-            if (updatedProduct.CategoryId > 0)
-                existingProduct.CategoryId = updatedProduct.CategoryId;
-
-            if (updatedProduct.SkinTypeId > 0)
-                existingProduct.SkinTypeId = updatedProduct.SkinTypeId;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return StatusCode(500, "Concurrency error occurred while updating the product.");
-            }
-            catch (Exception ex)
-            {
-                // Log the exception (important!)
-                Console.WriteLine($"Error updating product: {ex}");
-                return StatusCode(500, "An unexpected error occurred.");
-            }
-
-            return Ok();
-        }
-
-
-        // POST: api/Products
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        //[Authorize(Roles = "Manager, Staff")]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        [Consumes("multipart/form-data")]
+        public async Task<ActionResult<Product>> PostProduct([FromForm] ProductDTO productDto)
         {
             try
             {
+                var product = new Product
+                {
+                    ProductName = productDto.ProductName,
+                    Price = productDto.Price ?? 0,
+                    Quantity = productDto.Quantity ?? 0,
+                    Description = productDto.Description,
+                    Ingredient = productDto.Ingredient,
+                    CategoryId = productDto.CategoryId,
+                    SkinTypeId = productDto.SkinTypeId
+                };
+
+                if (productDto.File != null && productDto.File.Length > 0)
+                {
+                    string keyName = $"products/{Guid.NewGuid()}_{productDto.File.FileName}";
+                    using (var stream = productDto.File.OpenReadStream())
+                    {
+                        var putRequest = new PutObjectRequest
+                        {
+                            BucketName = _bucketName,
+                            Key = keyName,
+                            InputStream = stream,
+                            ContentType = productDto.File.ContentType
+                        };
+                        await _amazonS3.PutObjectAsync(putRequest);
+                    }
+
+                    string fileUrl = $"https://beautysky.s3.amazonaws.com/{keyName}";
+                    product.ProductsImages = new List<ProductsImage>
+            {
+                new ProductsImage { ImageUrl = fileUrl, ImageDescription = productDto.ImageDescription }
+            };
+                }
+
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetProducts), new { id = product.ProductId }, new { message = "Product created successfully.", product });
+                return CreatedAtAction(nameof(GetProducts), new { id = product.ProductId }, product);
             }
             catch (Exception ex)
             {
-                // Log the exception
                 Console.WriteLine($"Error creating product: {ex}");
                 return StatusCode(500, "An error occurred while creating the product.");
             }
         }
 
-
-        // DELETE: api/Products/5
-        [HttpDelete("{id}")]
-        //[Authorize(Roles = "Manager")]
-        public async Task<IActionResult> DeleteProduct(int id)
+        [HttpPut("{id}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> PutProduct(int id, [FromForm] ProductDTO productDto)
         {
             try
             {
-                var product = await _context.Products.FindAsync(id);
+                var product = await _context.Products.Include(p => p.ProductsImages).FirstOrDefaultAsync(p => p.ProductId == id);
                 if (product == null)
                 {
                     return NotFound("Product not found.");
                 }
 
-                _context.Products.Remove(product);
-                await _context.SaveChangesAsync();
+                product.ProductName = productDto.ProductName ?? product.ProductName;
+                product.Price = productDto.Price ?? product.Price;
+                product.Quantity = productDto.Quantity ?? product.Quantity;
+                product.Description = productDto.Description ?? product.Description;
+                product.Ingredient = productDto.Ingredient ?? product.Ingredient;
+                product.CategoryId = productDto.CategoryId ?? product.CategoryId;
+                product.SkinTypeId = productDto.SkinTypeId ?? product.SkinTypeId;
 
-                return Ok(new { message = "Product deleted successfully." });
+                if (productDto.File != null && productDto.File.Length > 0)
+                {
+                    var existingImage = product.ProductsImages.FirstOrDefault();
+                    if (existingImage != null)
+                    {
+                        // Xóa ảnh cũ trên S3
+                        var deleteRequest = new DeleteObjectRequest
+                        {
+                            BucketName = _bucketName,
+                            Key = existingImage.ImageUrl.Replace("https://beautysky.s3.amazonaws.com/", "")
+                        };
+                        await _amazonS3.DeleteObjectAsync(deleteRequest);
+
+                        string keyName = $"products/{Guid.NewGuid()}_{productDto.File.FileName}";
+                        using (var stream = productDto.File.OpenReadStream())
+                        {
+                            var putRequest = new PutObjectRequest
+                            {
+                                BucketName = _bucketName,
+                                Key = keyName,
+                                InputStream = stream,
+                                ContentType = productDto.File.ContentType
+                            };
+                            await _amazonS3.PutObjectAsync(putRequest);
+                        }
+
+                        string fileUrl = $"https://beautysky.s3.amazonaws.com/{keyName}";
+                        existingImage.ImageUrl = fileUrl;
+                        existingImage.ImageDescription = productDto.ImageDescription ?? existingImage.ImageDescription;
+                    }
+                    else
+                    {
+                        string keyName = $"products/{Guid.NewGuid()}_{productDto.File.FileName}";
+                        using (var stream = productDto.File.OpenReadStream())
+                        {
+                            var putRequest = new PutObjectRequest
+                            {
+                                BucketName = _bucketName,
+                                Key = keyName,
+                                InputStream = stream,
+                                ContentType = productDto.File.ContentType
+                            };
+                            await _amazonS3.PutObjectAsync(putRequest);
+                        }
+
+                        string fileUrl = $"https://beautysky.s3.amazonaws.com/{keyName}";
+                        product.ProductsImages.Add(new ProductsImage
+                        {
+                            ImageUrl = fileUrl,
+                            ImageDescription = productDto.ImageDescription
+                        });
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                return NoContent();
             }
             catch (Exception ex)
             {
-                // Log the exception
-                Console.WriteLine($"Error deleting product: {ex}");
-                return StatusCode(500, "An error occurred while deleting the product.");
+                Console.WriteLine($"Error updating product: {ex}");
+                return StatusCode(500, "An error occurred while updating the product.");
             }
+        }
+
+
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var product = await _context.Products.Include(p => p.ProductsImages).FirstOrDefaultAsync(p => p.ProductId == id);
+            if (product == null)
+            {
+                return NotFound("Product not found");
+            }
+
+            foreach (var image in product.ProductsImages)
+            {
+                var deleteRequest = new DeleteObjectRequest { BucketName = _bucketName, Key = $"products/{Path.GetFileName(image.ImageUrl)}" };
+                await _amazonS3.DeleteObjectAsync(deleteRequest);
+                _context.ProductsImages.Remove(image);
+            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+            return Ok("Product deleted successfully");
         }
     }
 }
