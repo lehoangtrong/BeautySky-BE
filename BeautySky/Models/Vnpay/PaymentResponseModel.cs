@@ -1,4 +1,6 @@
-﻿namespace BeautySky.Models.Vnpay
+﻿using System.Text.Json.Serialization;
+
+namespace BeautySky.Models.Vnpay
 {
     public class PaymentResponseModel
     {
@@ -10,6 +12,9 @@
         public bool Success { get; set; }
         public string Token { get; set; }
         public string VnPayResponseCode { get; set; }
+        public decimal Amount { get; set; } // Thêm Amount nếu cần
+
+       
 
     }
 }

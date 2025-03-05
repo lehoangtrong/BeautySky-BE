@@ -30,6 +30,10 @@ namespace BeautySky.Controllers
         [HttpPost("Register")]
         public async Task<ActionResult<User>> Register([FromBody] User user)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             // Kiểm tra nếu người dùng đã tồn tại trong hệ thống
             var existingUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.UserName == user.UserName || u.Email == user.Email);
@@ -44,10 +48,21 @@ namespace BeautySky.Controllers
                 return BadRequest("Mật khẩu và xác nhận mật khẩu không khớp.");
             }
 
+            // Check Email
+            var emailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|vn|net|org|edu|gov|info)$";
+            if (!System.Text.RegularExpressions.Regex.IsMatch(user.Email, emailRegex))
+            {
+                return BadRequest("Email không hợp lệ.");
+            }
+
             user.RoleId = 1; // Customer
             user.IsActive = true;
             user.DateCreate = DateTime.UtcNow;
             _context.Users.Add(user);
+            if (!TryValidateModel(user))
+            {
+                return BadRequest(ModelState);
+            }
             await _context.SaveChangesAsync();
             return Ok(user);
         }

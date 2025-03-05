@@ -187,18 +187,23 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "blog",
-        "Type": "BeautySky.Models.Blog",
+        "Name": "blogCreateRequest",
+        "Type": "BeautySky.DTO.BlogCreateRequest",
         "IsRequired": true
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "BeautySky.Models.Blog",
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 201
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
         "MediaTypes": [
           "application/json"
         ],
-        "StatusCode": 201
+        "StatusCode": 400
       }
     ]
   },

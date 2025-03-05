@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace BeautySky.Models;
@@ -9,9 +10,9 @@ public partial class Product
     public int ProductId { get; set; }
 
     public string ProductName { get; set; } = null!;
-
+    [Range(0, double.MaxValue, ErrorMessage = "Price cannot be negative")]
     public decimal Price { get; set; }
-
+    [Range(0, int.MaxValue, ErrorMessage = "Quantity cannot be negative")]
     public int Quantity { get; set; }
 
     public string? Description { get; set; }
