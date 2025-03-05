@@ -59,7 +59,14 @@ namespace BeautySky.Controllers
                 existingUser.FullName = updatedUser.FullName;
 
             if (!string.IsNullOrEmpty(updatedUser.Email))
+            {
+                var emailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|vn|net|org|edu|gov|info)$";
+                if (!System.Text.RegularExpressions.Regex.IsMatch(updatedUser.Email, emailRegex))
+                {
+                    return BadRequest(new { message = "Email không hợp lệ. Chỉ chấp nhận đuôi: .com, .vn, .net, .org, .edu, .gov, .info" });
+                }
                 existingUser.Email = updatedUser.Email;
+            }           
 
             if (!string.IsNullOrEmpty(updatedUser.Password))
                 existingUser.Password = updatedUser.Password;
@@ -86,24 +93,41 @@ namespace BeautySky.Controllers
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<User>> Register(User user)
+        public async Task<ActionResult<User>> Register([FromBody] User user)
         {
-
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            // Kiểm tra nếu người dùng đã tồn tại trong hệ thống
             var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == user.Email || u.UserName == user.UserName);
-
+                .FirstOrDefaultAsync(u => u.UserName == user.UserName || u.Email == user.Email);
             if (existingUser != null)
             {
-                return BadRequest("Email hoặc Username đã được sử dụng.");
+                return BadRequest("Tên người dùng hoặc email đã tồn tại.");
             }
+
+            // Kiểm tra mật khẩu và xác nhận mật khẩu có trùng khớp hay không
             if (user.Password != user.ConfirmPassword)
             {
                 return BadRequest("Mật khẩu và xác nhận mật khẩu không khớp.");
             }
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
 
-            return Ok("Login Success");
+            // Check Email
+            var emailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|vn|net|org|edu|gov|info)$";
+            if (!System.Text.RegularExpressions.Regex.IsMatch(user.Email, emailRegex))
+            {
+                return BadRequest("Email không hợp lệ.");
+            }
+            user.IsActive = true;
+            user.DateCreate = DateTime.UtcNow;
+            _context.Users.Add(user);
+            if (!TryValidateModel(user))
+            {
+                return BadRequest(ModelState);
+            }
+            await _context.SaveChangesAsync();
+            return Ok(user);
         }
 
         // DELETE: api/Users/5

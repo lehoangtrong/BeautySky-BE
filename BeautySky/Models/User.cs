@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
+
 namespace BeautySky.Models;
 
 public partial class User
@@ -13,7 +14,8 @@ public partial class User
     public string UserName { get; set; } = null!;
     [Required]
     public string? FullName { get; set; }
-    [Required, EmailAddress]
+    [Required, EmailAddress(ErrorMessage = "Email không hợp lệ.")]
+    [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Email không hợp lệ.")]
     public string Email { get; set; } = null!;
     [Required]
     public string Password { get; set; } = null!;
