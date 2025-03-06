@@ -28,22 +28,33 @@ namespace BeautySky.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts(
+        public async Task<ActionResult<IEnumerable<object>>> GetProducts(
             int? id = null,
             string? sortBy = null,
             string? order = null,
             string? name = null)
         {
-            IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages);
-
+            IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages).Include(p => p.Reviews);
             if (id.HasValue)
             {
-                var product = await _context.Products.Include(p => p.ProductsImages).FirstOrDefaultAsync(p => p.ProductId == id);
+                var product = await products.FirstOrDefaultAsync(p => p.ProductId == id);
                 if (product == null)
                 {
                     return NotFound("Product not found.");
                 }
-                return Ok(product);
+
+                var rating = product.Reviews.Any() ? product.Reviews.Average(r => r.Rating) : (double?)null;
+
+                return Ok(new
+                {
+                    product.ProductId,
+                    product.ProductName,
+                    product.Price,
+                    product.Description,
+                    product.Quantity,
+                    Rating = rating,
+                    productsImages = product.ProductsImages
+                });
             }
 
             if (!string.IsNullOrWhiteSpace(name))
@@ -70,13 +81,38 @@ namespace BeautySky.Controllers
                 }
             }
 
-            return await products.ToListAsync();
+            var productList = await products.Select(p => new
+            {
+                p.ProductId,
+                p.ProductName,
+                p.Price,
+                p.Description,
+                p.Quantity,
+                Rating = p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : (double?)null,
+                productsImages = p.ProductsImages
+            }).ToListAsync();
+
+            return Ok(productList);
         }
+
 
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<ActionResult<Product>> PostProduct([FromForm] ProductDTO productDto)
         {
+            if (!ModelState.IsValid || productDto.Price < 0 || productDto.Quantity < 0)
+            {
+                if (productDto.Price < 0)
+                {
+                    ModelState.AddModelError("Price", "Price cannot be negative");
+                }
+                if (productDto.Quantity < 0)
+                {
+                    ModelState.AddModelError("Quantity", "Quantity cannot be negative");
+                }
+                return BadRequest(ModelState);
+            }
+
             try
             {
                 var product = new Product
@@ -128,6 +164,19 @@ namespace BeautySky.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> PutProduct(int id, [FromForm] ProductDTO productDto)
         {
+            if (!ModelState.IsValid || productDto.Price < 0 || productDto.Quantity < 0)
+            {
+                if (productDto.Price < 0)
+                {
+                    ModelState.AddModelError("Price", "Price cannot be negative");
+                }
+                if (productDto.Quantity < 0)
+                {
+                    ModelState.AddModelError("Quantity", "Quantity cannot be negative");
+                }
+                return BadRequest(ModelState);
+            }
+
             try
             {
                 var product = await _context.Products.Include(p => p.ProductsImages).FirstOrDefaultAsync(p => p.ProductId == id);
