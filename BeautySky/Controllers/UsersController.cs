@@ -74,6 +74,11 @@ namespace BeautySky.Controllers
             if (!string.IsNullOrEmpty(updatedUser.ConfirmPassword))
                 existingUser.ConfirmPassword = updatedUser.ConfirmPassword;
 
+            if (updatedUser.Password != updatedUser.ConfirmPassword)
+            {
+                return BadRequest("Mật khẩu và xác nhận mật khẩu không khớp.");
+            }
+
             if (updatedUser.RoleId.HasValue)
                 existingUser.RoleId = updatedUser.RoleId;
 

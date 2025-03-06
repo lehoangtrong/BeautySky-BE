@@ -98,15 +98,22 @@ namespace BeautySky.Controllers
 
         [HttpPost]
         [Consumes("multipart/form-data")]
-        public async Task<ActionResult<Product>> PostProduct([FromForm] ProductDTO productDto)
+        public async Task<ActionResult<Product>> PostProduct([FromForm] ProductDTO ProductDTO)
         {
-            if (!ModelState.IsValid || productDto.Price < 0 || productDto.Quantity < 0)
+
+            var isDuplicate = await _context.Products.AnyAsync(p => p.ProductName == ProductDTO.ProductName);
+            if (isDuplicate)
             {
-                if (productDto.Price < 0)
+                return BadRequest("Product name already exists.");
+            }
+
+            if (!ModelState.IsValid || ProductDTO.Price < 0 || ProductDTO.Quantity < 0)
+            {
+                if (ProductDTO.Price < 0)
                 {
                     ModelState.AddModelError("Price", "Price cannot be negative");
                 }
-                if (productDto.Quantity < 0)
+                if (ProductDTO.Quantity < 0)
                 {
                     ModelState.AddModelError("Quantity", "Quantity cannot be negative");
                 }
@@ -117,26 +124,26 @@ namespace BeautySky.Controllers
             {
                 var product = new Product
                 {
-                    ProductName = productDto.ProductName,
-                    Price = productDto.Price ?? 0,
-                    Quantity = productDto.Quantity ?? 0,
-                    Description = productDto.Description,
-                    Ingredient = productDto.Ingredient,
-                    CategoryId = productDto.CategoryId,
-                    SkinTypeId = productDto.SkinTypeId
+                    ProductName = ProductDTO.ProductName,
+                    Price = ProductDTO.Price ?? 0,
+                    Quantity = ProductDTO.Quantity ?? 0,
+                    Description = ProductDTO.Description,
+                    Ingredient = ProductDTO.Ingredient,
+                    CategoryId = ProductDTO.CategoryId,
+                    SkinTypeId = ProductDTO.SkinTypeId
                 };
 
-                if (productDto.File != null && productDto.File.Length > 0)
+                if (ProductDTO.File != null && ProductDTO.File.Length > 0)
                 {
-                    string keyName = $"products/{Guid.NewGuid()}_{productDto.File.FileName}";
-                    using (var stream = productDto.File.OpenReadStream())
+                    string keyName = $"products/{Guid.NewGuid()}_{ProductDTO.File.FileName}";
+                    using (var stream = ProductDTO.File.OpenReadStream())
                     {
                         var putRequest = new PutObjectRequest
                         {
                             BucketName = _bucketName,
                             Key = keyName,
                             InputStream = stream,
-                            ContentType = productDto.File.ContentType
+                            ContentType = ProductDTO.File.ContentType
                         };
                         await _amazonS3.PutObjectAsync(putRequest);
                     }
@@ -144,7 +151,7 @@ namespace BeautySky.Controllers
                     string fileUrl = $"https://beautysky.s3.amazonaws.com/{keyName}";
                     product.ProductsImages = new List<ProductsImage>
             {
-                new ProductsImage { ImageUrl = fileUrl, ImageDescription = productDto.ImageDescription }
+                new ProductsImage { ImageUrl = fileUrl, ImageDescription = ProductDTO.ImageDescription }
             };
                 }
 
@@ -162,15 +169,21 @@ namespace BeautySky.Controllers
 
         [HttpPut("{id}")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> PutProduct(int id, [FromForm] ProductDTO productDto)
+        public async Task<IActionResult> PutProduct(int id, [FromForm] ProductDTO ProductDTO)
         {
-            if (!ModelState.IsValid || productDto.Price < 0 || productDto.Quantity < 0)
+            var isDuplicate = await _context.Products.AnyAsync(p => p.ProductName == ProductDTO.ProductName);
+            if (isDuplicate)
             {
-                if (productDto.Price < 0)
+                return BadRequest("Product name already exists.");
+            }
+
+            if (!ModelState.IsValid || ProductDTO.Price < 0 || ProductDTO.Quantity < 0)
+            {
+                if (ProductDTO.Price < 0)
                 {
                     ModelState.AddModelError("Price", "Price cannot be negative");
                 }
-                if (productDto.Quantity < 0)
+                if (ProductDTO.Quantity < 0)
                 {
                     ModelState.AddModelError("Quantity", "Quantity cannot be negative");
                 }
@@ -185,15 +198,15 @@ namespace BeautySky.Controllers
                     return NotFound("Product not found.");
                 }
 
-                product.ProductName = productDto.ProductName ?? product.ProductName;
-                product.Price = productDto.Price ?? product.Price;
-                product.Quantity = productDto.Quantity ?? product.Quantity;
-                product.Description = productDto.Description ?? product.Description;
-                product.Ingredient = productDto.Ingredient ?? product.Ingredient;
-                product.CategoryId = productDto.CategoryId ?? product.CategoryId;
-                product.SkinTypeId = productDto.SkinTypeId ?? product.SkinTypeId;
+                product.ProductName = ProductDTO.ProductName ?? product.ProductName;
+                product.Price = ProductDTO.Price ?? product.Price;
+                product.Quantity = ProductDTO.Quantity ?? product.Quantity;
+                product.Description = ProductDTO.Description ?? product.Description;
+                product.Ingredient = ProductDTO.Ingredient ?? product.Ingredient;
+                product.CategoryId = ProductDTO.CategoryId ?? product.CategoryId;
+                product.SkinTypeId = ProductDTO.SkinTypeId ?? product.SkinTypeId;
 
-                if (productDto.File != null && productDto.File.Length > 0)
+                if (ProductDTO.File != null && ProductDTO.File.Length > 0)
                 {
                     var existingImage = product.ProductsImages.FirstOrDefault();
                     if (existingImage != null)
@@ -206,34 +219,34 @@ namespace BeautySky.Controllers
                         };
                         await _amazonS3.DeleteObjectAsync(deleteRequest);
 
-                        string keyName = $"products/{Guid.NewGuid()}_{productDto.File.FileName}";
-                        using (var stream = productDto.File.OpenReadStream())
+                        string keyName = $"products/{Guid.NewGuid()}_{ProductDTO.File.FileName}";
+                        using (var stream = ProductDTO.File.OpenReadStream())
                         {
                             var putRequest = new PutObjectRequest
                             {
                                 BucketName = _bucketName,
                                 Key = keyName,
                                 InputStream = stream,
-                                ContentType = productDto.File.ContentType
+                                ContentType = ProductDTO.File.ContentType
                             };
                             await _amazonS3.PutObjectAsync(putRequest);
                         }
 
                         string fileUrl = $"https://beautysky.s3.amazonaws.com/{keyName}";
                         existingImage.ImageUrl = fileUrl;
-                        existingImage.ImageDescription = productDto.ImageDescription ?? existingImage.ImageDescription;
+                        existingImage.ImageDescription = ProductDTO.ImageDescription ?? existingImage.ImageDescription;
                     }
                     else
                     {
-                        string keyName = $"products/{Guid.NewGuid()}_{productDto.File.FileName}";
-                        using (var stream = productDto.File.OpenReadStream())
+                        string keyName = $"products/{Guid.NewGuid()}_{ProductDTO.File.FileName}";
+                        using (var stream = ProductDTO.File.OpenReadStream())
                         {
                             var putRequest = new PutObjectRequest
                             {
                                 BucketName = _bucketName,
                                 Key = keyName,
                                 InputStream = stream,
-                                ContentType = productDto.File.ContentType
+                                ContentType = ProductDTO.File.ContentType
                             };
                             await _amazonS3.PutObjectAsync(putRequest);
                         }
@@ -242,7 +255,7 @@ namespace BeautySky.Controllers
                         product.ProductsImages.Add(new ProductsImage
                         {
                             ImageUrl = fileUrl,
-                            ImageDescription = productDto.ImageDescription
+                            ImageDescription = ProductDTO.ImageDescription
                         });
                     }
                 }
