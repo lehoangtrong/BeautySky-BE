@@ -35,7 +35,7 @@ namespace BeautySky.Controllers
 
             if (question == null)
             {
-                return NotFound();
+                return NotFound("Quiz not found");
             }
 
             return question;
@@ -49,7 +49,7 @@ namespace BeautySky.Controllers
             var existingQuestion = await _context.Questions.FindAsync(id);
             if (existingQuestion == null)
             {
-                return NotFound();
+                return NotFound("Quiz not found");
             }
 
             if (updatedQuestion.QuestionId > 0)
@@ -82,7 +82,7 @@ namespace BeautySky.Controllers
             _context.Questions.Add(question);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetQuestion", new { id = question.QuestionId }, question);
+            return Ok("Add quiz success");
         }
 
         // DELETE: api/Questions/5
@@ -92,13 +92,13 @@ namespace BeautySky.Controllers
             var question = await _context.Questions.FindAsync(id);
             if (question == null)
             {
-                return NotFound();
+                return NotFound("Quiz not found");
             }
 
             _context.Questions.Remove(question);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool QuestionExists(int id)

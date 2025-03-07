@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
+using Amazon.S3.Model;
 
 namespace BeautySky.Controllers
 {
@@ -35,7 +36,7 @@ namespace BeautySky.Controllers
 
             if (role == null)
             {
-                return NotFound();
+                return NotFound("Role not found");
             }
 
             return role;
@@ -49,7 +50,7 @@ namespace BeautySky.Controllers
             var existingRole = await _context.Roles.FindAsync(id);
             if (existingRole == null)
             {
-                return NotFound();
+                return NotFound("Role not found");
             }
 
             if (!string.IsNullOrEmpty(updatedRole.RoleName))
@@ -75,7 +76,7 @@ namespace BeautySky.Controllers
             _context.Roles.Add(role);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRole", new { id = role.RoleId }, role);
+            return Ok("Add role success");
         }
 
         // DELETE: api/Roles/5
@@ -85,13 +86,13 @@ namespace BeautySky.Controllers
             var role = await _context.Roles.FindAsync(id);
             if (role == null)
             {
-                return NotFound();
+                return NotFound("Role not found");
             }
 
             _context.Roles.Remove(role);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool RoleExists(int id)

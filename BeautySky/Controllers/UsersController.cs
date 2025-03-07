@@ -150,8 +150,7 @@ namespace BeautySky.Controllers
 
             return NoContent();
         }
-
-
+        
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.UserId == id);

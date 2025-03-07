@@ -40,7 +40,7 @@ namespace BeautySky.Controllers
 
             if (productsImage == null)
             {
-                return NotFound();
+                return NotFound("Image not found");
             }
 
             return productsImage;
@@ -180,13 +180,26 @@ namespace BeautySky.Controllers
             var productsImage = await _context.ProductsImages.FindAsync(id);
             if (productsImage == null)
             {
-                return NotFound();
+                return NotFound("Image not found");
+            }
+
+            // Xóa ảnh trên S3
+            if (!string.IsNullOrEmpty(productsImage.ImageUrl))
+            {
+                var fileName = Path.GetFileName(productsImage.ImageUrl);
+                var deleteRequest = new DeleteObjectRequest
+                {
+                    BucketName = _bucketName,
+                    Key = $"products/{fileName}"
+                };
+
+                await _amazonS3.DeleteObjectAsync(deleteRequest);
             }
 
             _context.ProductsImages.Remove(productsImage);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool ProductsImageExists(int id)

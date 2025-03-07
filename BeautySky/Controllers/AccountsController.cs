@@ -64,7 +64,7 @@ namespace BeautySky.Controllers
                 return BadRequest(ModelState);
             }
             await _context.SaveChangesAsync();
-            return Ok(user);
+            return Ok("Register success");
         }
 
         [HttpPost("Login")]
