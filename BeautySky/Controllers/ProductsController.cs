@@ -158,7 +158,7 @@ namespace BeautySky.Controllers
                 _context.Products.Add(product);
                 await _context.SaveChangesAsync();
 
-                return CreatedAtAction(nameof(GetProducts), new { id = product.ProductId }, product);
+                return Ok("Add product success");
             }
             catch (Exception ex)
             {
@@ -261,7 +261,7 @@ namespace BeautySky.Controllers
                 }
 
                 await _context.SaveChangesAsync();
-                return NoContent();
+                return Ok("Update Sucess");
             }
             catch (Exception ex)
             {
@@ -290,7 +290,7 @@ namespace BeautySky.Controllers
 
             _context.Products.Remove(product);
             await _context.SaveChangesAsync();
-            return Ok("Product deleted successfully");
+            return Ok("Deleted successfully");
         }
     }
 }
