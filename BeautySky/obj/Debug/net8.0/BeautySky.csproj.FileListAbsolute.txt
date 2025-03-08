@@ -1524,3 +1524,4 @@ D:\SWP_BE\BeautySky\obj\Debug\net8.0\refint\BeautySky.dll
 D:\SWP_BE\BeautySky\obj\Debug\net8.0\BeautySky.pdb
 D:\SWP_BE\BeautySky\obj\Debug\net8.0\BeautySky.genruntimeconfig.cache
 D:\SWP_BE\BeautySky\obj\Debug\net8.0\ref\BeautySky.dll
+D:\SWP_BE\BeautySky\bin\Debug\net8.0\BeautySky.staticwebassets.runtime.json

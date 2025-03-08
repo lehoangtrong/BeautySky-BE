@@ -3,10 +3,10 @@ using Amazon;
 using Amazon.S3;
 using BeautySky.Models;
 using BeautySky.Service;
+using BeautySky.Services.Vnpay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -23,18 +23,23 @@ namespace BeautySky
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
-            {
-                 options.SuppressModelStateInvalidFilter = false; 
-            });
+            // Load configuration
+            builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
-            builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+            // Kiểm tra VNPayConfig
+            var hashSecret = builder.Configuration["VNPayConfig:HashSecret"];
+            Console.WriteLine($"VNPay HashSecret: {hashSecret}");
+
+            if (string.IsNullOrEmpty(hashSecret))
             {
-                options.InvalidModelStateResponseFactory = context =>
-                {
-                    return new BadRequestObjectResult(context.ModelState);
-                };
-            });
+                throw new Exception("VNPay HashSecret is missing!");
+            }
+
+            // Add services to the container
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
+
+
+            builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(option =>
