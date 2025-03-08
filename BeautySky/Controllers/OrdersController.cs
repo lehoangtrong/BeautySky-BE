@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using BeautySky.Models;
+using Azure.Core;
+using BeautySky.Models.Vnpay;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BeautySky.Controllers
 {
@@ -17,6 +21,7 @@ namespace BeautySky.Controllers
         {
             _context = context;
         }
+
 
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
@@ -44,6 +49,47 @@ namespace BeautySky.Controllers
                 .ToListAsync();
 
             return Ok(orders);
+        }
+        [HttpGet("in-cart")]
+        [Authorize]
+        public async Task<IActionResult> GetUserInCartOrder()
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("Không thể xác định UserId từ token");
+            }
+
+            if (!int.TryParse(userIdClaim, out var userId))
+            {
+                return BadRequest("UserId không hợp lệ");
+            }
+
+            var order = await _context.Orders
+                .Include(o => o.OrderProducts)
+                .Where(o => o.UserId == userId && o.Status == "In Cart")
+                .Select(o => new
+                {
+                    o.OrderId,
+                    o.OrderDate,
+                    o.TotalAmount,
+                    o.Status,
+                    OrderProducts = o.OrderProducts.Select(op => new
+                    {
+                        op.ProductId,
+                        op.Quantity,
+                        op.UnitPrice,
+                        op.TotalPrice
+                    })
+                })
+                .FirstOrDefaultAsync();
+
+            if (order == null)
+            {
+                return NotFound("Không tìm thấy đơn hàng nào đang In Cart");
+            }
+
+            return Ok(order);
         }
         [HttpPost("add-to-cart")]
         public async Task<IActionResult> AddToCart(int userID, List<OrderProductRequest> products)
@@ -143,24 +189,7 @@ namespace BeautySky.Controllers
             return Ok(paidOrders);
         }
 
-        [HttpPost("complete-order")]
-        public async Task<IActionResult> CompleteOrder(int orderId)
-        {
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.OrderId == orderId);
-            if (order == null)
-            {
-                return NotFound($"Đơn hàng với ID {orderId} không tồn tại");
-            }
-            if (order.Status != "Paid")
-            {
-                return BadRequest("Chỉ những đơn hàng đã thanh toán mới có thể hoàn tất");
-            }
-
-            order.Status = "Complete";
-            await _context.SaveChangesAsync();
-
-            return Ok(new { order.OrderId, order.Status });
-        }
+        
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
@@ -215,3 +244,4 @@ namespace BeautySky.Controllers
         public int Quantity { get; set; }
     }
 }
+
