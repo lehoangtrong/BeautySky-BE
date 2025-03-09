@@ -32,7 +32,7 @@ namespace BeautySky
 
             if (string.IsNullOrEmpty(hashSecret))
             {
-                throw new Exception("VNPay HashSecret is missing!");
+                //throw new Exception("VNPay HashSecret is missing!");
             }
 
             // Add services to the container
