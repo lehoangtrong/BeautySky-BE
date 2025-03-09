@@ -34,7 +34,7 @@ namespace BeautySky.Controllers
             string? order = null,
             string? name = null)
         {
-            IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages).Include(p => p.Reviews);
+            IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages).Include(p => p.Reviews).Include(p => p.Category).Include(p => p.SkinType);
             if (id.HasValue)
             {
                 var product = await products.FirstOrDefaultAsync(p => p.ProductId == id);
@@ -53,7 +53,9 @@ namespace BeautySky.Controllers
                     product.Description,
                     product.Quantity,
                     Rating = rating,
-                    productsImages = product.ProductsImages
+                    productsImages = product.ProductsImages,
+                    CategoryName = product.Category?.CategoryName, // Lấy tên thay vì ID
+                    SkinTypeName = product.SkinType?.SkinTypeName  // Lấy tên thay vì ID
                 });
             }
 
@@ -89,7 +91,9 @@ namespace BeautySky.Controllers
                 p.Description,
                 p.Quantity,
                 Rating = p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : (double?)null,
-                productsImages = p.ProductsImages
+                productsImages = p.ProductsImages,
+                CategoryName = p.Category != null ? p.Category.CategoryName : null, // Tránh lỗi null
+                SkinTypeName = p.SkinType != null ? p.SkinType.SkinTypeName : null  // Tránh lỗi null
             }).ToListAsync();
 
             return Ok(productList);
