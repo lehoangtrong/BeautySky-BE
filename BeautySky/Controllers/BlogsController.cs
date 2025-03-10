@@ -148,7 +148,15 @@ namespace BeautySky.Controllers
             if (!blogs.Any()) return NotFound();
             return blogs;
         }
+        [HttpGet("sreach-title")]
+        public IActionResult GetBlogs(string? title)
+        {
+            var blogs = string.IsNullOrEmpty(title)
+                ? _context.Blogs.ToList()
+                : _context.Blogs.Where(b => b.Title.Contains(title)).ToList();
 
+            return Ok(blogs);
+        }
 
     }
 }
