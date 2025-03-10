@@ -172,7 +172,9 @@
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Blog, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
-          "application/json"
+          "text/plain",
+          "application/json",
+          "text/json"
         ],
         "StatusCode": 200
       }
@@ -187,25 +189,42 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "blogCreateRequest",
-        "Type": "BeautySky.DTO.BlogCreateRequest",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Void",
-        "MediaTypes": [],
-        "StatusCode": 201
+        "Name": "Title",
+        "Type": "System.String",
+        "IsRequired": false
       },
       {
-        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
-        "MediaTypes": [
-          "application/json"
-        ],
-        "StatusCode": 400
+        "Name": "Content",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "AuthorId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "Status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SkinType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Category",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "File",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
       }
-    ]
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "BeautySky.Controllers.BlogsController",
@@ -225,16 +244,11 @@
       {
         "Type": "BeautySky.Models.Blog",
         "MediaTypes": [
-          "application/json"
+          "text/plain",
+          "application/json",
+          "text/json"
         ],
         "StatusCode": 200
-      },
-      {
-        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
-        "MediaTypes": [
-          "application/json"
-        ],
-        "StatusCode": 404
       }
     ]
   },
@@ -252,32 +266,42 @@
         "IsRequired": true
       },
       {
-        "Name": "blog",
-        "Type": "BeautySky.Models.Blog",
-        "IsRequired": true
+        "Name": "Title",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Content",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "AuthorId",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "Status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "SkinType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "Category",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "File",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Void",
-        "MediaTypes": [],
-        "StatusCode": 204
-      },
-      {
-        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
-        "MediaTypes": [
-          "application/json"
-        ],
-        "StatusCode": 400
-      },
-      {
-        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
-        "MediaTypes": [
-          "application/json"
-        ],
-        "StatusCode": 404
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "BeautySky.Controllers.BlogsController",
@@ -293,25 +317,12 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": [
-      {
-        "Type": "System.Void",
-        "MediaTypes": [],
-        "StatusCode": 204
-      },
-      {
-        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
-        "MediaTypes": [
-          "application/json"
-        ],
-        "StatusCode": 404
-      }
-    ]
+    "ReturnTypes": []
   },
   {
     "ContainingType": "BeautySky.Controllers.BlogsController",
     "Method": "GetBlogsByCategory",
-    "RelativePath": "api/Blogs/by-category/{category}",
+    "RelativePath": "api/Blogs/byCategory/{category}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -326,7 +337,9 @@
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Blog, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
-          "application/json"
+          "text/plain",
+          "application/json",
+          "text/json"
         ],
         "StatusCode": 200
       }
@@ -335,7 +348,7 @@
   {
     "ContainingType": "BeautySky.Controllers.BlogsController",
     "Method": "GetBlogsBySkinType",
-    "RelativePath": "api/Blogs/by-skin-type/{skinType}",
+    "RelativePath": "api/Blogs/bySkinType/{skinType}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -350,7 +363,9 @@
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Blog, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
-          "application/json"
+          "text/plain",
+          "application/json",
+          "text/json"
         ],
         "StatusCode": 200
       }

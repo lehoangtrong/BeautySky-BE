@@ -295,7 +295,23 @@
           "200": {
             "description": "Success",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              },
               "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              },
+              "text/json": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -313,36 +329,64 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/BlogCreateRequest"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/BlogCreateRequest"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/BlogCreateRequest"
+                "type": "object",
+                "properties": {
+                  "Title": {
+                    "type": "string"
+                  },
+                  "Content": {
+                    "type": "string"
+                  },
+                  "AuthorId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Status": {
+                    "type": "string"
+                  },
+                  "SkinType": {
+                    "type": "string"
+                  },
+                  "Category": {
+                    "type": "string"
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "Title": {
+                  "style": "form"
+                },
+                "Content": {
+                  "style": "form"
+                },
+                "AuthorId": {
+                  "style": "form"
+                },
+                "Status": {
+                  "style": "form"
+                },
+                "SkinType": {
+                  "style": "form"
+                },
+                "Category": {
+                  "style": "form"
+                },
+                "File": {
+                  "style": "form"
+                }
               }
             }
           }
         },
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+          "200": {
+            "description": "Success"
           }
         }
       }
@@ -367,19 +411,19 @@
           "200": {
             "description": "Success",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Blog"
+                }
+              },
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Blog"
                 }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
+              },
+              "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
+                  "$ref": "#/components/schemas/Blog"
                 }
               }
             }
@@ -403,46 +447,64 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/Blog"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Blog"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/Blog"
+                "type": "object",
+                "properties": {
+                  "Title": {
+                    "type": "string"
+                  },
+                  "Content": {
+                    "type": "string"
+                  },
+                  "AuthorId": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Status": {
+                    "type": "string"
+                  },
+                  "SkinType": {
+                    "type": "string"
+                  },
+                  "Category": {
+                    "type": "string"
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "Title": {
+                  "style": "form"
+                },
+                "Content": {
+                  "style": "form"
+                },
+                "AuthorId": {
+                  "style": "form"
+                },
+                "Status": {
+                  "style": "form"
+                },
+                "SkinType": {
+                  "style": "form"
+                },
+                "Category": {
+                  "style": "form"
+                },
+                "File": {
+                  "style": "form"
+                }
               }
             }
           }
         },
         "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
+          "200": {
+            "description": "Success"
           }
         }
       },
@@ -462,55 +524,13 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProblemDetails"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Blogs/by-skin-type/{skinType}": {
-      "get": {
-        "tags": [
-          "Blogs"
-        ],
-        "parameters": [
-          {
-            "name": "skinType",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
           "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Blog"
-                  }
-                }
-              }
-            }
+            "description": "Success"
           }
         }
       }
     },
-    "/api/Blogs/by-category/{category}": {
+    "/api/Blogs/byCategory/{category}": {
       "get": {
         "tags": [
           "Blogs"
@@ -529,7 +549,71 @@
           "200": {
             "description": "Success",
             "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              },
               "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Blogs/bySkinType/{skinType}": {
+      "get": {
+        "tags": [
+          "Blogs"
+        ],
+        "parameters": [
+          {
+            "name": "skinType",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              },
+              "text/json": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -3176,41 +3260,6 @@
         },
         "additionalProperties": false
       },
-      "BlogCreateRequest": {
-        "type": "object",
-        "properties": {
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "content": {
-            "type": "string",
-            "nullable": true
-          },
-          "authorId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "status": {
-            "type": "string",
-            "nullable": true
-          },
-          "skinType": {
-            "type": "string",
-            "nullable": true
-          },
-          "category": {
-            "type": "string",
-            "nullable": true
-          },
-          "imgURL": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
       "Category": {
         "type": "object",
         "properties": {
@@ -3373,33 +3422,6 @@
           }
         },
         "additionalProperties": false
-      },
-      "ProblemDetails": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "nullable": true
-          },
-          "title": {
-            "type": "string",
-            "nullable": true
-          },
-          "status": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "detail": {
-            "type": "string",
-            "nullable": true
-          },
-          "instance": {
-            "type": "string",
-            "nullable": true
-          }
-        },
-        "additionalProperties": { }
       },
       "Product": {
         "type": "object",

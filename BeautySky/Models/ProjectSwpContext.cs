@@ -97,6 +97,7 @@ public partial class ProjectSwpContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Title).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+            //entity.Property(e => e.AuthorName).HasMaxLength(100);
 
             entity.HasOne(d => d.Author).WithMany(p => p.Blogs)
                 .HasForeignKey(d => d.AuthorId)
