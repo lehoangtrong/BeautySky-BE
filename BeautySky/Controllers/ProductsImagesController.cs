@@ -123,7 +123,6 @@ namespace BeautySky.Controllers
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 
         [HttpPost("UploadFile")]
-
         public async Task<IActionResult> UploadImage(int productId, IFormFile file, string? imageDescription)
         {
             if (file == null || file.Length == 0)
