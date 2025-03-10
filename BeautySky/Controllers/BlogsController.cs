@@ -141,5 +141,14 @@ namespace BeautySky.Controllers
             return blogs;
         }
 
+        [HttpGet("bySkinType/{skinType}")]
+        public async Task<ActionResult<IEnumerable<Blog>>> GetBlogsBySkinType(string skinType)
+        {
+            var blogs = await _context.Blogs.Where(b => b.SkinType == skinType).ToListAsync();
+            if (!blogs.Any()) return NotFound();
+            return blogs;
+        }
+
+
     }
 }
