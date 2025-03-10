@@ -542,6 +542,28 @@
         }
       }
     },
+    "/api/CarePlan/GetCarePlan": {
+      "post": {
+        "tags": [
+          "CarePlan"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Categories": {
       "get": {
         "tags": [
@@ -2436,7 +2458,7 @@
         }
       }
     },
-    "/api/TestSkinType/SubmitQuiz": {
+    "/api/TestSkinType/submit-quiz": {
       "post": {
         "tags": [
           "TestSkinType"

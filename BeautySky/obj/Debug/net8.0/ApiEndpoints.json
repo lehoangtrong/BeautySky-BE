@@ -188,7 +188,7 @@
     "Parameters": [
       {
         "Name": "blogCreateRequest",
-        "Type": "BeautySky.Controllers.BlogCreateRequest",
+        "Type": "BeautySky.DTO.BlogCreateRequest",
         "IsRequired": true
       }
     ],
@@ -355,6 +355,22 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "CarePlanController",
+    "Method": "GetCarePlan",
+    "RelativePath": "api/CarePlan/GetCarePlan",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "BeautySky.Controllers.CategoriesController",
@@ -1475,7 +1491,7 @@
   {
     "ContainingType": "BeautySky.Controllers.TestSkinTypeController",
     "Method": "SubmitQuiz",
-    "RelativePath": "api/TestSkinType/SubmitQuiz",
+    "RelativePath": "api/TestSkinType/submit-quiz",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
