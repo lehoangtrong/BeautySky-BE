@@ -32,9 +32,11 @@ namespace BeautySky.Controllers
             int? id = null,
             string? sortBy = null,
             string? order = null,
-            string? name = null)
+            string? name = null,
+            string? categoryName = null,
+            string? skinTypeName = null)
         {
-            IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages).Include(p => p.Reviews);
+            IQueryable<Product> products = _context.Products.Include(p => p.ProductsImages).Include(p => p.Reviews).Include(p => p.Category).Include(p => p.SkinType);
             if (id.HasValue)
             {
                 var product = await products.FirstOrDefaultAsync(p => p.ProductId == id);
@@ -52,6 +54,10 @@ namespace BeautySky.Controllers
                     product.Price,
                     product.Description,
                     product.Quantity,
+                    product.CategoryId,
+                    categoryName = product.Category?.CategoryName,
+                    product.SkinTypeId,
+                    skinTypeName = product.SkinType?.SkinTypeName,
                     Rating = rating,
                     productsImages = product.ProductsImages
                 });
@@ -64,6 +70,16 @@ namespace BeautySky.Controllers
                 {
                     return NotFound("No products found matching the search criteria.");
                 }
+            }
+
+            if (!string.IsNullOrWhiteSpace(categoryName))
+            {
+                products = products.Where(p => p.Category != null && p.Category.CategoryName.Contains(categoryName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(skinTypeName))
+            {
+                products = products.Where(p => p.SkinType != null && p.SkinType.SkinTypeName.Contains(skinTypeName));
             }
 
             if (!string.IsNullOrEmpty(sortBy))
@@ -88,6 +104,10 @@ namespace BeautySky.Controllers
                 p.Price,
                 p.Description,
                 p.Quantity,
+                p.CategoryId,
+                CategoryName = p.Category != null ? p.Category.CategoryName : null,
+                p.SkinTypeId,
+                SkinTypeName = p.SkinType != null ? p.SkinType.SkinTypeName : null,
                 Rating = p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : (double?)null,
                 productsImages = p.ProductsImages
             }).ToListAsync();
@@ -105,6 +125,11 @@ namespace BeautySky.Controllers
             if (isDuplicate)
             {
                 return BadRequest("Product name already exists.");
+            }
+
+            if (ProductDTO.Price == null || ProductDTO.Quantity == null || ProductDTO.CategoryId == null || ProductDTO.SkinTypeId == null)
+            {
+                return BadRequest("Price, and Quantity, CategoryId, SkinTypeId are required.");
             }
 
             if (!ModelState.IsValid || ProductDTO.Price < 0 || ProductDTO.Quantity < 0)
