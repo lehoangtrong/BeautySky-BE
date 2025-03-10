@@ -542,6 +542,131 @@
         }
       }
     },
+    "/api/CarePlan": {
+      "get": {
+        "tags": [
+          "CarePlan"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CarePlan"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/CarePlan/{id}": {
+      "get": {
+        "tags": [
+          "CarePlan"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CarePlan"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CarePlan"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Categories": {
       "get": {
         "tags": [
@@ -2769,6 +2894,63 @@
             "nullable": true
           },
           "imgURL": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CarePlan": {
+        "type": "object",
+        "properties": {
+          "carePlanId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skinTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "carePlanStep": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CarePlanStep"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CarePlanStep": {
+        "type": "object",
+        "properties": {
+          "stepId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "carePlanId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "stepOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stepName": {
+            "type": "string",
+            "nullable": true
+          },
+          "stepDescription": {
             "type": "string",
             "nullable": true
           }

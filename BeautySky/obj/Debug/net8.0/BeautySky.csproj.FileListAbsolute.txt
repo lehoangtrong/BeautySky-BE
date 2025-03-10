@@ -1230,3 +1230,5 @@ C:\Users\Lenovo\Documents\Zalo Received Files\SWP\danh\BeautySky\obj\Debug\net8.
 C:\Users\Lenovo\Documents\Zalo Received Files\SWP\danh\BeautySky\obj\Debug\net8.0\ref\BeautySky.dll
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.RazorAssemblyInfo.cache
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.RazorAssemblyInfo.cs
+C:\Workspace\SWP391\BeautySkyShopBE\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.RazorAssemblyInfo.cache
+C:\Workspace\SWP391\BeautySkyShopBE\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.RazorAssemblyInfo.cs
