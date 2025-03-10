@@ -131,5 +131,15 @@ namespace BeautySky.Controllers
 
             return NoContent();
         }
+
+
+        [HttpGet("byCategory/{category}")]
+        public async Task<ActionResult<IEnumerable<Blog>>> GetBlogsByCategory(string category)
+        {
+            var blogs = await _context.Blogs.Where(b => b.Category == category).ToListAsync();
+            if (!blogs.Any()) return NotFound();
+            return blogs;
+        }
+
     }
 }
