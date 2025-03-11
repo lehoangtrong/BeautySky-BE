@@ -35,7 +35,7 @@ namespace BeautySky.Controllers
 
             if (skinType == null)
             {
-                return NotFound();
+                return NotFound("SkinType not found");
             }
 
             return skinType;
@@ -49,7 +49,7 @@ namespace BeautySky.Controllers
             var existingSkinTypes = await _context.SkinTypes.FindAsync(id);
             if (existingSkinTypes == null)
             {
-                return NotFound();
+                return NotFound("SkinType not found");
             }
 
             if (!string.IsNullOrEmpty(updatedSkinType.SkinTypeName))
@@ -75,7 +75,7 @@ namespace BeautySky.Controllers
             _context.SkinTypes.Add(skinType);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetSkinType", new { id = skinType.SkinTypeId }, skinType);
+            return Ok("Add skinType success");
         }
 
         // DELETE: api/SkinTypes/5
@@ -85,13 +85,13 @@ namespace BeautySky.Controllers
             var skinType = await _context.SkinTypes.FindAsync(id);
             if (skinType == null)
             {
-                return NotFound();
+                return NotFound("SkinType not found");
             }
 
             _context.SkinTypes.Remove(skinType);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool SkinTypeExists(int id)

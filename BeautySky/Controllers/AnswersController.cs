@@ -35,7 +35,7 @@ namespace BeautySky.Controllers
 
             if (answer == null)
             {
-                return NotFound();
+                return NotFound("Answer not found");
             }
 
             return answer;
@@ -44,14 +44,20 @@ namespace BeautySky.Controllers
         // PUT: api/Answers/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAnswer(int id, Answer answer)
+        public async Task<IActionResult> PutAnswer(int id, [FromBody] Answer updateAnswer)
         {
-            if (id != answer.AnswerId)
+            var existingAnswer = await _context.Answers.FindAsync(id);
+            if (existingAnswer == null)
             {
-                return BadRequest();
+                return NotFound("Answer not found");
             }
 
-            _context.Entry(answer).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updateAnswer.AnswerText))
+                existingAnswer.AnswerText = updateAnswer.AnswerText;
+            if (!string.IsNullOrEmpty(updateAnswer.SkinTypeId))
+                existingAnswer.SkinTypeId = updateAnswer.SkinTypeId;
+            if (!string.IsNullOrEmpty(updateAnswer.Point))
+                existingAnswer.Point = updateAnswer.Point;
 
             try
             {
@@ -59,17 +65,9 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!AnswerExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the Answer.");
             }
-
-            return NoContent();
+            return Ok("Update Successful");
         }
 
         // POST: api/Answers
@@ -90,13 +88,13 @@ namespace BeautySky.Controllers
             var answer = await _context.Answers.FindAsync(id);
             if (answer == null)
             {
-                return NotFound();
+                return NotFound("Answer not found");
             }
 
             _context.Answers.Remove(answer);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool AnswerExists(int id)
