@@ -1,177 +1,128 @@
-﻿using BeautySky.Models;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using BeautySky.Models;
+using BeautySky.DTO;
 
-[ApiController]
-[Route("api/[controller]")]
-public class CarePlanController : ControllerBase
+namespace BeautySky.Controllers
 {
-    private readonly ProjectSwpContext _context;
-
-    public CarePlanController(ProjectSwpContext context)
+    [Route("api/[controller]")]
+    [ApiController]
+    public class TestSkinTypeController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly ProjectSwpContext _context;
 
-    [HttpPost("GetCarePlan")]
-    public IActionResult GetCarePlan(int userId)
-    {
-        var user = _context.Users.Find(userId);
-        if (user == null)
-            return NotFound("User not found");
-
-        // Lấy quiz gần nhất của user
-        var userQuiz = _context.UserQuizzes
-            .Where(uq => uq.UserId == userId)
-            .OrderByDescending(uq => uq.DateTaken) // Lấy quiz gần nhất
-            .FirstOrDefault();
-
-        if (userQuiz == null)
-            return NotFound("No quiz found for this user");
-
-        // Lấy UserAnswer tương ứng với quiz gần nhất
-        var userAnswer = _context.UserAnswers
-            .Where(ua => ua.UserQuizId == userQuiz.UserQuizId)
-            .OrderByDescending(ua => ua.UserAnswerId) // Lấy UserAnswer gần nhất nếu có nhiều câu trả lời
-            .FirstOrDefault();
-
-        if (userAnswer == null)
-            return NotFound("No answer found for this user");
-
-        // Lấy SkinTypeId từ UserAnswer của quiz gần nhất
-        int skinTypeId = userAnswer.SkinTypeId ?? 0;
-
-        // Lấy CarePlan dựa trên SkinTypeId của quiz gần nhất
-        var carePlan = _context.CarePlans.FirstOrDefault(cp => cp.SkinTypeId == skinTypeId);
-        if (carePlan == null)
-            return NotFound("No care plan found for this skin type");
-
-        SaveUserCarePlan(userId, carePlan.CarePlanId);
-
-        var steps = _context.CarePlanSteps.Where(s => s.CarePlanId == carePlan.CarePlanId).OrderBy(s => s.StepOrder).ToList();
-        var result = new
+        public TestSkinTypeController(ProjectSwpContext context)
         {
-            carePlan.PlanName,
-            carePlan.Description,
-            Steps = steps.Select(step => new
-            {
-                step.StepOrder,
-                step.StepName,
-                Products = GetRandomProductForStep(userAnswer.SkinTypeId, step.StepOrder) // Lấy 1 sản phẩm ngẫu nhiên cho mỗi bước
-            }).ToList()
-        };
-
-        return Ok(result);
-    }
-
-    private List<object> GetRandomProductForStep(int? skinTypeId, int stepOrder)
-    {
-        // Kiểm tra skinTypeId có null không, nếu null thì thay bằng 0 (hoặc giá trị mặc định bạn muốn)
-        int validSkinTypeId = skinTypeId ?? 0;
-
-        // Lấy sản phẩm phù hợp với SkinTypeId và StepOrder (CategoryId trong bảng Products tương ứng với StepOrder)
-        var products = _context.Products
-            .Where(p => p.SkinTypeId == validSkinTypeId && p.CategoryId == stepOrder) // Dựa vào StepOrder để chọn đúng category
-            .ToList();
-
-        // Nếu có sản phẩm phù hợp, chọn 1 sản phẩm ngẫu nhiên
-        if (products.Any())
-        {
-            var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-            return new List<object> // Trả về một danh sách chứa 1 sản phẩm
-        {
-            new
-            {
-                randomProduct.ProductId,
-                randomProduct.ProductName
-            }
-        };
+            _context = context;
         }
 
-        return new List<object>(); // Nếu không có sản phẩm, trả về danh sách rỗng
-    }
-
-    private void SaveUserCarePlan(int userId, int carePlanId)
-    {
-        // Lấy quiz mới nhất của user
-        var userQuiz = _context.UserQuizzes
-            .Where(uq => uq.UserId == userId)
-            .OrderByDescending(uq => uq.DateTaken)
-            .FirstOrDefault();
-
-        if (userQuiz == null) return;
-
-        // Lấy loại da mới nhất từ UserAnswer
-        var userAnswer = _context.UserAnswers
-            .Where(ua => ua.UserQuizId == userQuiz.UserQuizId)
-            .OrderByDescending(ua => ua.UserAnswerId)
-            .FirstOrDefault();
-
-        if (userAnswer == null) return;
-
-        int newSkinTypeId = userAnswer.SkinTypeId ?? 0; // Loại da mới nhất
-
-        // Xóa lộ trình cũ của user nếu có
-        var oldCarePlanProducts = _context.CarePlanProducts
-            .Where(cp => cp.UserId == userId)
-            .ToList();
-        _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
-
-        var oldUserCarePlan = _context.UserCarePlans
-            .Where(u => u.UserId == userId)
-            .ToList();
-        _context.UserCarePlans.RemoveRange(oldUserCarePlan);
-
-        _context.SaveChanges();
-
-        // Tạo lộ trình mới
-        var userCarePlan = new UserCarePlan
+        [HttpPost("submit-quiz")]
+        public async Task<IActionResult> SubmitQuiz([FromBody] List<UserAnswerDTO> userAnswers)
         {
-            UserId = userId,
-            CarePlanId = carePlanId,
-            DateCreate = DateTime.Now
-        };
-        _context.UserCarePlans.Add(userCarePlan);
-        _context.SaveChanges();
+            var result = new Dictionary<int, double>();
+            List<string> questionIds = new();
+            List<string> answerIds = new();
 
-        var steps = GetStepsByCarePlanId(carePlanId);
-        var random = new Random();
-
-        foreach (var step in steps)
-        {
-            // Lấy danh sách sản phẩm có cùng loại da và category
-            var products = _context.Products
-                .Where(p => p.SkinTypeId == newSkinTypeId && p.CategoryId == step.StepOrder)
-                .ToList();
-
-            if (products.Any())
+            if (userAnswers == null || !userAnswers.Any())
             {
-                // Chọn sản phẩm ngẫu nhiên phù hợp với loại da mới
-                var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+                return BadRequest("Danh sách câu trả lời không được trống.");
+            }
 
-                var carePlanProduct = new CarePlanProduct
+            int? userIdParsed = null;
+            if (User.Identity.IsAuthenticated)
+            {
+                var userIdClaim = User.FindFirst("userId");
+                if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int parseId))
                 {
-                    CarePlanId = carePlanId,
-                    ProductId = randomProduct.ProductId, // Sản phẩm mới đúng loại da
-                    ProductName = randomProduct.ProductName,
-                    StepId = step.StepId,
-                    UserId = userId
-                };
-
-                // Chỉ thêm sản phẩm mới nếu chưa có
-                if (!_context.CarePlanProducts.Any(cp => cp.UserId == userId && cp.ProductId == randomProduct.ProductId && cp.StepId == step.StepId))
-                {
-                    _context.CarePlanProducts.Add(carePlanProduct);
+                    userIdParsed = parseId;
                 }
             }
+
+            // Lấy QuizId từ câu hỏi đầu tiên
+            var firstQuestion = await _context.Questions
+                .FirstOrDefaultAsync(q => q.QuestionId == userAnswers[0].QuestionId);
+            if (firstQuestion == null)
+            {
+                return BadRequest("Không tìm thấy câu hỏi.");
+            }
+            var quizId = firstQuestion.QuizId;
+
+            UserQuiz? userQuiz = null;
+
+            // Nếu có userId thì lưu vào DB
+            if (userIdParsed != null)
+            {
+                userQuiz = new UserQuiz
+                {
+                    UserId = userIdParsed,
+                    QuizId = quizId
+                };
+                _context.UserQuizzes.Add(userQuiz);
+                await _context.SaveChangesAsync();
+            }
+
+            foreach (var userAnswerDto in userAnswers)
+            {
+                var answerRecord = await _context.Answers.FirstOrDefaultAsync(a => a.AnswerId == userAnswerDto.AnswerId);
+                if (answerRecord != null)
+                {
+                    questionIds.Add(userAnswerDto.QuestionId.ToString());
+                    answerIds.Add(userAnswerDto.AnswerId.ToString());
+
+                    var skinTypes = !string.IsNullOrEmpty(answerRecord.SkinTypeId) ? answerRecord.SkinTypeId.Split(',') : Array.Empty<string>();
+                    var points = !string.IsNullOrEmpty(answerRecord.Point) ? answerRecord.Point.Split(',') : Array.Empty<string>();
+
+                    if (skinTypes.Length == points.Length)
+                    {
+                        for (int i = 0; i < skinTypes.Length; i++)
+                        {
+                            if (int.TryParse(skinTypes[i], out int skinTypeId) && int.TryParse(points[i], out int point))
+                            {
+                                if (!result.ContainsKey(skinTypeId))
+                                {
+                                    result[skinTypeId] = 0;
+                                }
+                                result[skinTypeId] += point;
+                            }
+                        }
+                    }
+                }
+            }
+            var highestScoreSkinType = result.OrderByDescending(r => r.Value).FirstOrDefault();
+
+            if (userIdParsed != null && userQuiz != null)
+            {
+                var userAnswer = new UserAnswer
+                {
+                    UserQuizId = userQuiz.UserQuizId,
+                    QuestionId = string.Join(",", questionIds),
+                    AnswerId = string.Join(",", answerIds),
+                    SkinTypeId = highestScoreSkinType.Key > 0 ? highestScoreSkinType.Key : (int?)null
+                };
+                _context.UserAnswers.Add(userAnswer);
+                await _context.SaveChangesAsync();
+            }
+
+            var skinTypeResults = await _context.SkinTypes
+                .Select(st => new
+                {
+                    SkinTypeId = st.SkinTypeId,
+                    SkinTypeName = st.SkinTypeName,
+                    Points = result.ContainsKey(st.SkinTypeId) ? result[st.SkinTypeId] : 0
+                }).ToListAsync();
+
+            return Ok(new
+            {
+                SkinTypeResults = skinTypeResults,
+                BestSkinType = new
+                {
+                    SkinTypeId = highestScoreSkinType.Key,
+                    SkinTypeName = highestScoreSkinType.Key > 0 ? (await _context.SkinTypes.FirstOrDefaultAsync(st => st.SkinTypeId == highestScoreSkinType.Key))?.SkinTypeName : "Không xác định"
+                },
+                UserQuizId = userQuiz?.UserQuizId
+            });
         }
-        _context.SaveChanges();
-    }
 
-
-
-    // Lấy tất cả các bước của care plan theo CarePlanId
-    private List<CarePlanStep> GetStepsByCarePlanId(int carePlanId)
-    {
-        return _context.CarePlanSteps.Where(s => s.CarePlanId == carePlanId).ToList();
     }
 }

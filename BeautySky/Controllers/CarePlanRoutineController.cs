@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CarePlanRoutineController : ControllerBase
+public class CarePlanController : ControllerBase
 {
     private readonly ProjectSwpContext _context;
 
-    public CarePlanRoutineController(ProjectSwpContext context)
+    public CarePlanController(ProjectSwpContext context)
     {
         _context = context;
     }

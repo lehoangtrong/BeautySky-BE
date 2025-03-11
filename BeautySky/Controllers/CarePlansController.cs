@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
+using BeautySky.DTO;
 
 namespace BeautySky.Controllers
 {
@@ -44,14 +45,28 @@ namespace BeautySky.Controllers
         // PUT: api/CarePlans/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCarePlan(int id, CarePlan carePlan)
+        public async Task<IActionResult> PutCarePlan(int id, [FromBody] CarePlanUpdateDto updateDto)
         {
-            if (id != carePlan.CarePlanId)
+            var carePlan = await _context.CarePlans.FindAsync(id);
+
+            if (carePlan == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(carePlan).State = EntityState.Modified;
+            // Áp dụng các thay đổi từ DTO
+            if (updateDto.SkinTypeId.HasValue)
+            {
+                carePlan.SkinTypeId = updateDto.SkinTypeId.Value;
+            }
+            if (!string.IsNullOrEmpty(updateDto.PlanName))
+            {
+                carePlan.PlanName = updateDto.PlanName;
+            }
+            if (!string.IsNullOrEmpty(updateDto.Description))
+            {
+                carePlan.Description = updateDto.Description;
+            }
 
             try
             {
@@ -71,6 +86,7 @@ namespace BeautySky.Controllers
 
             return NoContent();
         }
+
 
         // POST: api/CarePlans
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
