@@ -895,6 +895,16 @@
         "Name": "name",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "categoryName",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "skinTypeName",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [

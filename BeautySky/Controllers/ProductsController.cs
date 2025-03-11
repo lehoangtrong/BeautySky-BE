@@ -111,9 +111,7 @@ namespace BeautySky.Controllers
                 p.SkinTypeId,
                 SkinTypeName = p.SkinType != null ? p.SkinType.SkinTypeName : null,
                 Rating = p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : (double?)null,
-                productsImages = p.ProductsImages,
-                CategoryName = p.Category != null ? p.Category.CategoryName : null, // Tránh lỗi null
-                SkinTypeName = p.SkinType != null ? p.SkinType.SkinTypeName : null  // Tránh lỗi null
+                productsImages = p.ProductsImages
             }).ToListAsync();
 
             return Ok(productList);

@@ -90,7 +90,7 @@ public partial class ProjectSwpContext : DbContext
 
             entity.Property(e => e.BlogId).HasColumnName("BlogID");
             entity.Property(e => e.AuthorId).HasColumnName("AuthorID");
-            entity.Property(e => e.Content).HasColumnType("text");
+            entity.Property(e => e.Content).HasMaxLength(255);
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
@@ -187,6 +187,7 @@ public partial class ProjectSwpContext : DbContext
                 .HasColumnName("ImageURL");
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.Title).HasMaxLength(255);
+            entity.Property(e => e.Content).HasMaxLength(255);
         });
 
         modelBuilder.Entity<Order>(entity =>

@@ -1453,6 +1453,20 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "categoryName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "skinTypeName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
