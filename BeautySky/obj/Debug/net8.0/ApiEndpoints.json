@@ -357,19 +357,45 @@
     ]
   },
   {
-    "ContainingType": "BeautySky.Controllers.CarePlanController",
+    "ContainingType": "CarePlanRoutineController",
+    "Method": "GetCarePlan",
+    "RelativePath": "api/CarePlanRoutine/GetCarePlan",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
     "Method": "GetCarePlans",
-    "RelativePath": "api/CarePlan",
+    "RelativePath": "api/CarePlans",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
     "Parameters": [],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.CarePlan, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
-    "ContainingType": "BeautySky.Controllers.CarePlanController",
-    "Method": "CreateCarePlan",
-    "RelativePath": "api/CarePlan",
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
+    "Method": "PostCarePlan",
+    "RelativePath": "api/CarePlans",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -380,12 +406,22 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "BeautySky.Models.CarePlan",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
-    "ContainingType": "BeautySky.Controllers.CarePlanController",
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
     "Method": "GetCarePlan",
-    "RelativePath": "api/CarePlan/{id}",
+    "RelativePath": "api/CarePlans/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -396,12 +432,22 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "BeautySky.Models.CarePlan",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
-    "ContainingType": "BeautySky.Controllers.CarePlanController",
-    "Method": "UpdateCarePlan",
-    "RelativePath": "api/CarePlan/{id}",
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
+    "Method": "PutCarePlan",
+    "RelativePath": "api/CarePlans/{id}",
     "HttpMethod": "PUT",
     "IsController": true,
     "Order": 0,
@@ -420,9 +466,9 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "BeautySky.Controllers.CarePlanController",
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
     "Method": "DeleteCarePlan",
-    "RelativePath": "api/CarePlan/{id}",
+    "RelativePath": "api/CarePlans/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -1554,14 +1600,14 @@
   {
     "ContainingType": "BeautySky.Controllers.TestSkinTypeController",
     "Method": "SubmitQuiz",
-    "RelativePath": "api/TestSkinType/SubmitQuiz",
+    "RelativePath": "api/TestSkinType/submit-quiz",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "userAnswers",
-        "Type": "System.Collections.Generic.List\u00601[[BeautySky.Controllers.UserAnswerDto, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.List\u00601[[BeautySky.DTO.UserAnswerDto, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": true
       }
     ],

@@ -542,20 +542,68 @@
         }
       }
     },
-    "/api/CarePlan": {
-      "get": {
+    "/api/CarePlanRoutine/GetCarePlan": {
+      "post": {
         "tags": [
-          "CarePlan"
+          "CarePlanRoutine"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
         ],
         "responses": {
           "200": {
             "description": "Success"
           }
         }
+      }
+    },
+    "/api/CarePlans": {
+      "get": {
+        "tags": [
+          "CarePlans"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CarePlan"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CarePlan"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CarePlan"
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       "post": {
         "tags": [
-          "CarePlan"
+          "CarePlans"
         ],
         "requestBody": {
           "content": {
@@ -578,15 +626,32 @@
         },
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              }
+            }
           }
         }
       }
     },
-    "/api/CarePlan/{id}": {
+    "/api/CarePlans/{id}": {
       "get": {
         "tags": [
-          "CarePlan"
+          "CarePlans"
         ],
         "parameters": [
           {
@@ -601,13 +666,30 @@
         ],
         "responses": {
           "200": {
-            "description": "Success"
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              }
+            }
           }
         }
       },
       "put": {
         "tags": [
-          "CarePlan"
+          "CarePlans"
         ],
         "parameters": [
           {
@@ -647,7 +729,7 @@
       },
       "delete": {
         "tags": [
-          "CarePlan"
+          "CarePlans"
         ],
         "parameters": [
           {
@@ -2561,7 +2643,7 @@
         }
       }
     },
-    "/api/TestSkinType/SubmitQuiz": {
+    "/api/TestSkinType/submit-quiz": {
       "post": {
         "tags": [
           "TestSkinType"
@@ -2917,40 +2999,6 @@
             "nullable": true
           },
           "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "carePlanStep": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/CarePlanStep"
-            },
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "CarePlanStep": {
-        "type": "object",
-        "properties": {
-          "stepId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "carePlanId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "stepOrder": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "stepName": {
-            "type": "string",
-            "nullable": true
-          },
-          "stepDescription": {
             "type": "string",
             "nullable": true
           }
