@@ -35,7 +35,7 @@ namespace BeautySky.Controllers
 
             if (news == null)
             {
-                return NotFound();
+                return NotFound("New not found");
             }
 
             return news;
@@ -49,7 +49,7 @@ namespace BeautySky.Controllers
             var existingNews = await _context.News.FindAsync(id);
             if (existingNews == null)
             {
-                return NotFound();
+                return NotFound("New not found");
             }
 
             if (!string.IsNullOrEmpty(updatedNews.Title))
@@ -90,7 +90,7 @@ namespace BeautySky.Controllers
             _context.News.Add(news);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetNews", new { id = news.Id }, news);
+            return Ok("Add new success");
         }
 
         // DELETE: api/News/5
@@ -100,13 +100,13 @@ namespace BeautySky.Controllers
             var news = await _context.News.FindAsync(id);
             if (news == null)
             {
-                return NotFound();
+                return NotFound("New not found");
             }
 
             _context.News.Remove(news);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool NewsExists(int id)

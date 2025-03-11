@@ -2,6 +2,6 @@
 {
     public class UserAnswerRequest
     {
-        public List<UserAnswerDto> UserAnswers { get; set; }
+        public List<UserAnswerDTO> UserAnswers { get; set; }
     }
 }

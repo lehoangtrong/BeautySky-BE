@@ -35,7 +35,7 @@ namespace BeautySky.Controllers
 
             if (category == null)
             {
-                return NotFound();
+                return NotFound("Category not found");
             }
 
             return category;
@@ -49,7 +49,7 @@ namespace BeautySky.Controllers
             var existingCategory = await _context.Categories.FindAsync(id);
             if (existingCategory == null)
             {
-                return NotFound();
+                return NotFound("Category not found");
             }
             if (!string.IsNullOrEmpty(updateCategory.CategoryName))
                 existingCategory.CategoryName = updateCategory.CategoryName;
@@ -73,7 +73,7 @@ namespace BeautySky.Controllers
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            return Ok("Add category success");
         }
 
         // DELETE: api/Categories/5
@@ -83,13 +83,13 @@ namespace BeautySky.Controllers
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
             {
-                return NotFound();
+                return NotFound("Category not found");
             }
 
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool CategoryExists(int id)

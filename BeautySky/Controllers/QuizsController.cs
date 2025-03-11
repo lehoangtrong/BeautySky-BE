@@ -35,7 +35,7 @@ namespace BeautySky.Controllers
 
             if (quiz == null)
             {
-                return NotFound();
+                return NotFound("Review not found");
             }
 
             return quiz;
@@ -90,13 +90,13 @@ namespace BeautySky.Controllers
             var quiz = await _context.Quizzes.FindAsync(id);
             if (quiz == null)
             {
-                return NotFound();
+                return NotFound("Review not found");
             }
 
             _context.Quizzes.Remove(quiz);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete quiz success");
         }
 
         private bool QuizExists(int id)

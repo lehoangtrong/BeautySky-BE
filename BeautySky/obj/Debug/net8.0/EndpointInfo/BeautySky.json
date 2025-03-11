@@ -542,15 +542,200 @@
         }
       }
     },
-    "/api/CarePlan/GetCarePlan": {
+    "/api/CarePlanRoutine/GetCarePlan": {
       "post": {
         "tags": [
-          "CarePlan"
+          "CarePlanRoutine"
         ],
         "parameters": [
           {
             "name": "userId",
             "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/CarePlans": {
+      "get": {
+        "tags": [
+          "CarePlans"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CarePlan"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CarePlan"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CarePlan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CarePlans"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CarePlans/{id}": {
+      "get": {
+        "tags": [
+          "CarePlans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CarePlans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CarePlans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
             "schema": {
               "type": "integer",
               "format": "int32"
@@ -2791,6 +2976,29 @@
             "nullable": true
           },
           "imgURL": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CarePlan": {
+        "type": "object",
+        "properties": {
+          "carePlanId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skinTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
             "type": "string",
             "nullable": true
           }
