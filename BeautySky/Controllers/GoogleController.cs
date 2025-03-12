@@ -68,7 +68,6 @@ namespace BeautySky.Controllers
                 await _context.SaveChangesAsync();
                 return Ok("Cập nhật thành công");
             }
-
             return Ok("Không có thay đổi");
         }
 
