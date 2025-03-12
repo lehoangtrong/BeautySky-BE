@@ -65,29 +65,35 @@ public class CarePlanController : ControllerBase
 
     private List<object> GetRandomProductForStep(int? skinTypeId, int stepOrder)
     {
-        // Kiểm tra skinTypeId có null không, nếu null thì thay bằng 0 (hoặc giá trị mặc định bạn muốn)
         int validSkinTypeId = skinTypeId ?? 0;
 
-        // Lấy sản phẩm phù hợp với SkinTypeId và StepOrder (CategoryId trong bảng Products tương ứng với StepOrder)
         var products = _context.Products
-            .Where(p => p.SkinTypeId == validSkinTypeId && p.CategoryId == stepOrder) // Dựa vào StepOrder để chọn đúng category
+            .Where(p => p.SkinTypeId == validSkinTypeId && p.CategoryId == stepOrder)
             .ToList();
 
-        // Nếu có sản phẩm phù hợp, chọn 1 sản phẩm ngẫu nhiên
         if (products.Any())
         {
             var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-            return new List<object> // Trả về một danh sách chứa 1 sản phẩm
+
+            // Lấy hình ảnh của sản phẩm
+            var productImage = _context.ProductsImages
+                .Where(img => img.ProductId == randomProduct.ProductId)
+                .Select(img => img.ImageUrl)
+                .FirstOrDefault(); // Lấy một ảnh bất kỳ của sản phẩm
+
+            return new List<object>
+    {
+        new
         {
-            new
-            {
-                randomProduct.ProductId,
-                randomProduct.ProductName
-            }
-        };
+            randomProduct.ProductId,
+            randomProduct.ProductName,
+            ProductImage = productImage, // Đường dẫn ảnh sản phẩm
+            Price = randomProduct.Price // Giá sản phẩm
+        }
+    };
         }
 
-        return new List<object>(); // Nếu không có sản phẩm, trả về danh sách rỗng
+        return new List<object>();
     }
 
     private void SaveUserCarePlan(int userId, int carePlanId)
