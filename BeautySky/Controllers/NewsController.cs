@@ -152,6 +152,9 @@ namespace BeautySky.Controllers
             _context.News.Remove(news);
             await _context.SaveChangesAsync();
             return Ok("News deleted successfully");
+
+
+           
         }
     }
 }
