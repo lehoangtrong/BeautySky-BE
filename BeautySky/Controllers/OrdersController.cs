@@ -21,13 +21,59 @@ namespace BeautySky.Controllers
             _context = context;
         }
 
+        // GET: api/Orders
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<object>>> GetOrders()
+        {
+            var orders = await _context.Orders
+                .Include(o => o.OrderProducts)
+                .Select(o => new
+                {
+                    o.OrderId,
+                    o.OrderDate,
+                    o.UserId,
+                    o.PromotionId,
+                    o.DiscountAmount,
+                    o.TotalAmount,
+                    o.FinalAmount,
+                    o.Status,
+                    Products = o.OrderProducts.Select(op => new
+                    {
+                        op.ProductId,
+                        ProductName = _context.Products.Where(p => p.ProductId == op.ProductId).Select(p => p.ProductName).FirstOrDefault(),
+                        op.Quantity
+                    }).ToList()
+                })
+                .ToListAsync();
+
+            return Ok(orders);
+        }
+
         // GET: api/Orders/{id}
         [HttpGet("{id}")]
-        public async Task<ActionResult<Order>> GetOrder(int id)
+        public async Task<ActionResult<object>> GetOrder(int id)
         {
             var order = await _context.Orders
                 .Include(o => o.OrderProducts)
-                .FirstOrDefaultAsync(o => o.OrderId == id);
+                .Where(o => o.OrderId == id)
+                .Select(o => new
+                {
+                    o.OrderId,
+                    o.OrderDate,
+                    o.UserId,
+                    o.PromotionId,
+                    o.DiscountAmount, 
+                    o.TotalAmount,
+                    o.FinalAmount,
+                    o.Status,
+                    Products = o.OrderProducts.Select(op => new
+                    {
+                        op.ProductId,
+                        ProductName = _context.Products.Where(p => p.ProductId == op.ProductId).Select(p => p.ProductName).FirstOrDefault(),
+                        op.Quantity
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
             if (order == null)
             {
@@ -110,6 +156,92 @@ namespace BeautySky.Controllers
                 await transaction.RollbackAsync();
                 return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create order");
             }
+        }
+        // PUT: api/Orders/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateOrder(int id, OrderRequest request)
+        {
+            var order = await _context.Orders.Include(o => o.OrderProducts).FirstOrDefaultAsync(o => o.OrderId == id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                decimal? discountAmount = null;
+                if (request.PromotionID.HasValue)
+                {
+                    var promotion = await _context.Promotions.FindAsync(request.PromotionID);
+                    if (promotion != null)
+                    {
+                        discountAmount = promotion.DiscountPercentage / 100 * request.OrderProducts.Sum(p => p.Quantity * _context.Products.Find(p.ProductID).Price);
+                    }
+                }
+
+                order.PromotionId = request.PromotionID;
+                order.DiscountAmount = discountAmount;
+
+                _context.OrderProducts.RemoveRange(order.OrderProducts);
+
+                var orderProducts = new List<OrderProduct>();
+                decimal totalAmount = 0;
+
+                foreach (var productRequest in request.OrderProducts)
+                {
+                    var product = await _context.Products.FindAsync(productRequest.ProductID);
+                    if (product == null)
+                    {
+                        return NotFound($"Product with ID {productRequest.ProductID} not found.");
+                    }
+
+                    var unitPrice = product.Price;
+                    var totalPrice = productRequest.Quantity * unitPrice;
+
+                    orderProducts.Add(new OrderProduct
+                    {
+                        OrderId = order.OrderId,
+                        ProductId = productRequest.ProductID,
+                        Quantity = productRequest.Quantity,
+                        UnitPrice = unitPrice,
+                        TotalPrice = totalPrice
+                    });
+
+                    totalAmount += totalPrice;
+                }
+
+                order.TotalAmount = totalAmount;
+                order.FinalAmount = totalAmount - (discountAmount ?? 0);
+
+                _context.OrderProducts.AddRange(orderProducts);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update order");
+            }
+        }
+
+        // DELETE: api/Orders/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder(int id)
+        {
+            var order = await _context.Orders.Include(o => o.OrderProducts).FirstOrDefaultAsync(o => o.OrderId == id);
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            _context.OrderProducts.RemoveRange(order.OrderProducts);
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 
