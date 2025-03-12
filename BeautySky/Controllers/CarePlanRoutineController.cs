@@ -80,6 +80,71 @@ public class CarePlanController : ControllerBase
         return Ok(result);
     }
 
+
+    [HttpPost("SaveUserCarePlan")]
+    public async Task<IActionResult> SaveUserCarePlan([FromBody] SaveCarePlanRequest request)
+    {
+        var user = await _context.Users.FindAsync(request.UserId);
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+
+        // Xóa lộ trình cũ của user nếu có
+        var oldCarePlanProducts = _context.CarePlanProducts
+            .Where(cp => cp.UserId == request.UserId)
+            .ToList();
+        _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
+
+        var oldUserCarePlan = _context.UserCarePlans
+            .Where(u => u.UserId == request.UserId)
+            .ToList();
+        _context.UserCarePlans.RemoveRange(oldUserCarePlan);
+
+        await _context.SaveChangesAsync();
+
+        // Tạo lộ trình mới
+        var userCarePlan = new UserCarePlan
+        {
+            UserId = request.UserId,
+            CarePlanId = request.CarePlanId,
+            DateCreate = DateTime.Now
+        };
+        _context.UserCarePlans.Add(userCarePlan);
+        await _context.SaveChangesAsync();
+
+        var steps = GetStepsByCarePlanId(request.CarePlanId);
+
+        foreach (var step in steps)
+        {
+            var products = _context.Products
+                .Where(p => p.SkinTypeId == request.SkinTypeId && p.CategoryId == step.StepOrder)
+                .ToList();
+
+            if (products.Any())
+            {
+                var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+
+                var carePlanProduct = new CarePlanProduct
+                {
+                    CarePlanId = request.CarePlanId,
+                    ProductId = randomProduct.ProductId,
+                    ProductName = randomProduct.ProductName,
+                    StepId = step.StepId,
+                    UserId = request.UserId
+                };
+
+                if (!_context.CarePlanProducts.Any(cp => cp.UserId == request.UserId && cp.ProductId == randomProduct.ProductId && cp.StepId == step.StepId))
+                {
+                    _context.CarePlanProducts.Add(carePlanProduct);
+                }
+            }
+        }
+        await _context.SaveChangesAsync();
+
+        return Ok("Lộ trình đã được lưu thành công!");
+    }
+
     [HttpPost("GetCarePlan")]
     public IActionResult GetCarePlan(int userId)
     {
