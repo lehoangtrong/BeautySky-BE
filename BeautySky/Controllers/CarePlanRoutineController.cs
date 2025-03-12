@@ -1,5 +1,6 @@
 ﻿using BeautySky.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -10,6 +11,73 @@ public class CarePlanController : ControllerBase
     public CarePlanController(ProjectSwpContext context)
     {
         _context = context;
+    }
+
+
+    [HttpGet("GetUserCarePlan/{userId}")]
+    public async Task<IActionResult> GetUserCarePlan(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+
+        var userQuiz = await _context.UserQuizzes
+            .Where(uq => uq.UserId == userId)
+            .OrderByDescending(uq => uq.DateTaken)
+            .FirstOrDefaultAsync();
+
+        if (userQuiz == null)
+        {
+            return NotFound("No quiz found for this user");
+        }
+
+        var userAnswer = await _context.UserAnswers
+            .Where(ua => ua.UserQuizId == userQuiz.UserQuizId)
+            .OrderByDescending(ua => ua.UserAnswerId)
+            .FirstOrDefaultAsync();
+
+        if (userAnswer == null)
+        {
+            return NotFound("No answer found for this user");
+        }
+
+        int skinTypeId = userAnswer.SkinTypeId ?? 0;
+
+        var carePlan = await _context.CarePlans
+            .Include(cp => cp.CarePlanStep)
+                .ThenInclude(cps => cps.CarePlanProducts)
+                    .ThenInclude(cpp => cpp.Product)
+            .FirstOrDefaultAsync(cp => cp.SkinTypeId == skinTypeId);
+
+        if (carePlan == null)
+        {
+            return NotFound("No care plan found for this skin type");
+        }
+
+        var result = new
+        {
+            carePlan.PlanName,
+            carePlan.Description,
+            Steps = carePlan.CarePlanStep.OrderBy(s => s.StepOrder).Select(step => new
+            {
+                step.StepOrder,
+                step.StepName,
+                Products = step.CarePlanProducts.Select(cpp => new
+                {
+                    cpp.Product.ProductId,
+                    cpp.Product.ProductName,
+                    ProductImage = _context.ProductsImages
+                        .Where(img => img.ProductId == cpp.Product.ProductId)
+                        .Select(img => img.ImageUrl)
+                        .FirstOrDefault(),
+                    cpp.Product.Price
+                }).ToList()
+            }).ToList()
+        };
+
+        return Ok(result);
     }
 
     [HttpPost("GetCarePlan")]
