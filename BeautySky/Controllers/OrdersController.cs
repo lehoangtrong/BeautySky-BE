@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BeautySky.Controllers
 {
@@ -20,6 +21,29 @@ namespace BeautySky.Controllers
         {
             _context = context;
         }
+
+
+
+
+        [HttpGet("orders/myOrders")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<Order>>> GetMyOrders()
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("Invalid token or missing userId claim.");
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            var orders = await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
+            if (!orders.Any()) return NotFound("No orders found for this user");
+
+            return Ok(orders);
+        }
+
+
 
         // GET: api/Orders
         [HttpGet]
