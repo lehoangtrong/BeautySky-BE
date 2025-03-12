@@ -137,7 +137,7 @@
         "IsRequired": true
       },
       {
-        "Name": "updateAnswer",
+        "Name": "answer",
         "Type": "BeautySky.Models.Answer",
         "IsRequired": true
       }
@@ -172,9 +172,7 @@
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Blog, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
+          "application/json"
         ],
         "StatusCode": 200
       }
@@ -189,42 +187,25 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "Title",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Content",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "AuthorId",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "Status",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "SkinType",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Category",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "File",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
+        "Name": "blogCreateRequest",
+        "Type": "BeautySky.DTO.BlogCreateRequest",
+        "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 201
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 400
+      }
+    ]
   },
   {
     "ContainingType": "BeautySky.Controllers.BlogsController",
@@ -244,11 +225,16 @@
       {
         "Type": "BeautySky.Models.Blog",
         "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
+          "application/json"
         ],
         "StatusCode": 200
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 404
       }
     ]
   },
@@ -266,42 +252,32 @@
         "IsRequired": true
       },
       {
-        "Name": "Title",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Content",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "AuthorId",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "Status",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "SkinType",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Category",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "File",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
+        "Name": "blog",
+        "Type": "BeautySky.Models.Blog",
+        "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 204
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 400
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 404
+      }
+    ]
   },
   {
     "ContainingType": "BeautySky.Controllers.BlogsController",
@@ -317,12 +293,25 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [
+      {
+        "Type": "System.Void",
+        "MediaTypes": [],
+        "StatusCode": 204
+      },
+      {
+        "Type": "Microsoft.AspNetCore.Mvc.ProblemDetails",
+        "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 404
+      }
+    ]
   },
   {
     "ContainingType": "BeautySky.Controllers.BlogsController",
     "Method": "GetBlogsByCategory",
-    "RelativePath": "api/Blogs/byCategory/{category}",
+    "RelativePath": "api/Blogs/by-category/{category}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -337,9 +326,7 @@
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Blog, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
+          "application/json"
         ],
         "StatusCode": 200
       }
@@ -348,7 +335,7 @@
   {
     "ContainingType": "BeautySky.Controllers.BlogsController",
     "Method": "GetBlogsBySkinType",
-    "RelativePath": "api/Blogs/bySkinType/{skinType}",
+    "RelativePath": "api/Blogs/by-skin-type/{skinType}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -363,6 +350,40 @@
       {
         "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Blog, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
+          "application/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "CarePlanRoutineController",
+    "Method": "GetCarePlan",
+    "RelativePath": "api/CarePlanRoutine/GetCarePlan",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
+    "Method": "GetCarePlans",
+    "RelativePath": "api/CarePlans",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.CarePlan, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
           "text/plain",
           "application/json",
           "text/json"
@@ -370,6 +391,95 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
+    "Method": "PostCarePlan",
+    "RelativePath": "api/CarePlans",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "carePlan",
+        "Type": "BeautySky.Models.CarePlan",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BeautySky.Models.CarePlan",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
+    "Method": "GetCarePlan",
+    "RelativePath": "api/CarePlans/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BeautySky.Models.CarePlan",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
+    "Method": "PutCarePlan",
+    "RelativePath": "api/CarePlans/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "carePlan",
+        "Type": "BeautySky.Models.CarePlan",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlansController",
+    "Method": "DeleteCarePlan",
+    "RelativePath": "api/CarePlans/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "BeautySky.Controllers.CategoriesController",
@@ -545,34 +655,9 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "Title",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Content",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "CreateDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "StartDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "EndDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "File",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
+        "Name": "news",
+        "Type": "BeautySky.Models.News",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": [
@@ -627,34 +712,9 @@
         "IsRequired": true
       },
       {
-        "Name": "Title",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Content",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "CreateDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "StartDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "EndDate",
-        "Type": "System.Nullable\u00601[[System.DateTime, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "File",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
+        "Name": "updatedNews",
+        "Type": "BeautySky.Models.News",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -724,8 +784,8 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.OrdersController",
-    "Method": "AddToCart",
-    "RelativePath": "api/Orders/add-to-cart",
+    "Method": "CreateOrder",
+    "RelativePath": "api/Orders/order-products",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -736,137 +796,17 @@
         "IsRequired": false
       },
       {
+        "Name": "promotionID",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
         "Name": "products",
         "Type": "System.Collections.Generic.List\u00601[[BeautySky.Controllers.OrderProductRequest, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": true
       }
     ],
     "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.OrdersController",
-    "Method": "Checkout",
-    "RelativePath": "api/Orders/checkout",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "orderId",
-        "Type": "System.Int32",
-        "IsRequired": false
-      },
-      {
-        "Name": "promotionID",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.OrdersController",
-    "Method": "GetUserInCartOrder",
-    "RelativePath": "api/Orders/in-cart",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.OrdersController",
-    "Method": "GetPaidOrders",
-    "RelativePath": "api/Orders/Pending-orders",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "DeletePayment",
-    "RelativePath": "api/Payments/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "GetAllPaymentDetails",
-    "RelativePath": "api/Payments/AllDetails",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "ConfirmPayment",
-    "RelativePath": "api/Payments/ConfirmPayment/{paymentId}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "paymentId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "GetPaymentDetails",
-    "RelativePath": "api/Payments/Details/{paymentId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "paymentId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "ProcessPayment",
-    "RelativePath": "api/Payments/ProcessPayment/{orderId}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "orderId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "BeautySky.Models.Payment",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
   },
   {
     "ContainingType": "BeautySky.Controllers.ProductsController",
@@ -895,21 +835,11 @@
         "Name": "name",
         "Type": "System.String",
         "IsRequired": false
-      },
-      {
-        "Name": "categoryName",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "skinTypeName",
-        "Type": "System.String",
-        "IsRequired": false
       }
     ],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Product, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -928,49 +858,35 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "ProductName",
-        "Type": "System.String",
-        "IsRequired": false
-      },
+        "Name": "product",
+        "Type": "BeautySky.Models.Product",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
       {
-        "Name": "Price",
-        "Type": "System.Nullable\u00601[[System.Decimal, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
+        "Type": "BeautySky.Models.Product",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.ProductsController",
+    "Method": "GetProduct",
+    "RelativePath": "api/Products/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
       {
-        "Name": "Quantity",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "Description",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Ingredient",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "CategoryId",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "SkinTypeId",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "File",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
-      },
-      {
-        "Name": "ImageDescription",
-        "Type": "System.String",
-        "IsRequired": false
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": [
@@ -999,49 +915,9 @@
         "IsRequired": true
       },
       {
-        "Name": "ProductName",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Price",
-        "Type": "System.Nullable\u00601[[System.Decimal, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "Quantity",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "Description",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "Ingredient",
-        "Type": "System.String",
-        "IsRequired": false
-      },
-      {
-        "Name": "CategoryId",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "SkinTypeId",
-        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
-        "IsRequired": false
-      },
-      {
-        "Name": "File",
-        "Type": "Microsoft.AspNetCore.Http.IFormFile",
-        "IsRequired": false
-      },
-      {
-        "Name": "ImageDescription",
-        "Type": "System.String",
-        "IsRequired": false
+        "Name": "updatedProduct",
+        "Type": "BeautySky.Models.Product",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -1172,115 +1048,6 @@
         "Name": "imageDescription",
         "Type": "System.String",
         "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PromotionsController",
-    "Method": "GetPromotions",
-    "RelativePath": "api/Promotions",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": [
-      {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Promotion, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PromotionsController",
-    "Method": "CreatePromotion",
-    "RelativePath": "api/Promotions",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "promotion",
-        "Type": "BeautySky.Models.Promotion",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "BeautySky.Models.Promotion",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PromotionsController",
-    "Method": "GetPromotion",
-    "RelativePath": "api/Promotions/{id}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "BeautySky.Models.Promotion",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PromotionsController",
-    "Method": "UpdatePromotion",
-    "RelativePath": "api/Promotions/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "promotion",
-        "Type": "BeautySky.Models.Promotion",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PromotionsController",
-    "Method": "DeletePromotion",
-    "RelativePath": "api/Promotions/{id}",
-    "HttpMethod": "DELETE",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -1513,7 +1280,7 @@
     "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Review, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -1574,6 +1341,27 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.ReviewsController",
+    "Method": "PutReview",
+    "RelativePath": "api/Reviews/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "review",
+        "Type": "BeautySky.Models.Review",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "BeautySky.Controllers.ReviewsController",
@@ -1812,14 +1600,14 @@
   {
     "ContainingType": "BeautySky.Controllers.TestSkinTypeController",
     "Method": "SubmitQuiz",
-    "RelativePath": "api/TestSkinType/SubmitQuiz",
+    "RelativePath": "api/TestSkinType/submit-quiz",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
         "Name": "userAnswers",
-        "Type": "System.Collections.Generic.List\u00601[[BeautySky.DTO.UserAnswerDTO, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "Type": "System.Collections.Generic.List\u00601[[BeautySky.DTO.UserAnswerDto, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": true
       }
     ],

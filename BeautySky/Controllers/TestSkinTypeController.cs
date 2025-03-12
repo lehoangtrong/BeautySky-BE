@@ -17,7 +17,7 @@ namespace BeautySky.Controllers
             _context = context;
         }
 
-        [HttpPost("SubmitQuiz")]
+        [HttpPost("submit-quiz")]
         public async Task<IActionResult> SubmitQuiz([FromBody] List<UserAnswerDTO> userAnswers)
         {
             var result = new Dictionary<int, double>();

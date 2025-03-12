@@ -112,12 +112,14 @@ namespace BeautySky.Controllers
             }
 
             var claims = new List<Claim>
-    {
+            {
                 new Claim("userId", user.UserId.ToString()),
                 new Claim("name", user.UserName),
                 new Claim("email", user.Email),
-                new Claim("role", roleName)
-    };
+                new Claim("role", roleName),
+                new Claim("phone", user.Phone),
+                new Claim("address", user.Address),
+            };
 
             var token = new JwtSecurityToken(
                 issuer: _configuration["JWT:ValidIssuer"],

@@ -295,23 +295,7 @@
           "200": {
             "description": "Success",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Blog"
-                  }
-                }
-              },
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Blog"
-                  }
-                }
-              },
-              "text/json": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -329,64 +313,36 @@
         ],
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "Title": {
-                    "type": "string"
-                  },
-                  "Content": {
-                    "type": "string"
-                  },
-                  "AuthorId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "Status": {
-                    "type": "string"
-                  },
-                  "SkinType": {
-                    "type": "string"
-                  },
-                  "Category": {
-                    "type": "string"
-                  },
-                  "File": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              },
-              "encoding": {
-                "Title": {
-                  "style": "form"
-                },
-                "Content": {
-                  "style": "form"
-                },
-                "AuthorId": {
-                  "style": "form"
-                },
-                "Status": {
-                  "style": "form"
-                },
-                "SkinType": {
-                  "style": "form"
-                },
-                "Category": {
-                  "style": "form"
-                },
-                "File": {
-                  "style": "form"
-                }
+                "$ref": "#/components/schemas/BlogCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlogCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/BlogCreateRequest"
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Success"
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       }
@@ -411,19 +367,19 @@
           "200": {
             "description": "Success",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Blog"
-                }
-              },
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Blog"
                 }
-              },
-              "text/json": {
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Blog"
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -447,64 +403,46 @@
         ],
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "Title": {
-                    "type": "string"
-                  },
-                  "Content": {
-                    "type": "string"
-                  },
-                  "AuthorId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "Status": {
-                    "type": "string"
-                  },
-                  "SkinType": {
-                    "type": "string"
-                  },
-                  "Category": {
-                    "type": "string"
-                  },
-                  "File": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              },
-              "encoding": {
-                "Title": {
-                  "style": "form"
-                },
-                "Content": {
-                  "style": "form"
-                },
-                "AuthorId": {
-                  "style": "form"
-                },
-                "Status": {
-                  "style": "form"
-                },
-                "SkinType": {
-                  "style": "form"
-                },
-                "Category": {
-                  "style": "form"
-                },
-                "File": {
-                  "style": "form"
-                }
+                "$ref": "#/components/schemas/Blog"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Blog"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Blog"
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Success"
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
           }
         }
       },
@@ -524,53 +462,15 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Blogs/byCategory/{category}": {
-      "get": {
-        "tags": [
-          "Blogs"
-        ],
-        "parameters": [
-          {
-            "name": "category",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Blog"
-                  }
-                }
-              },
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Blog"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Blog"
-                  }
+                  "$ref": "#/components/schemas/ProblemDetails"
                 }
               }
             }
@@ -578,7 +478,7 @@
         }
       }
     },
-    "/api/Blogs/bySkinType/{skinType}": {
+    "/api/Blogs/by-skin-type/{skinType}": {
       "get": {
         "tags": [
           "Blogs"
@@ -597,23 +497,7 @@
           "200": {
             "description": "Success",
             "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Blog"
-                  }
-                }
-              },
               "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Blog"
-                  }
-                }
-              },
-              "text/json": {
                 "schema": {
                   "type": "array",
                   "items": {
@@ -622,6 +506,245 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/Blogs/by-category/{category}": {
+      "get": {
+        "tags": [
+          "Blogs"
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Blog"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CarePlanRoutine/GetCarePlan": {
+      "post": {
+        "tags": [
+          "CarePlanRoutine"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/CarePlans": {
+      "get": {
+        "tags": [
+          "CarePlans"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CarePlan"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CarePlan"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CarePlan"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "CarePlans"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/CarePlans/{id}": {
+      "get": {
+        "tags": [
+          "CarePlans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CarePlan"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CarePlans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarePlan"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CarePlans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
           }
         }
       }
@@ -909,53 +1032,19 @@
         ],
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "Title": {
-                    "type": "string"
-                  },
-                  "Content": {
-                    "type": "string"
-                  },
-                  "CreateDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "StartDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "EndDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "File": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              },
-              "encoding": {
-                "Title": {
-                  "style": "form"
-                },
-                "Content": {
-                  "style": "form"
-                },
-                "CreateDate": {
-                  "style": "form"
-                },
-                "StartDate": {
-                  "style": "form"
-                },
-                "EndDate": {
-                  "style": "form"
-                },
-                "File": {
-                  "style": "form"
-                }
+                "$ref": "#/components/schemas/News"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/News"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/News"
               }
             }
           }
@@ -1040,53 +1129,19 @@
         ],
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "Title": {
-                    "type": "string"
-                  },
-                  "Content": {
-                    "type": "string"
-                  },
-                  "CreateDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "StartDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "EndDate": {
-                    "type": "string",
-                    "format": "date-time"
-                  },
-                  "File": {
-                    "type": "string",
-                    "format": "binary"
-                  }
-                }
-              },
-              "encoding": {
-                "Title": {
-                  "style": "form"
-                },
-                "Content": {
-                  "style": "form"
-                },
-                "CreateDate": {
-                  "style": "form"
-                },
-                "StartDate": {
-                  "style": "form"
-                },
-                "EndDate": {
-                  "style": "form"
-                },
-                "File": {
-                  "style": "form"
-                }
+                "$ref": "#/components/schemas/News"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/News"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/News"
               }
             }
           }
@@ -1120,110 +1175,6 @@
       }
     },
     "/api/Orders": {
-      "get": {
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Orders/in-cart": {
-      "get": {
-        "tags": [
-          "Orders"
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Orders/add-to-cart": {
-      "post": {
-        "tags": [
-          "Orders"
-        ],
-        "parameters": [
-          {
-            "name": "userID",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/OrderProductRequest"
-                }
-              }
-            },
-            "text/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/OrderProductRequest"
-                }
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/OrderProductRequest"
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Orders/checkout": {
-      "post": {
-        "tags": [
-          "Orders"
-        ],
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          },
-          {
-            "name": "promotionID",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Orders/Pending-orders": {
       "get": {
         "tags": [
           "Orders"
@@ -1298,120 +1249,57 @@
         }
       }
     },
-    "/api/Payments/ProcessPayment/{orderId}": {
+    "/api/Orders/order-products": {
       "post": {
         "tags": [
-          "Payments"
+          "Orders"
         ],
         "parameters": [
           {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
+            "name": "userID",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "promotionID",
+            "in": "query",
             "schema": {
               "type": "integer",
               "format": "int32"
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Payment"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OrderProductRequest"
                 }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Payment"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OrderProductRequest"
                 }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Payment"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/OrderProductRequest"
                 }
               }
             }
           }
-        }
-      }
-    },
-    "/api/Payments/Details/{paymentId}": {
-      "get": {
-        "tags": [
-          "Payments"
-        ],
-        "parameters": [
-          {
-            "name": "paymentId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Payments/AllDetails": {
-      "get": {
-        "tags": [
-          "Payments"
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Payments/ConfirmPayment/{paymentId}": {
-      "post": {
-        "tags": [
-          "Payments"
-        ],
-        "parameters": [
-          {
-            "name": "paymentId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Payments/{id}": {
-      "delete": {
-        "tags": [
-          "Payments"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
+        },
         "responses": {
           "200": {
             "description": "Success"
@@ -1453,20 +1341,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "categoryName",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "skinTypeName",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -1476,19 +1350,25 @@
               "text/plain": {
                 "schema": {
                   "type": "array",
-                  "items": { }
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
                 }
               },
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { }
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
                 }
               },
               "text/json": {
                 "schema": {
                   "type": "array",
-                  "items": { }
+                  "items": {
+                    "$ref": "#/components/schemas/Product"
+                  }
                 }
               }
             }
@@ -1501,72 +1381,19 @@
         ],
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "ProductName": {
-                    "type": "string"
-                  },
-                  "Price": {
-                    "type": "number",
-                    "format": "double"
-                  },
-                  "Quantity": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "Description": {
-                    "type": "string"
-                  },
-                  "Ingredient": {
-                    "type": "string"
-                  },
-                  "CategoryId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "SkinTypeId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "File": {
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "ImageDescription": {
-                    "type": "string"
-                  }
-                }
-              },
-              "encoding": {
-                "ProductName": {
-                  "style": "form"
-                },
-                "Price": {
-                  "style": "form"
-                },
-                "Quantity": {
-                  "style": "form"
-                },
-                "Description": {
-                  "style": "form"
-                },
-                "Ingredient": {
-                  "style": "form"
-                },
-                "CategoryId": {
-                  "style": "form"
-                },
-                "SkinTypeId": {
-                  "style": "form"
-                },
-                "File": {
-                  "style": "form"
-                },
-                "ImageDescription": {
-                  "style": "form"
-                }
+                "$ref": "#/components/schemas/Product"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
               }
             }
           }
@@ -1596,6 +1423,44 @@
       }
     },
     "/api/Products/{id}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                }
+              }
+            }
+          }
+        }
+      },
       "put": {
         "tags": [
           "Products"
@@ -1613,72 +1478,19 @@
         ],
         "requestBody": {
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "ProductName": {
-                    "type": "string"
-                  },
-                  "Price": {
-                    "type": "number",
-                    "format": "double"
-                  },
-                  "Quantity": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "Description": {
-                    "type": "string"
-                  },
-                  "Ingredient": {
-                    "type": "string"
-                  },
-                  "CategoryId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "SkinTypeId": {
-                    "type": "integer",
-                    "format": "int32"
-                  },
-                  "File": {
-                    "type": "string",
-                    "format": "binary"
-                  },
-                  "ImageDescription": {
-                    "type": "string"
-                  }
-                }
-              },
-              "encoding": {
-                "ProductName": {
-                  "style": "form"
-                },
-                "Price": {
-                  "style": "form"
-                },
-                "Quantity": {
-                  "style": "form"
-                },
-                "Description": {
-                  "style": "form"
-                },
-                "Ingredient": {
-                  "style": "form"
-                },
-                "CategoryId": {
-                  "style": "form"
-                },
-                "SkinTypeId": {
-                  "style": "form"
-                },
-                "File": {
-                  "style": "form"
-                },
-                "ImageDescription": {
-                  "style": "form"
-                }
+                "$ref": "#/components/schemas/Product"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
               }
             }
           }
@@ -1899,191 +1711,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Promotions": {
-      "get": {
-        "tags": [
-          "Promotions"
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Promotion"
-                  }
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Promotion"
-                  }
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Promotion"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Promotions"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Promotion"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Promotion"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/Promotion"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Promotion"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Promotion"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Promotion"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Promotions/{id}": {
-      "get": {
-        "tags": [
-          "Promotions"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Promotion"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Promotion"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Promotion"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Promotions"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Promotion"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Promotion"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/Promotion"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Promotions"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -2473,19 +2100,25 @@
               "text/plain": {
                 "schema": {
                   "type": "array",
-                  "items": { }
+                  "items": {
+                    "$ref": "#/components/schemas/Review"
+                  }
                 }
               },
               "application/json": {
                 "schema": {
                   "type": "array",
-                  "items": { }
+                  "items": {
+                    "$ref": "#/components/schemas/Review"
+                  }
                 }
               },
               "text/json": {
                 "schema": {
                   "type": "array",
-                  "items": { }
+                  "items": {
+                    "$ref": "#/components/schemas/Review"
+                  }
                 }
               }
             }
@@ -2575,6 +2208,46 @@
                 }
               }
             }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Reviews"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/Review"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
           }
         }
       },
@@ -2970,7 +2643,7 @@
         }
       }
     },
-    "/api/TestSkinType/SubmitQuiz": {
+    "/api/TestSkinType/submit-quiz": {
       "post": {
         "tags": [
           "TestSkinType"
@@ -2981,7 +2654,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/UserAnswerDTO"
+                  "$ref": "#/components/schemas/UserAnswerDto"
                 }
               }
             },
@@ -2989,7 +2662,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/UserAnswerDTO"
+                  "$ref": "#/components/schemas/UserAnswerDto"
                 }
               }
             },
@@ -2997,7 +2670,7 @@
               "schema": {
                 "type": "array",
                 "items": {
-                  "$ref": "#/components/schemas/UserAnswerDTO"
+                  "$ref": "#/components/schemas/UserAnswerDto"
                 }
               }
             }
@@ -3274,6 +2947,64 @@
         },
         "additionalProperties": false
       },
+      "BlogCreateRequest": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "content": {
+            "type": "string",
+            "nullable": true
+          },
+          "authorId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "skinType": {
+            "type": "string",
+            "nullable": true
+          },
+          "category": {
+            "type": "string",
+            "nullable": true
+          },
+          "imgURL": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CarePlan": {
+        "type": "object",
+        "properties": {
+          "carePlanId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "skinTypeId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "planName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "Category": {
         "type": "object",
         "properties": {
@@ -3407,35 +3138,32 @@
         },
         "additionalProperties": false
       },
-      "Payment": {
+      "ProblemDetails": {
         "type": "object",
         "properties": {
-          "paymentId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "userId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "paymentTypeId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "paymentStatusId": {
-            "type": "integer",
-            "format": "int32",
-            "nullable": true
-          },
-          "paymentDate": {
+          "type": {
             "type": "string",
-            "format": "date-time",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
             "nullable": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": { }
       },
       "Product": {
         "type": "object",
@@ -3449,13 +3177,10 @@
             "nullable": true
           },
           "price": {
-            "minimum": 0,
             "type": "number",
             "format": "double"
           },
           "quantity": {
-            "maximum": 2147483647,
-            "minimum": 0,
             "type": "integer",
             "format": "int32"
           },
@@ -3505,38 +3230,6 @@
           "productId": {
             "type": "integer",
             "format": "int32",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "Promotion": {
-        "type": "object",
-        "properties": {
-          "promotionId": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "promotionName": {
-            "type": "string",
-            "nullable": true
-          },
-          "discountPercentage": {
-            "type": "number",
-            "format": "double"
-          },
-          "startDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "endDate": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "isActive": {
-            "type": "boolean",
             "nullable": true
           }
         },
@@ -3606,8 +3299,6 @@
             "nullable": true
           },
           "rating": {
-            "maximum": 5,
-            "minimum": 0,
             "type": "integer",
             "format": "int32"
           },
@@ -3681,9 +3372,7 @@
             "nullable": true
           },
           "email": {
-            "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
             "type": "string",
-            "format": "email",
             "nullable": true
           },
           "password": {
@@ -3700,9 +3389,6 @@
             "nullable": true
           },
           "phone": {
-            "maxLength": 10,
-            "minLength": 10,
-            "pattern": "^\\d+$",
             "type": "string",
             "nullable": true
           },
@@ -3743,7 +3429,6 @@
           },
           "email": {
             "minLength": 1,
-            "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
             "type": "string",
             "format": "email"
           },
@@ -3783,7 +3468,7 @@
         },
         "additionalProperties": false
       },
-      "UserAnswerDTO": {
+      "UserAnswerDto": {
         "type": "object",
         "properties": {
           "questionId": {

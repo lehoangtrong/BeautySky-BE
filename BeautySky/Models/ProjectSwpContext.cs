@@ -158,7 +158,7 @@ public partial class ProjectSwpContext : DbContext
             entity.Property(e => e.StepDescription).HasMaxLength(255);
             entity.Property(e => e.StepName).HasMaxLength(255);
 
-            entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanSteps)
+            entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanStep)
                 .HasForeignKey(d => d.CarePlanId)
                 .HasConstraintName("FK__CarePlanS__CareP__5629CD9C");
         });
