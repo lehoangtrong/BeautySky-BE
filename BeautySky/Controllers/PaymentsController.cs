@@ -20,33 +20,8 @@ namespace BeautySky.Controllers
             _context = context;
         }
 
-        // POST: api/Payments/ProcessPayment/{orderId}
-        [HttpPost("ProcessPayment/{orderId}")]
-        public async Task<ActionResult<Payment>> ProcessPayment(int orderId)
-        {
-            var order = await _context.Orders.FindAsync(orderId);
-            if (order == null)
-            {
-                return NotFound("Order not found.");
-            }
 
-            var payment = new Payment
-            {
-                UserId = order.UserId,
-                PaymentTypeId = 1, // Default payment type
-                PaymentStatusId = 1, // Pending or Paid
-                PaymentDate = DateTime.Now
-            };
 
-            _context.Payments.Add(payment);
-            await _context.SaveChangesAsync();
-
-            order.PaymentId = payment.PaymentId;
-            _context.Entry(order).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPayment", new { id = payment.PaymentId }, payment);
-        }
 
         // GET: api/Payments/Details/{paymentId}
         [HttpGet("Details/{paymentId}")]
@@ -146,32 +121,36 @@ namespace BeautySky.Controllers
 
             return Ok(allPaymentDetails);
         }
-        // POST: api/Payments/ConfirmPayment/{paymentId}
-        [HttpPost("ConfirmPayment/{paymentId}")]
-        public async Task<IActionResult> ConfirmPayment(int paymentId)
+        // POST: api/Payments/ProcessAndConfirmPayment/{orderId}
+        [HttpPost("ProcessAndConfirmPayment/{orderId}")]
+        public async Task<ActionResult<Payment>> ProcessAndConfirmPayment(int orderId)
         {
-            var payment = await _context.Payments.FindAsync(paymentId);
-            if (payment == null)
-            {
-                return NotFound("Payment not found.");
-            }
-
-            var order = await _context.Orders.FirstOrDefaultAsync(o => o.PaymentId == paymentId);
+            var order = await _context.Orders.FindAsync(orderId);
             if (order == null)
             {
                 return NotFound("Order not found.");
             }
 
-            payment.PaymentStatusId = 2; // Confirmed status
-            order.Status = "Paid";
+            var payment = new Payment
+            {
+                UserId = order.UserId,
+                PaymentTypeId = 1, // Default payment type
+                PaymentStatusId = 2, // Confirmed status
+                PaymentDate = DateTime.Now
+            };
 
-            _context.Entry(payment).State = EntityState.Modified;
-            _context.Entry(order).State = EntityState.Modified;
-
+            _context.Payments.Add(payment);
             await _context.SaveChangesAsync();
 
-            return Ok("Order confirmed and payment status updated.");
+            order.PaymentId = payment.PaymentId;
+            order.Status = "Paid";
+
+            _context.Entry(order).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetPayment", new { id = payment.PaymentId }, payment);
         }
+
 
         // DELETE: api/Payments/5
         [HttpDelete("{id}")]

@@ -404,6 +404,38 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "CarePlanController",
+    "Method": "GetUserCarePlan",
+    "RelativePath": "api/CarePlan/GetUserCarePlan/{userId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "userId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CarePlanController",
+    "Method": "SaveUserCarePlan",
+    "RelativePath": "api/CarePlan/SaveUserCarePlan",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "BeautySky.Models.SaveCarePlanRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "BeautySky.Controllers.CarePlansController",
     "Method": "GetCarePlans",
     "RelativePath": "api/CarePlans",
@@ -818,6 +850,26 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "GetOrders",
+    "RelativePath": "api/Orders",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[System.Object, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
     "Method": "PostOrder",
     "RelativePath": "api/Orders",
     "HttpMethod": "POST",
@@ -856,9 +908,56 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "UpdateOrder",
+    "RelativePath": "api/Orders/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "BeautySky.Controllers.OrderRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "DeleteOrder",
+    "RelativePath": "api/Orders/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "GetMyOrders",
+    "RelativePath": "api/Orders/orders/myOrders",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": [
       {
-        "Type": "BeautySky.Models.Order",
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.Order, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -896,22 +995,6 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "ConfirmPayment",
-    "RelativePath": "api/Payments/ConfirmPayment/{paymentId}",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "paymentId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
     "Method": "GetPaymentDetails",
     "RelativePath": "api/Payments/Details/{paymentId}",
     "HttpMethod": "GET",
@@ -928,8 +1011,8 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "ProcessPayment",
-    "RelativePath": "api/Payments/ProcessPayment/{orderId}",
+    "Method": "ProcessAndConfirmPayment",
+    "RelativePath": "api/Payments/ProcessAndConfirmPayment/{orderId}",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "IpQhRrMYsSRrC4AloKNDWHPb49ipVGPc3PFUOSAHeLc=",
+  "Hash": "ZmJsYS55vOdYsIdS549l5E3nXoYILvP6bLmZHMpysp0=",
   "Source": "BeautySky",
   "BasePath": "_content/BeautySky",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "BeautySky\\wwwroot",
       "Source": "BeautySky",
-      "ContentRoot": "D:\\SWP_BE\\BeautySky\\wwwroot\\",
+      "ContentRoot": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\",
       "BasePath": "_content/BeautySky",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "D:\\SWP_BE\\BeautySky\\wwwroot\\images\\2.png",
+      "Identity": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\images\\2.png",
       "SourceId": "BeautySky",
       "SourceType": "Discovered",
-      "ContentRoot": "D:\\SWP_BE\\BeautySky\\wwwroot\\",
+      "ContentRoot": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\",
       "BasePath": "_content/BeautySky",
       "RelativePath": "images/2#[.{fingerprint}]?.png",
       "AssetKind": "All",
@@ -41,7 +41,7 @@
   "Endpoints": [
     {
       "Route": "images/2.6mkomelrmr.png",
-      "AssetFile": "D:\\SWP_BE\\BeautySky\\wwwroot\\images\\2.png",
+      "AssetFile": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\images\\2.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -62,7 +62,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Mar 2025 16:39:58 GMT"
+          "Value": "Thu, 13 Mar 2025 06:32:23 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -86,7 +86,7 @@
     },
     {
       "Route": "images/2.png",
-      "AssetFile": "D:\\SWP_BE\\BeautySky\\wwwroot\\images\\2.png",
+      "AssetFile": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\images\\2.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -107,7 +107,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Sat, 08 Mar 2025 16:39:58 GMT"
+          "Value": "Thu, 13 Mar 2025 06:32:23 GMT"
         },
         {
           "Name": "Cache-Control",
