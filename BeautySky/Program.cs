@@ -95,6 +95,7 @@ namespace BeautySky
                 option.ClientId = builder.Configuration["Authentication:Google:ClientId"];
                 option.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
                 option.CallbackPath = "/signin-google";
+                //option.CallbackPath = "/google-respone";
                 option.Events.OnCreatingTicket = async context =>
                 {
                     var dbContext = context.HttpContext.RequestServices.GetService<ProjectSwpContext>();
