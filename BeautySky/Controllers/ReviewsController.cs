@@ -22,9 +22,24 @@ namespace BeautySky.Controllers
 
         // GET: api/Reviews
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Review>>> GetReviews()
+        public async Task<ActionResult<IEnumerable<object>>> GetReviews()
         {
-            return await _context.Reviews.ToListAsync();
+            var reviews = await _context.Reviews
+                .Include(r => r.Product) // Lấy thông tin sản phẩm
+                .Include(r => r.User)    // Lấy thông tin người dùng
+                .Select(r => new {
+                    r.ReviewId,
+                    r.ProductId,
+                    ProductName = r.Product != null ? r.Product.ProductName : "Không xác định",
+                    r.UserId,
+                    UserName = r.User != null ? r.User.FullName : "Không xác định",
+                    r.Rating,
+                    r.Comment,
+                    r.ReviewDate
+                })
+                .ToListAsync();
+
+            return Ok(reviews);
         }
 
         // GET: api/Reviews/5

@@ -1,5 +1,4 @@
-﻿
-using Amazon;
+﻿using Amazon;
 using Amazon.S3;
 using BeautySky.Models;
 using BeautySky.Service;
@@ -25,7 +24,7 @@ namespace BeautySky
             // Add services to the container.
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
             {
-                 options.SuppressModelStateInvalidFilter = false; 
+                options.SuppressModelStateInvalidFilter = false;
             });
 
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -95,6 +94,7 @@ namespace BeautySky
                 option.ClientId = builder.Configuration["Authentication:Google:ClientId"];
                 option.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
                 option.CallbackPath = "/signin-google";
+                //option.CallbackPath = "/google-respone";
                 option.Events.OnCreatingTicket = async context =>
                 {
                     var dbContext = context.HttpContext.RequestServices.GetService<ProjectSwpContext>();

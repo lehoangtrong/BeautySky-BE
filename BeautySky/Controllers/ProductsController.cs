@@ -59,7 +59,9 @@ namespace BeautySky.Controllers
                     product.SkinTypeId,
                     skinTypeName = product.SkinType?.SkinTypeName,
                     Rating = rating,
-                    productsImages = product.ProductsImages
+                    productsImages = product.ProductsImages,
+                    CategoryName = product.Category?.CategoryName, // Lấy tên thay vì ID
+                    SkinTypeName = product.SkinType?.SkinTypeName  // Lấy tên thay vì ID
                 });
             }
 
