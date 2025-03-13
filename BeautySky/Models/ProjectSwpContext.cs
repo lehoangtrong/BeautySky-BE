@@ -121,13 +121,14 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<CarePlanProduct>(entity =>
         {
-            entity.HasKey(e => new { e.CarePlanId, e.StepId, e.ProductId }).HasName("PK__CarePlan__A043ED686435FBAC");
+            entity.HasKey(e => new { e.CarePlanId, e.StepId, e.ProductId, e.UserId });
 
             entity.ToTable("CarePlanProduct");
 
             entity.Property(e => e.CarePlanId).HasColumnName("CarePlanID");
             entity.Property(e => e.StepId).HasColumnName("StepID");
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.ProductName).HasMaxLength(255);
 
             entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanProducts)
@@ -135,15 +136,15 @@ public partial class ProjectSwpContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__CarePlanP__CareP__59063A47");
 
-            entity.HasOne(d => d.Product).WithMany(p => p.CarePlanProducts)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CarePlanP__Produ__5AEE82B9");
-
             entity.HasOne(d => d.Step).WithMany(p => p.CarePlanProducts)
                 .HasForeignKey(d => d.StepId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__CarePlanP__StepI__59FA5E80");
+
+            entity.HasOne(d => d.User).WithMany(p => p.CarePlanProducts)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CarePlanP__UserI__2739D489");
         });
 
         modelBuilder.Entity<CarePlanStep>(entity =>
