@@ -46,9 +46,8 @@ public class CarePlanController : ControllerBase
         int skinTypeId = userAnswer.SkinTypeId ?? 0;
 
         var carePlan = await _context.CarePlans
-            .Include(cp => cp.CarePlanStep)
+            .Include(cp => cp.CarePlanSteps)
                 .ThenInclude(cps => cps.CarePlanProducts)
-                    .ThenInclude(cpp => cpp.Product)
             .FirstOrDefaultAsync(cp => cp.SkinTypeId == skinTypeId);
 
         if (carePlan == null)
@@ -60,25 +59,31 @@ public class CarePlanController : ControllerBase
         {
             carePlan.PlanName,
             carePlan.Description,
-            Steps = carePlan.CarePlanStep.OrderBy(s => s.StepOrder).Select(step => new
+            Steps = carePlan.CarePlanSteps.OrderBy(s => s.StepOrder).Select(step => new
             {
                 step.StepOrder,
                 step.StepName,
-                Products = step.CarePlanProducts.Select(cpp => new
-                {
-                    cpp.Product.ProductId,
-                    cpp.Product.ProductName,
-                    ProductImage = _context.ProductsImages
-                        .Where(img => img.ProductId == cpp.Product.ProductId)
-                        .Select(img => img.ImageUrl)
-                        .FirstOrDefault(),
-                    cpp.Product.Price
-                }).ToList()
+                Products = step.CarePlanProducts
+                    .Where(cpp => cpp.CarePlanId == carePlan.CarePlanId && cpp.UserId == userId) // Lọc theo UserId
+                    .Select(cpp => new
+                    {
+                        ProductId = cpp.ProductId,
+                        ProductName = cpp.ProductName,
+                        ProductImage = _context.ProductsImages
+                            .Where(img => img.ProductId == cpp.ProductId)
+                            .Select(img => img.ImageUrl)
+                            .FirstOrDefault(),
+                        ProductPrice = _context.Products
+                            .Where(p => p.ProductId == cpp.ProductId)
+                            .Select(p => p.Price)
+                            .FirstOrDefault()
+                    }).ToList()
             }).ToList()
         };
 
         return Ok(result);
     }
+
 
 
     [HttpPost("SaveUserCarePlan")]
@@ -130,10 +135,10 @@ public class CarePlanController : ControllerBase
         request.SkinTypeId = userAnswer.SkinTypeId ?? 0;
 
         // Xóa lộ trình cũ của user nếu có
-        var oldCarePlanProducts = _context.CarePlanProducts
+        var oldCarePlanProducts = _context.CarePlanProduct
             .Where(cp => cp.UserId == request.UserId)
             .ToList();
-        _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
+        _context.CarePlanProduct.RemoveRange(oldCarePlanProducts);
 
         var oldUserCarePlan = _context.UserCarePlans
             .Where(u => u.UserId == request.UserId)
@@ -173,9 +178,9 @@ public class CarePlanController : ControllerBase
                     UserId = request.UserId
                 };
 
-                if (!_context.CarePlanProducts.Any(cp => cp.UserId == request.UserId && cp.ProductId == randomProduct.ProductId && cp.StepId == step.StepId))
+                if (!_context.CarePlanProduct.Any(cp => cp.UserId == request.UserId && cp.ProductId == randomProduct.ProductId && cp.StepId == step.StepId))
                 {
-                    _context.CarePlanProducts.Add(carePlanProduct);
+                    _context.CarePlanProduct.Add(carePlanProduct);
                 }
             }
         }
@@ -184,166 +189,130 @@ public class CarePlanController : ControllerBase
         return Ok("Lộ trình đã được lưu thành công!");
     }
 
-    [HttpPost("GetCarePlan")]
-    public IActionResult GetCarePlan(int userId)
-    {
-        var user = _context.Users.Find(userId);
-        if (user == null)
-            return NotFound("User not found");
+    //[HttpPost("GetCarePlan")]
+    //public IActionResult GetCarePlan(int userId)
+    //{
+    //    var user = _context.Users.Find(userId);
+    //    if (user == null)
+    //        return NotFound("User not found");
 
-        // Lấy quiz gần nhất của user
-        var userQuiz = _context.UserQuizzes
-            .Where(uq => uq.UserId == userId)
-            .OrderByDescending(uq => uq.DateTaken) // Lấy quiz gần nhất
-            .FirstOrDefault();
+    //    var userQuiz = _context.UserQuizzes
+    //        .Where(uq => uq.UserId == userId)
+    //        .OrderByDescending(uq => uq.DateTaken)
+    //        .FirstOrDefault();
 
-        if (userQuiz == null)
-            return NotFound("No quiz found for this user");
+    //    if (userQuiz == null)
+    //        return NotFound("No quiz found for this user");
 
-        // Lấy UserAnswer tương ứng với quiz gần nhất
-        var userAnswer = _context.UserAnswers
-            .Where(ua => ua.UserQuizId == userQuiz.UserQuizId)
-            .OrderByDescending(ua => ua.UserAnswerId) // Lấy UserAnswer gần nhất nếu có nhiều câu trả lời
-            .FirstOrDefault();
+    //    var userAnswer = _context.UserAnswers
+    //        .Where(ua => ua.UserQuizId == userQuiz.UserQuizId)
+    //        .OrderByDescending(ua => ua.UserAnswerId)
+    //        .FirstOrDefault();
 
-        if (userAnswer == null)
-            return NotFound("No answer found for this user");
+    //    if (userAnswer == null)
+    //        return NotFound("No answer found for this user");
 
-        // Lấy SkinTypeId từ UserAnswer của quiz gần nhất
-        int skinTypeId = userAnswer.SkinTypeId ?? 0;
+    //    int skinTypeId = userAnswer.SkinTypeId ?? 0;
 
-        // Lấy CarePlan dựa trên SkinTypeId của quiz gần nhất
-        var carePlan = _context.CarePlans.FirstOrDefault(cp => cp.SkinTypeId == skinTypeId);
-        if (carePlan == null)
-            return NotFound("No care plan found for this skin type");
+    //    var carePlan = _context.CarePlans.FirstOrDefault(cp => cp.SkinTypeId == skinTypeId);
+    //    if (carePlan == null)
+    //        return NotFound("No care plan found for this skin type");
 
-        SaveUserCarePlan(userId, carePlan.CarePlanId);
+    //    var steps = _context.CarePlanSteps
+    //        .Where(s => s.CarePlanId == carePlan.CarePlanId)
+    //        .OrderBy(s => s.StepOrder)
+    //        .ToList();
 
-        var steps = _context.CarePlanSteps.Where(s => s.CarePlanId == carePlan.CarePlanId).OrderBy(s => s.StepOrder).ToList();
-        var result = new
-        {
-            carePlan.PlanName,
-            carePlan.Description,
-            Steps = steps.Select(step => new
-            {
-                step.StepOrder,
-                step.StepName,
-                Products = GetRandomProductForStep(userAnswer.SkinTypeId, step.StepOrder) // Lấy 1 sản phẩm ngẫu nhiên cho mỗi bước
-            }).ToList()
-        };
+    //    // Xóa lộ trình cũ trước khi lưu mới
+    //    DeleteOldUserCarePlan(userId);
 
-        return Ok(result);
-    }
+    //    // Lưu lộ trình mới vào bảng UserCarePlan
+    //    SaveUserCarePlan(userId, carePlan.CarePlanId);
 
-    private List<object> GetRandomProductForStep(int? skinTypeId, int stepOrder)
-    {
-        int validSkinTypeId = skinTypeId ?? 0;
+    //    List<object> stepResults = new List<object>();
+    //    foreach (var step in steps)
+    //    {
+    //        var products = _context.Products
+    //            .Where(p => p.SkinTypeId == skinTypeId && p.CategoryId == step.StepOrder)
+    //            .ToList();
 
-        var products = _context.Products
-            .Where(p => p.SkinTypeId == validSkinTypeId && p.CategoryId == stepOrder)
-            .ToList();
+    //        if (products.Any())
+    //        {
+    //            var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
 
-        if (products.Any())
-        {
-            var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+    //            // Lấy hình ảnh sản phẩm (lấy ảnh đầu tiên nếu có)
+    //            var productImage = _context.ProductsImages
+    //                .Where(pi => pi.ProductId == randomProduct.ProductId)
+    //                .Select(pi => pi.ImageUrl)
+    //                .FirstOrDefault();
 
-            // Lấy hình ảnh của sản phẩm
-            var productImage = _context.ProductsImages
-                .Where(img => img.ProductId == randomProduct.ProductId)
-                .Select(img => img.ImageUrl)
-                .FirstOrDefault(); // Lấy một ảnh bất kỳ của sản phẩm
+    //            // Lưu vào DB ngay khi chọn
+    //            var carePlanProduct = new CarePlanProduct
+    //            {
+    //                CarePlanId = carePlan.CarePlanId,
+    //                ProductId = randomProduct.ProductId,
+    //                ProductName = randomProduct.ProductName,
+    //                StepId = step.StepId,
+    //                UserId = userId
+    //            };
+    //            _context.CarePlanProduct.Add(carePlanProduct);
 
-            return new List<object>
-    {
-        new
-        {
-            randomProduct.ProductId,
-            randomProduct.ProductName,
-            ProductImage = productImage, // Đường dẫn ảnh sản phẩm
-            Price = randomProduct.Price // Giá sản phẩm
-        }
-    };
-        }
+    //            stepResults.Add(new
+    //            {
+    //                step.StepOrder,
+    //                step.StepName,
+    //                Products = new List<object>
+    //                {
+    //                    new
+    //                    {
+    //                        randomProduct.ProductId,
+    //                        randomProduct.ProductName,
+    //                        randomProduct.Price,   // Thêm giá sản phẩm
+    //                        ProductImage  = productImage ?? ""  // Thêm ảnh sản phẩm
+    //                    }
+    //                }
+    //            });
+    //        }
+    //    }
 
-        return new List<object>();
-    }
+    //    _context.SaveChanges(); // Lưu toàn bộ sản phẩm sau khi chọn xong
 
-    private void SaveUserCarePlan(int userId, int carePlanId)
-    {
-        // Lấy quiz mới nhất của user
-        var userQuiz = _context.UserQuizzes
-            .Where(uq => uq.UserId == userId)
-            .OrderByDescending(uq => uq.DateTaken)
-            .FirstOrDefault();
+    //    var result = new
+    //    {
+    //        carePlan.PlanName,
+    //        carePlan.Description,
+    //        Steps = stepResults
+    //    };
 
-        if (userQuiz == null) return;
+    //    return Ok(result);
+    //}
 
-        // Lấy loại da mới nhất từ UserAnswer
-        var userAnswer = _context.UserAnswers
-            .Where(ua => ua.UserQuizId == userQuiz.UserQuizId)
-            .OrderByDescending(ua => ua.UserAnswerId)
-            .FirstOrDefault();
+    //private void DeleteOldUserCarePlan(int userId)
+    //{
+    //    var oldCarePlanProducts = _context.CarePlanProduct
+    //        .Where(cp => cp.UserId == userId)
+    //        .ToList();
+    //    _context.CarePlanProduct.RemoveRange(oldCarePlanProducts);
 
-        if (userAnswer == null) return;
+    //    var oldUserCarePlan = _context.UserCarePlans
+    //        .Where(u => u.UserId == userId)
+    //        .ToList();
+    //    _context.UserCarePlans.RemoveRange(oldUserCarePlan);
 
-        int newSkinTypeId = userAnswer.SkinTypeId ?? 0; // Loại da mới nhất
+    //    _context.SaveChanges();
+    //}
 
-        // Xóa lộ trình cũ của user nếu có
-        var oldCarePlanProducts = _context.CarePlanProducts
-            .Where(cp => cp.UserId == userId)
-            .ToList();
-        _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
-
-        var oldUserCarePlan = _context.UserCarePlans
-            .Where(u => u.UserId == userId)
-            .ToList();
-        _context.UserCarePlans.RemoveRange(oldUserCarePlan);
-
-        _context.SaveChanges();
-
-        // Tạo lộ trình mới
-        var userCarePlan = new UserCarePlan
-        {
-            UserId = userId,
-            CarePlanId = carePlanId,
-            DateCreate = DateTime.Now
-        };
-        _context.UserCarePlans.Add(userCarePlan);
-        _context.SaveChanges();
-
-        var steps = GetStepsByCarePlanId(carePlanId);
-        var random = new Random();
-
-        foreach (var step in steps)
-        {
-            // Lấy danh sách sản phẩm có cùng loại da và category
-            var products = _context.Products
-                .Where(p => p.SkinTypeId == newSkinTypeId && p.CategoryId == step.StepOrder)
-                .ToList();
-
-            if (products.Any())
-            {
-                // Chọn sản phẩm ngẫu nhiên phù hợp với loại da mới
-                var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-
-                var carePlanProduct = new CarePlanProduct
-                {
-                    CarePlanId = carePlanId,
-                    ProductId = randomProduct.ProductId, // Sản phẩm mới đúng loại da
-                    ProductName = randomProduct.ProductName,
-                    StepId = step.StepId,
-                    UserId = userId
-                };
-
-                // Chỉ thêm sản phẩm mới nếu chưa có
-                if (!_context.CarePlanProducts.Any(cp => cp.UserId == userId && cp.ProductId == randomProduct.ProductId && cp.StepId == step.StepId))
-                {
-                    _context.CarePlanProducts.Add(carePlanProduct);
-                }
-            }
-        }
-        _context.SaveChanges();
-    }
+    //private void SaveUserCarePlan(int userId, int carePlanId)
+    //{
+    //    var userCarePlan = new UserCarePlan
+    //    {
+    //        UserId = userId,
+    //        CarePlanId = carePlanId,
+    //        DateCreate = DateTime.Now
+    //    };
+    //    _context.UserCarePlans.Add(userCarePlan);
+    //    _context.SaveChanges();
+    //}
 
 
 

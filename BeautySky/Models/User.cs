@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
-
+using System.ComponentModel;
 
 namespace BeautySky.Models;
 
@@ -36,24 +34,17 @@ public partial class User
 
     public bool? IsActive { get; set; }
 
-    [JsonIgnore] // Ẩn khi trả dữ liệu ra Swagger
-    public virtual ICollection<Blog> Blogs { get; set; } = new List<Blog>();
+    public virtual ICollection<CarePlanProduct> CarePlanProducts { get; set; } = new List<CarePlanProduct>();
 
-    [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
-    [JsonIgnore]
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-    [JsonIgnore]
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
-    [JsonIgnore]
     public virtual Role? Role { get; set; }
 
-    [JsonIgnore]
     public virtual ICollection<UserCarePlan> UserCarePlans { get; set; } = new List<UserCarePlan>();
 
-    [JsonIgnore]
     public virtual ICollection<UserQuiz> UserQuizzes { get; set; } = new List<UserQuiz>();
 }
