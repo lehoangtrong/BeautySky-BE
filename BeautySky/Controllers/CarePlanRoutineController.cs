@@ -89,6 +89,45 @@ public class CarePlanController : ControllerBase
         {
             return NotFound("User not found");
         }
+        // Kiểm tra request
+        if (request == null || request.UserId <= 0)
+        {
+            return BadRequest("Invalid request data");
+        }
+
+        // Lấy thông tin quiz và skin type của user
+        var userQuiz = await _context.UserQuizzes
+            .Where(uq => uq.UserId == request.UserId)
+            .OrderByDescending(uq => uq.DateTaken)
+            .FirstOrDefaultAsync();
+
+        if (userQuiz == null)
+        {
+            return NotFound("No quiz found for this user");
+        }
+
+        var userAnswer = await _context.UserAnswers
+            .Where(ua => ua.UserQuizId == userQuiz.UserQuizId)
+            .OrderByDescending(ua => ua.UserAnswerId)
+            .FirstOrDefaultAsync();
+
+        if (userAnswer == null)
+        {
+            return NotFound("No answer found for this user");
+        }
+
+        // Lấy care plan dựa trên skin type
+        var carePlan = await _context.CarePlans
+            .FirstOrDefaultAsync(cp => cp.SkinTypeId == userAnswer.SkinTypeId);
+
+        if (carePlan == null)
+        {
+            return NotFound("No care plan found for this skin type");
+        }
+
+        // Cập nhật request với thông tin đúng
+        request.CarePlanId = carePlan.CarePlanId;
+        request.SkinTypeId = userAnswer.SkinTypeId ?? 0;
 
         // Xóa lộ trình cũ của user nếu có
         var oldCarePlanProducts = _context.CarePlanProducts
