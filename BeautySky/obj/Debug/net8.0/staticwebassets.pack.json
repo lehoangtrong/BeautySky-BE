@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "D:\\SWP_BE\\BeautySky\\wwwroot\\images\\2.png",
+      "PackagePath": "staticwebassets\\images\\2.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BeautySky.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.BeautySky.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.BeautySky.props",
+      "PackagePath": "build\\BeautySky.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.BeautySky.props",
+      "PackagePath": "buildMultiTargeting\\BeautySky.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.BeautySky.props",
+      "PackagePath": "buildTransitive\\BeautySky.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

@@ -1,15 +1,148 @@
 ﻿using BeautySky.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 [ApiController]
 [Route("api/[controller]")]
-public class CarePlanRoutineController : ControllerBase
+public class CarePlanController : ControllerBase
 {
     private readonly ProjectSwpContext _context;
 
-    public CarePlanRoutineController(ProjectSwpContext context)
+    public CarePlanController(ProjectSwpContext context)
     {
         _context = context;
+    }
+
+
+    [HttpGet("GetUserCarePlan/{userId}")]
+    public async Task<IActionResult> GetUserCarePlan(int userId)
+    {
+        var user = await _context.Users.FindAsync(userId);
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+
+        var userQuiz = await _context.UserQuizzes
+            .Where(uq => uq.UserId == userId)
+            .OrderByDescending(uq => uq.DateTaken)
+            .FirstOrDefaultAsync();
+
+        if (userQuiz == null)
+        {
+            return NotFound("No quiz found for this user");
+        }
+
+        var userAnswer = await _context.UserAnswers
+            .Where(ua => ua.UserQuizId == userQuiz.UserQuizId)
+            .OrderByDescending(ua => ua.UserAnswerId)
+            .FirstOrDefaultAsync();
+
+        if (userAnswer == null)
+        {
+            return NotFound("No answer found for this user");
+        }
+
+        int skinTypeId = userAnswer.SkinTypeId ?? 0;
+
+        var carePlan = await _context.CarePlans
+            .Include(cp => cp.CarePlanStep)
+                .ThenInclude(cps => cps.CarePlanProducts)
+                    .ThenInclude(cpp => cpp.Product)
+            .FirstOrDefaultAsync(cp => cp.SkinTypeId == skinTypeId);
+
+        if (carePlan == null)
+        {
+            return NotFound("No care plan found for this skin type");
+        }
+
+        var result = new
+        {
+            carePlan.PlanName,
+            carePlan.Description,
+            Steps = carePlan.CarePlanStep.OrderBy(s => s.StepOrder).Select(step => new
+            {
+                step.StepOrder,
+                step.StepName,
+                Products = step.CarePlanProducts.Select(cpp => new
+                {
+                    cpp.Product.ProductId,
+                    cpp.Product.ProductName,
+                    ProductImage = _context.ProductsImages
+                        .Where(img => img.ProductId == cpp.Product.ProductId)
+                        .Select(img => img.ImageUrl)
+                        .FirstOrDefault(),
+                    cpp.Product.Price
+                }).ToList()
+            }).ToList()
+        };
+
+        return Ok(result);
+    }
+
+
+    [HttpPost("SaveUserCarePlan")]
+    public async Task<IActionResult> SaveUserCarePlan([FromBody] SaveCarePlanRequest request)
+    {
+        var user = await _context.Users.FindAsync(request.UserId);
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+
+        // Xóa lộ trình cũ của user nếu có
+        var oldCarePlanProducts = _context.CarePlanProducts
+            .Where(cp => cp.UserId == request.UserId)
+            .ToList();
+        _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
+
+        var oldUserCarePlan = _context.UserCarePlans
+            .Where(u => u.UserId == request.UserId)
+            .ToList();
+        _context.UserCarePlans.RemoveRange(oldUserCarePlan);
+
+        await _context.SaveChangesAsync();
+
+        // Tạo lộ trình mới
+        var userCarePlan = new UserCarePlan
+        {
+            UserId = request.UserId,
+            CarePlanId = request.CarePlanId,
+            DateCreate = DateTime.Now
+        };
+        _context.UserCarePlans.Add(userCarePlan);
+        await _context.SaveChangesAsync();
+
+        var steps = GetStepsByCarePlanId(request.CarePlanId);
+
+        foreach (var step in steps)
+        {
+            var products = _context.Products
+                .Where(p => p.SkinTypeId == request.SkinTypeId && p.CategoryId == step.StepOrder)
+                .ToList();
+
+            if (products.Any())
+            {
+                var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
+
+                var carePlanProduct = new CarePlanProduct
+                {
+                    CarePlanId = request.CarePlanId,
+                    ProductId = randomProduct.ProductId,
+                    ProductName = randomProduct.ProductName,
+                    StepId = step.StepId,
+                    UserId = request.UserId
+                };
+
+                if (!_context.CarePlanProducts.Any(cp => cp.UserId == request.UserId && cp.ProductId == randomProduct.ProductId && cp.StepId == step.StepId))
+                {
+                    _context.CarePlanProducts.Add(carePlanProduct);
+                }
+            }
+        }
+        await _context.SaveChangesAsync();
+
+        return Ok("Lộ trình đã được lưu thành công!");
     }
 
     [HttpPost("GetCarePlan")]
@@ -65,29 +198,35 @@ public class CarePlanRoutineController : ControllerBase
 
     private List<object> GetRandomProductForStep(int? skinTypeId, int stepOrder)
     {
-        // Kiểm tra skinTypeId có null không, nếu null thì thay bằng 0 (hoặc giá trị mặc định bạn muốn)
         int validSkinTypeId = skinTypeId ?? 0;
 
-        // Lấy sản phẩm phù hợp với SkinTypeId và StepOrder (CategoryId trong bảng Products tương ứng với StepOrder)
         var products = _context.Products
-            .Where(p => p.SkinTypeId == validSkinTypeId && p.CategoryId == stepOrder) // Dựa vào StepOrder để chọn đúng category
+            .Where(p => p.SkinTypeId == validSkinTypeId && p.CategoryId == stepOrder)
             .ToList();
 
-        // Nếu có sản phẩm phù hợp, chọn 1 sản phẩm ngẫu nhiên
         if (products.Any())
         {
             var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-            return new List<object> // Trả về một danh sách chứa 1 sản phẩm
+
+            // Lấy hình ảnh của sản phẩm
+            var productImage = _context.ProductsImages
+                .Where(img => img.ProductId == randomProduct.ProductId)
+                .Select(img => img.ImageUrl)
+                .FirstOrDefault(); // Lấy một ảnh bất kỳ của sản phẩm
+
+            return new List<object>
+    {
+        new
         {
-            new
-            {
-                randomProduct.ProductId,
-                randomProduct.ProductName
-            }
-        };
+            randomProduct.ProductId,
+            randomProduct.ProductName,
+            ProductImage = productImage, // Đường dẫn ảnh sản phẩm
+            Price = randomProduct.Price // Giá sản phẩm
+        }
+    };
         }
 
-        return new List<object>(); // Nếu không có sản phẩm, trả về danh sách rỗng
+        return new List<object>();
     }
 
     private void SaveUserCarePlan(int userId, int carePlanId)
