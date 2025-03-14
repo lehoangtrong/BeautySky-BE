@@ -670,6 +670,29 @@
         }
       }
     },
+    "/api/CarePlan/GetCarePlanBySkinType/{skinTypeId}": {
+      "get": {
+        "tags": [
+          "CarePlan"
+        ],
+        "parameters": [
+          {
+            "name": "skinTypeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/CarePlan/SaveUserCarePlan": {
       "post": {
         "tags": [
@@ -694,28 +717,6 @@
             }
           }
         },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/CarePlan/GetCarePlan": {
-      "post": {
-        "tags": [
-          "CarePlan"
-        ],
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Success"
@@ -3539,15 +3540,15 @@
             "type": "string",
             "nullable": true
           },
-          "skinType": {
-            "type": "string",
-            "nullable": true
-          },
           "category": {
             "type": "string",
             "nullable": true
           },
-          "imgURL": {
+          "skinType": {
+            "type": "string",
+            "nullable": true
+          },
+          "imgUrl": {
             "type": "string",
             "nullable": true
           }
@@ -3572,6 +3573,33 @@
           },
           "description": {
             "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CarePlanProduct": {
+        "type": "object",
+        "properties": {
+          "carePlanId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "stepId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "productName": {
+            "type": "string",
+            "nullable": true
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           }
         },
@@ -3951,8 +3979,6 @@
             "nullable": true
           },
           "rating": {
-            "maximum": 5,
-            "minimum": 0,
             "type": "integer",
             "format": "int32"
           },
@@ -4142,6 +4168,51 @@
           "isActive": {
             "type": "boolean",
             "nullable": true
+          },
+          "carePlanProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CarePlanProduct"
+            },
+            "nullable": true
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            },
+            "nullable": true
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Payment"
+            },
+            "nullable": true
+          },
+          "reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Review"
+            },
+            "nullable": true
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "userCarePlans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserCarePlan"
+            },
+            "nullable": true
+          },
+          "userQuizzes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserQuiz"
+            },
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -4156,6 +4227,56 @@
           "answerId": {
             "type": "integer",
             "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserCarePlan": {
+        "type": "object",
+        "properties": {
+          "userCarePlanId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "carePlanId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dateCreate": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "UserQuiz": {
+        "type": "object",
+        "properties": {
+          "userQuizId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "quizId": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "dateTaken": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           }
         },
         "additionalProperties": false

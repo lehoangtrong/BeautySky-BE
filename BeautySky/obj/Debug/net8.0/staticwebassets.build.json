@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "ZmJsYS55vOdYsIdS549l5E3nXoYILvP6bLmZHMpysp0=",
+  "Hash": "IsM/uQG2Z+K1L7SlFAHVn5hhnrfheJ9dbxbd1SI+fTk=",
   "Source": "BeautySky",
   "BasePath": "_content/BeautySky",
   "Mode": "Default",
@@ -10,17 +10,17 @@
     {
       "Name": "BeautySky\\wwwroot",
       "Source": "BeautySky",
-      "ContentRoot": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\ToanDev\\WorkSpace\\SWP\\BeautySky-BE\\BeautySky\\wwwroot\\",
       "BasePath": "_content/BeautySky",
       "Pattern": "**"
     }
   ],
   "Assets": [
     {
-      "Identity": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\images\\2.png",
+      "Identity": "C:\\Users\\ToanDev\\WorkSpace\\SWP\\BeautySky-BE\\BeautySky\\wwwroot\\images\\2.png",
       "SourceId": "BeautySky",
       "SourceType": "Discovered",
-      "ContentRoot": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\",
+      "ContentRoot": "C:\\Users\\ToanDev\\WorkSpace\\SWP\\BeautySky-BE\\BeautySky\\wwwroot\\",
       "BasePath": "_content/BeautySky",
       "RelativePath": "images/2#[.{fingerprint}]?.png",
       "AssetKind": "All",
@@ -41,7 +41,7 @@
   "Endpoints": [
     {
       "Route": "images/2.6mkomelrmr.png",
-      "AssetFile": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\images\\2.png",
+      "AssetFile": "C:\\Users\\ToanDev\\WorkSpace\\SWP\\BeautySky-BE\\BeautySky\\wwwroot\\images\\2.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -62,7 +62,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 13 Mar 2025 06:32:23 GMT"
+          "Value": "Thu, 13 Mar 2025 12:59:00 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -86,7 +86,7 @@
     },
     {
       "Route": "images/2.png",
-      "AssetFile": "C:\\Workspace\\SWP391\\BeautySkyShopBE\\BeautySky-BE\\BeautySky\\wwwroot\\images\\2.png",
+      "AssetFile": "C:\\Users\\ToanDev\\WorkSpace\\SWP\\BeautySky-BE\\BeautySky\\wwwroot\\images\\2.png",
       "Selectors": [],
       "ResponseHeaders": [
         {
@@ -107,7 +107,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 13 Mar 2025 06:32:23 GMT"
+          "Value": "Thu, 13 Mar 2025 12:59:00 GMT"
         },
         {
           "Name": "Cache-Control",
