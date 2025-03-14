@@ -21,7 +21,7 @@ public partial class ProjectSwpContext : DbContext
 
     public virtual DbSet<CarePlan> CarePlans { get; set; }
 
-    public virtual DbSet<CarePlanProduct> CarePlanProducts { get; set; }
+    public virtual DbSet<CarePlanProduct> CarePlanProduct { get; set; }
 
     public virtual DbSet<CarePlanStep> CarePlanSteps { get; set; }
 
@@ -99,9 +99,9 @@ public partial class ProjectSwpContext : DbContext
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
             //entity.Property(e => e.AuthorName).HasMaxLength(100);
 
-            entity.HasOne(d => d.Author).WithMany(p => p.Blogs)
-                .HasForeignKey(d => d.AuthorId)
-                .HasConstraintName("FK__Blog__AuthorID__6477ECF3");
+            //entity.HasOne(d => d.Author).WithMany(p => p.Blogs)
+            //    .HasForeignKey(d => d.AuthorId)
+            //    .HasConstraintName("FK__Blog__AuthorID__6477ECF3");
         });
 
         modelBuilder.Entity<CarePlan>(entity =>
@@ -122,29 +122,31 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<CarePlanProduct>(entity =>
         {
-            entity.HasKey(e => new { e.CarePlanId, e.StepId, e.ProductId }).HasName("PK__CarePlan__A043ED686435FBAC");
+            entity.HasKey(e => new { e.CarePlanId, e.StepId, e.ProductId, e.UserId }); // Sử dụng ID làm khóa chính
 
             entity.ToTable("CarePlanProduct");
 
             entity.Property(e => e.CarePlanId).HasColumnName("CarePlanID");
             entity.Property(e => e.StepId).HasColumnName("StepID");
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.ProductName).HasMaxLength(255);
 
+            // Cập nhật relationships
             entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanProducts)
-                .HasForeignKey(d => d.CarePlanId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CarePlanP__CareP__59063A47");
-
-            entity.HasOne(d => d.Product).WithMany(p => p.CarePlanProducts)
-                .HasForeignKey(d => d.ProductId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CarePlanP__Produ__5AEE82B9");
+            .HasForeignKey(d => d.CarePlanId)
+            .OnDelete(DeleteBehavior.ClientSetNull)
+            .HasConstraintName("FK__CarePlanP__CareP__02084FDA");
 
             entity.HasOne(d => d.Step).WithMany(p => p.CarePlanProducts)
                 .HasForeignKey(d => d.StepId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CarePlanP__StepI__59FA5E80");
+                .HasConstraintName("FK__CarePlanP__StepI__02FC7413");
+
+            entity.HasOne(d => d.User).WithMany(p => p.CarePlanProducts)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CarePlanP__UserI__245D67DE");
         });
 
         modelBuilder.Entity<CarePlanStep>(entity =>
@@ -158,7 +160,7 @@ public partial class ProjectSwpContext : DbContext
             entity.Property(e => e.StepDescription).HasMaxLength(255);
             entity.Property(e => e.StepName).HasMaxLength(255);
 
-            entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanStep)
+            entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanSteps)
                 .HasForeignKey(d => d.CarePlanId)
                 .HasConstraintName("FK__CarePlanS__CareP__5629CD9C");
         });

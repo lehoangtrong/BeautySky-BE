@@ -9,7 +9,7 @@ public partial class News
 
     public string Title { get; set; } = null!;
 
-    public string Content { get; set; } = null!;
+    public string? Content { get; set; }
 
     public DateTime? CreateDate { get; set; }
 

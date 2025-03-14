@@ -15,7 +15,6 @@ public partial class UserAnswer
     public string? AnswerId { get; set; }
 
     public int? SkinTypeId { get; set; }
-
     [JsonIgnore]
     public virtual SkinType? SkinType { get; set; }
     [JsonIgnore]

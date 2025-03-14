@@ -75,7 +75,7 @@ namespace BeautySky.Controllers
                         };
                         await _amazonS3.PutObjectAsync(putRequest);
                     }
-                    blog.ImgURL = $"https://{_bucketName}.s3.amazonaws.com/{keyName}";
+                    blog.ImgUrl = $"https://{_bucketName}.s3.amazonaws.com/{keyName}";
                 }
 
                 _context.Blogs.Add(blog);
@@ -88,7 +88,7 @@ namespace BeautySky.Controllers
                     AuthorId = blog.AuthorId,
                     SkinType = blog.SkinType,
                     Category = blog.Category,
-                    ImgURL = blog.ImgURL
+                    ImgURL = blog.ImgUrl
                 };
 
                 return CreatedAtAction("GetBlog", new { id = blog.BlogId }, response);
@@ -133,7 +133,7 @@ namespace BeautySky.Controllers
                         };
                         await _amazonS3.PutObjectAsync(putRequest);
                     }
-                    blog.ImgURL = $"https://{_bucketName}.s3.amazonaws.com/{keyName}";
+                    blog.ImgUrl = $"https://{_bucketName}.s3.amazonaws.com/{keyName}";
                 }
 
                 await _context.SaveChangesAsync();

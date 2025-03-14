@@ -13,6 +13,7 @@ public partial class Product
     [Range(0, double.MaxValue, ErrorMessage = "Price cannot be negative")]
     public decimal Price { get; set; }
     [Range(0, int.MaxValue, ErrorMessage = "Quantity cannot be negative")]
+
     public int Quantity { get; set; }
 
     public string? Description { get; set; }
@@ -23,8 +24,6 @@ public partial class Product
 
     public int? SkinTypeId { get; set; }
 
-    [JsonIgnore]
-    public virtual ICollection<CarePlanProduct> CarePlanProducts { get; set; } = new List<CarePlanProduct>();
     [JsonIgnore]
     public virtual Category? Category { get; set; }
     [JsonIgnore]
