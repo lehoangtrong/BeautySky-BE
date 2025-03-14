@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using BeautySky.Models;
-using Microsoft.AspNetCore.Authorization;
 
 namespace BeautySky.Controllers
 {
@@ -22,243 +18,49 @@ namespace BeautySky.Controllers
             _context = context;
         }
 
-
-
-
-        [HttpGet("orders/myOrders")]
-        [Authorize]
-        public async Task<ActionResult<IEnumerable<Order>>> GetMyOrders()
-        {
-            var userIdClaim = User.FindFirst("userId")?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-            {
-                return Unauthorized("Invalid token or missing userId claim.");
-            }
-
-            var userId = int.Parse(userIdClaim);
-
-            var orders = await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
-            if (!orders.Any()) return NotFound("No orders found for this user");
-
-            return Ok(orders);
-        }
-
-
-
-        // GET: api/Orders
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<object>>> GetOrders()
+        public async Task<IActionResult> GetAllOrders()
         {
-            var orders = await _context.Orders
-                .Include(o => o.OrderProducts)
-                .Select(o => new
-                {
-                    o.OrderId,
-                    o.OrderDate,
-                    o.UserId,
-                    o.PromotionId,
-                    o.DiscountAmount,
-                    o.TotalAmount,
-                    o.FinalAmount,
-                    o.Status,
-                    Products = o.OrderProducts.Select(op => new
-                    {
-                        op.ProductId,
-                        ProductName = _context.Products.Where(p => p.ProductId == op.ProductId).Select(p => p.ProductName).FirstOrDefault(),
-                        op.Quantity
-                    }).ToList()
-                })
-                .ToListAsync();
-
+            var orders = await _context.Orders.Include(o => o.OrderProducts).ToListAsync();
             return Ok(orders);
         }
 
-        // GET: api/Orders/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<object>> GetOrder(int id)
-        {
-            var order = await _context.Orders
-                .Include(o => o.OrderProducts)
-                .Where(o => o.OrderId == id)
-                .Select(o => new
-                {
-                    o.OrderId,
-                    o.OrderDate,
-                    o.UserId,
-                    o.PromotionId,
-                    o.DiscountAmount, 
-                    o.TotalAmount,
-                    o.FinalAmount,
-                    o.Status,
-                    Products = o.OrderProducts.Select(op => new
-                    {
-                        op.ProductId,
-                        ProductName = _context.Products.Where(p => p.ProductId == op.ProductId).Select(p => p.ProductName).FirstOrDefault(),
-                        op.Quantity
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
-
-            if (order == null)
-            {
-                return NotFound();
-            }
-            return order;
-        }
-
-        // POST: api/Orders
-        [HttpPost]
-        public async Task<ActionResult<Order>> PostOrder(OrderRequest request)
-        {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                decimal? discountAmount = null;
-                if (request.PromotionID.HasValue)
-                {
-                    var promotion = await _context.Promotions.FindAsync(request.PromotionID);
-                    if (promotion != null)
-                    {
-                        discountAmount = promotion.DiscountPercentage / 100 * request.OrderProducts.Sum(p => p.Quantity * _context.Products.Find(p.ProductID).Price);
-                    }
-                }
-
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var order = new Order
-                {
-                    OrderDate = DateTime.Now,
-                    UserId = userId != null ? int.Parse(userId) : request.UserID,
-                    PromotionId = request.PromotionID,
-                    DiscountAmount = discountAmount,
-                    Status = "Pending"
-                };
-
-                var orderProducts = new List<OrderProduct>();
-                decimal totalAmount = 0;
-
-                foreach (var productRequest in request.OrderProducts)
-                {
-                    var product = await _context.Products.FindAsync(productRequest.ProductID);
-                    if (product == null)
-                    {
-                        return NotFound($"Product with ID {productRequest.ProductID} not found.");
-                    }
-
-                    var unitPrice = product.Price;
-                    var totalPrice = productRequest.Quantity * unitPrice;
-
-                    orderProducts.Add(new OrderProduct
-                    {
-                        ProductId = productRequest.ProductID,
-                        Quantity = productRequest.Quantity,
-                        UnitPrice = unitPrice,
-                        TotalPrice = totalPrice
-                    });
-
-                    totalAmount += totalPrice;
-                }
-
-                order.TotalAmount = totalAmount;
-                order.FinalAmount = totalAmount - (discountAmount ?? 0);
-
-                _context.Orders.Add(order);
-                await _context.SaveChangesAsync();
-
-                foreach (var orderProduct in orderProducts)
-                {
-                    orderProduct.OrderId = order.OrderId;
-                }
-
-                _context.OrderProducts.AddRange(orderProducts);
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return CreatedAtAction(nameof(GetOrder), new { id = order.OrderId }, order);
-            }
-            catch (Exception)
-            {
-                await transaction.RollbackAsync();
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to create order");
-            }
-        }
-        // PUT: api/Orders/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, OrderRequest request)
+        public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
         {
-            var order = await _context.Orders.Include(o => o.OrderProducts).FirstOrDefaultAsync(o => o.OrderId == id);
-            if (order == null)
+            if (id != order.OrderId)
             {
-                return NotFound();
+                return BadRequest("ID đơn hàng không khớp");
             }
 
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            _context.Entry(order).State = EntityState.Modified;
+
             try
             {
-                decimal? discountAmount = null;
-                if (request.PromotionID.HasValue)
-                {
-                    var promotion = await _context.Promotions.FindAsync(request.PromotionID);
-                    if (promotion != null)
-                    {
-                        discountAmount = promotion.DiscountPercentage / 100 * request.OrderProducts.Sum(p => p.Quantity * _context.Products.Find(p.ProductID).Price);
-                    }
-                }
-
-                order.PromotionId = request.PromotionID;
-                order.DiscountAmount = discountAmount;
-
-                _context.OrderProducts.RemoveRange(order.OrderProducts);
-
-                var orderProducts = new List<OrderProduct>();
-                decimal totalAmount = 0;
-
-                foreach (var productRequest in request.OrderProducts)
-                {
-                    var product = await _context.Products.FindAsync(productRequest.ProductID);
-                    if (product == null)
-                    {
-                        return NotFound($"Product with ID {productRequest.ProductID} not found.");
-                    }
-
-                    var unitPrice = product.Price;
-                    var totalPrice = productRequest.Quantity * unitPrice;
-
-                    orderProducts.Add(new OrderProduct
-                    {
-                        OrderId = order.OrderId,
-                        ProductId = productRequest.ProductID,
-                        Quantity = productRequest.Quantity,
-                        UnitPrice = unitPrice,
-                        TotalPrice = totalPrice
-                    });
-
-                    totalAmount += totalPrice;
-                }
-
-                order.TotalAmount = totalAmount;
-                order.FinalAmount = totalAmount - (discountAmount ?? 0);
-
-                _context.OrderProducts.AddRange(orderProducts);
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return NoContent();
             }
-            catch (Exception)
+            catch (DbUpdateConcurrencyException)
             {
-                await transaction.RollbackAsync();
-                return StatusCode(StatusCodes.Status500InternalServerError, "Failed to update order");
+                if (!_context.Orders.Any(o => o.OrderId == id))
+                {
+                    return NotFound("Đơn hàng không tồn tại");
+                }
+                else
+                {
+                    throw;
+                }
             }
+
+            return NoContent();
         }
 
-        // DELETE: api/Orders/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
         {
             var order = await _context.Orders.Include(o => o.OrderProducts).FirstOrDefaultAsync(o => o.OrderId == id);
             if (order == null)
             {
-                return NotFound();
+                return NotFound("Đơn hàng không tồn tại");
             }
 
             _context.OrderProducts.RemoveRange(order.OrderProducts);
@@ -267,13 +69,74 @@ namespace BeautySky.Controllers
 
             return NoContent();
         }
-    }
 
-    public class OrderRequest
-    {
-        public int? UserID { get; set; }
-        public int? PromotionID { get; set; }
-        public List<OrderProductRequest> OrderProducts { get; set; }
+        [HttpPost("order-products")]
+        public async Task<IActionResult> CreateOrder(int userID, int? promotionID, List<OrderProductRequest> products)
+        {
+            if (products == null || !products.Any())
+            {
+                return BadRequest("Danh sách sản phẩm trống");
+            }
+
+            var totalAmount = 0m;
+            var orderProducts = new List<OrderProduct>();
+
+            foreach (var item in products)
+            {
+                var product = await _context.Products.FirstOrDefaultAsync(p => p.ProductId == item.ProductID);
+                if (product == null)
+                {
+                    return NotFound($"Sản phẩm với ID {item.ProductID} không tồn tại");
+                }
+
+                var itemTotal = product.Price * item.Quantity;
+                totalAmount += itemTotal;
+
+                orderProducts.Add(new OrderProduct
+                {
+                    ProductId = product.ProductId,
+                    Quantity = item.Quantity,
+                    UnitPrice = product.Price,
+                    TotalPrice = itemTotal
+                });
+            }
+
+            decimal discountAmount = 0m;
+            if (promotionID.HasValue)
+            {
+                var promotion = await _context.Promotions.FirstOrDefaultAsync(p => p.PromotionId == promotionID);
+                if (promotion != null)
+                {
+                    discountAmount = totalAmount * (promotion.DiscountPercentage / 100);
+                }
+            }
+
+            var finalAmount = totalAmount - discountAmount;
+
+            var order = new Order
+            {
+                UserId = userID,
+                OrderDate = DateTime.Now,
+                TotalAmount = totalAmount,
+                PromotionId = promotionID,
+                DiscountAmount = discountAmount,
+                FinalAmount = finalAmount,
+                Status = "Pending"
+            };
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            foreach (var orderProduct in orderProducts)
+            {
+                orderProduct.OrderId = order.OrderId;
+                _context.OrderProducts.Add(orderProduct);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { order.OrderId, order.Status, totalAmount, discountAmount, finalAmount });
+        }
     }
 
     public class OrderProductRequest
