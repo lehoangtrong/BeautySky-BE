@@ -40,12 +40,35 @@ namespace BeautySky.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
-            var orders = await _context.Orders.Include(o => o.OrderProducts).ToListAsync();
+            var orders = await _context.Orders
+                .Include(o => o.OrderProducts)
+                .Include(o => o.User)
+                .Select(o => new
+                {
+                    o.OrderId,
+                    o.OrderDate,
+                    o.TotalAmount,
+                    User = new
+                    {
+                        o.User.UserId,
+                        o.User.FullName,
+                        o.User.Phone,
+                        o.User.Address
+                    },
+                    OrderProducts = o.OrderProducts.Select(op => new
+                    {
+                        op.ProductId,
+                        op.Quantity
+                    })
+                })
+                .ToListAsync();
+
             return Ok(orders);
         }
-       
 
-    [Authorize] // Bảo vệ API, chỉ cho phép người dùng đã đăng nhập
+
+
+        [Authorize] // Bảo vệ API, chỉ cho phép người dùng đã đăng nhập
     [HttpPost("order-products")]
     public async Task<IActionResult> CreateOrder(int? promotionID, List<OrderProductRequest> products)
     {
