@@ -50,7 +50,13 @@ namespace BeautySky.Controllers
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
             var token = GenerateJwtToken(user);
-            return Ok(new { Email = email, Token = token, RoleId = user.RoleId, });
+
+            // Tạo URL redirect về frontend với thông tin xác thực
+            var frontendUrl = "http://localhost:5173/google-callback"; // URL của trang callback trong React
+            var queryString = $"?token={Uri.EscapeDataString(token)}&email={Uri.EscapeDataString(email)}&roleId={user.RoleId}";
+
+            // Redirect về frontend
+            return Redirect(frontendUrl + queryString);
         }
 
 
