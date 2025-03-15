@@ -389,16 +389,16 @@
   },
   {
     "ContainingType": "CarePlanController",
-    "Method": "GetCarePlanBySkinType",
-    "RelativePath": "api/CarePlan/GetCarePlanBySkinType/{skinTypeId}",
-    "HttpMethod": "GET",
+    "Method": "GetCarePlan",
+    "RelativePath": "api/CarePlan/GetCarePlan",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "skinTypeId",
+        "Name": "userId",
         "Type": "System.Int32",
-        "IsRequired": true
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []

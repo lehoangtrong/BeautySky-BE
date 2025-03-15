@@ -670,29 +670,6 @@
         }
       }
     },
-    "/api/CarePlan/GetCarePlanBySkinType/{skinTypeId}": {
-      "get": {
-        "tags": [
-          "CarePlan"
-        ],
-        "parameters": [
-          {
-            "name": "skinTypeId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
     "/api/CarePlan/SaveUserCarePlan": {
       "post": {
         "tags": [
@@ -717,6 +694,28 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/CarePlan/GetCarePlan": {
+      "post": {
+        "tags": [
+          "CarePlan"
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success"
