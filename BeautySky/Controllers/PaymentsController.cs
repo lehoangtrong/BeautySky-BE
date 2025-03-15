@@ -26,9 +26,6 @@ namespace BeautySky.Controllers
      
 
 
-
-
-
         // GET: api/Payments/Details/{paymentId}
         [HttpGet("Details/{paymentId}")]
         public async Task<ActionResult<object>> GetPaymentDetails(int paymentId)
@@ -77,6 +74,36 @@ namespace BeautySky.Controllers
             }
 
             return Ok(paymentDetails);
+        }
+
+        // POST: api/Payments/ProcessAndConfirmPayment/{orderId}
+        [HttpPost("ProcessAndConfirmPayment/{orderId}")]
+        public async Task<ActionResult<Payment>> ProcessAndConfirmPayment(int orderId)
+        {
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order == null)
+            {
+                return NotFound("Order not found.");
+            }
+
+            var payment = new Payment
+            {
+                UserId = order.UserId,
+                PaymentTypeId = 1, // Default payment type
+                PaymentStatusId = 2, // Confirmed status
+                PaymentDate = DateTime.Now
+            };
+
+            _context.Payments.Add(payment);
+            await _context.SaveChangesAsync();
+
+            order.PaymentId = payment.PaymentId;
+            order.Status = "Completed";
+
+            _context.Entry(order).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction("GetPayment", new { id = payment.PaymentId }, payment);
         }
 
         // GET: api/Payments/AllDetails
