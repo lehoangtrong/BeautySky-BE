@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
+using BeautySky.Models.Vnpay;
+using BeautySky.Services.Vnpay;
 
 namespace BeautySky.Controllers
 {
@@ -14,11 +16,15 @@ namespace BeautySky.Controllers
     public class PaymentsController : ControllerBase
     {
         private readonly ProjectSwpContext _context;
+        private readonly IVnPayService _vnPayService;
 
-        public PaymentsController(ProjectSwpContext context)
+        public PaymentsController(ProjectSwpContext context, IVnPayService vnPayService)
         {
             _context = context;
+            _vnPayService = vnPayService;
         }
+     
+
 
 
 
@@ -121,35 +127,7 @@ namespace BeautySky.Controllers
 
             return Ok(allPaymentDetails);
         }
-        // POST: api/Payments/ProcessAndConfirmPayment/{orderId}
-        [HttpPost("ProcessAndConfirmPayment/{orderId}")]
-        public async Task<ActionResult<Payment>> ProcessAndConfirmPayment(int orderId)
-        {
-            var order = await _context.Orders.FindAsync(orderId);
-            if (order == null)
-            {
-                return NotFound("Order not found.");
-            }
 
-            var payment = new Payment
-            {
-                UserId = order.UserId,
-                PaymentTypeId = 1, // Default payment type
-                PaymentStatusId = 2, // Confirmed status
-                PaymentDate = DateTime.Now
-            };
-
-            _context.Payments.Add(payment);
-            await _context.SaveChangesAsync();
-
-            order.PaymentId = payment.PaymentId;
-            order.Status = "Paid";
-
-            _context.Entry(order).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPayment", new { id = payment.PaymentId }, payment);
-        }
 
 
         // DELETE: api/Payments/5
@@ -172,5 +150,29 @@ namespace BeautySky.Controllers
         {
             return _context.Payments.Any(e => e.PaymentId == id);
         }
+        
+
+  
+
+            [HttpPost]
+            public IActionResult CreatePaymentUrlVnpay(PaymentInformationModel model)
+            {
+                var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
+
+                return Redirect(url);
+            }
+            [HttpGet]
+            public IActionResult PaymentCallbackVnpay()
+            {
+                var response = _vnPayService.PaymentExecute(Request.Query);
+
+                return Json(response);
+            }
+
+            private IActionResult Json(PaymentResponseModel response)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
-}
+
