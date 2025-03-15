@@ -20,6 +20,16 @@ namespace BeautySky
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn session
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            // Thêm IHttpContextAccessor để sử dụng session trong controller
+            builder.Services.AddHttpContextAccessor();
 
             // Add services to the container.
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -159,6 +169,7 @@ namespace BeautySky
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
+            app.UseSession();
             app.UseAuthorization();
 
 

@@ -23,12 +23,13 @@ public partial class Product
     public int? CategoryId { get; set; }
 
     public int? SkinTypeId { get; set; }
-
+    [JsonIgnore]
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
     [JsonIgnore]
     public virtual Category? Category { get; set; }
     [JsonIgnore]
     public virtual ICollection<OrderProduct> OrderProducts { get; set; } = new List<OrderProduct>();
-
+    [JsonIgnore]
     public virtual ICollection<ProductsImage> ProductsImages { get; set; } = new List<ProductsImage>();
     [JsonIgnore]
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
