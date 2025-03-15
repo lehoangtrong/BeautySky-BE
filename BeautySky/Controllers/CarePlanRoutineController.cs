@@ -135,10 +135,10 @@ public class CarePlanController : ControllerBase
         request.SkinTypeId = userAnswer.SkinTypeId ?? 0;
 
         // Xóa lộ trình cũ của user nếu có
-        var oldCarePlanProducts = _context.CarePlanProduct
+        var oldCarePlanProducts = _context.CarePlanProducts
             .Where(cp => cp.UserId == request.UserId)
             .ToList();
-        _context.CarePlanProduct.RemoveRange(oldCarePlanProducts);
+        _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
 
         var oldUserCarePlan = _context.UserCarePlans
             .Where(u => u.UserId == request.UserId)
@@ -178,9 +178,9 @@ public class CarePlanController : ControllerBase
                     UserId = request.UserId
                 };
 
-                if (!_context.CarePlanProduct.Any(cp => cp.UserId == request.UserId && cp.ProductId == randomProduct.ProductId && cp.StepId == step.StepId))
+                if (!_context.CarePlanProducts.Any(cp => cp.UserId == request.UserId && cp.ProductId == randomProduct.ProductId && cp.StepId == step.StepId))
                 {
-                    _context.CarePlanProduct.Add(carePlanProduct);
+                    _context.CarePlanProducts.Add(carePlanProduct);
                 }
             }
         }
@@ -255,7 +255,7 @@ public class CarePlanController : ControllerBase
                     StepId = step.StepId,
                     UserId = userId
                 };
-                _context.CarePlanProduct.Add(carePlanProduct);
+                _context.CarePlanProducts.Add(carePlanProduct);
 
                 stepResults.Add(new
                 {
@@ -289,10 +289,10 @@ public class CarePlanController : ControllerBase
 
     private void DeleteOldUserCarePlan(int userId)
     {
-        var oldCarePlanProducts = _context.CarePlanProduct
+        var oldCarePlanProducts = _context.CarePlanProducts
             .Where(cp => cp.UserId == userId)
             .ToList();
-        _context.CarePlanProduct.RemoveRange(oldCarePlanProducts);
+        _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
 
         var oldUserCarePlan = _context.UserCarePlans
             .Where(u => u.UserId == userId)

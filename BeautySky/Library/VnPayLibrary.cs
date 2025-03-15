@@ -48,7 +48,6 @@ namespace BeautySky.Library
                 VnPayResponseCode = vnpResponseCode
             };
         }
-
         public string GetIpAddress(HttpContext context)
         {
             var ipAddress = string.Empty;
@@ -76,7 +75,6 @@ namespace BeautySky.Library
 
             return "127.0.0.1";
         }
-
         public void AddRequestData(string key, string value)
         {
             if (!string.IsNullOrEmpty(value))
@@ -85,19 +83,17 @@ namespace BeautySky.Library
             }
         }
 
-        public void AddResponseData(string key, string? value)
+        public void AddResponseData(string key, string value)
         {
             if (!string.IsNullOrEmpty(value))
             {
                 _responseData.Add(key, value);
             }
         }
-
         public string GetResponseData(string key)
         {
             return _responseData.TryGetValue(key, out var retValue) ? retValue : string.Empty;
         }
-
         public string CreateRequestUrl(string baseUrl, string vnpHashSecret)
         {
             var data = new StringBuilder();
@@ -121,14 +117,12 @@ namespace BeautySky.Library
 
             return baseUrl;
         }
-
-        public bool ValidateSignature(string? inputHash, string secretKey)
+        public bool ValidateSignature(string inputHash, string secretKey)
         {
             var rspRaw = GetResponseData();
             var myChecksum = HmacSha512(secretKey, rspRaw);
             return myChecksum.Equals(inputHash, StringComparison.InvariantCultureIgnoreCase);
         }
-
         private string HmacSha512(string key, string inputData)
         {
             var hash = new StringBuilder();
@@ -145,7 +139,6 @@ namespace BeautySky.Library
 
             return hash.ToString();
         }
-
         private string GetResponseData()
         {
             var data = new StringBuilder();
@@ -173,14 +166,13 @@ namespace BeautySky.Library
             return data.ToString();
         }
 
-
-
-
     }
+
+
 
     public class VnPayCompare : IComparer<string>
     {
-        public int Compare(string? x, string? y)
+        public int Compare(string x, string y)
         {
             if (x == y) return 0;
             if (x == null) return -1;
@@ -189,6 +181,4 @@ namespace BeautySky.Library
             return vnpCompare.Compare(x, y, CompareOptions.Ordinal);
         }
     }
-
-
 }
