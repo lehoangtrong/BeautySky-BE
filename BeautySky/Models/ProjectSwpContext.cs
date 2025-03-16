@@ -21,7 +21,7 @@ public partial class ProjectSwpContext : DbContext
 
     public virtual DbSet<CarePlan> CarePlans { get; set; }
 
-    public virtual DbSet<CarePlanProduct> CarePlanProduct { get; set; }
+    public virtual DbSet<CarePlanProducts> CarePlanProducts { get; set; }
 
     public virtual DbSet<CarePlanStep> CarePlanSteps { get; set; }
 
@@ -120,9 +120,9 @@ public partial class ProjectSwpContext : DbContext
                 .HasConstraintName("FK__CarePlan__SkinTy__534D60F1");
         });
 
-        modelBuilder.Entity<CarePlanProduct>(entity =>
+        modelBuilder.Entity<CarePlanProducts>(entity =>
         {
-            entity.HasKey(e => new { e.CarePlanId, e.StepId, e.ProductId, e.UserId }); // Sử dụng ID làm khóa chính
+            entity.HasKey(e => e.CarePlanProductId);
 
             entity.ToTable("CarePlanProduct");
 
@@ -136,17 +136,17 @@ public partial class ProjectSwpContext : DbContext
             entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanProducts)
             .HasForeignKey(d => d.CarePlanId)
             .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK__CarePlanP__CareP__02084FDA");
+            .HasConstraintName("FK__CarePlanP__CareP__48CFD27E");
 
             entity.HasOne(d => d.Step).WithMany(p => p.CarePlanProducts)
                 .HasForeignKey(d => d.StepId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CarePlanP__StepI__02FC7413");
+                .HasConstraintName("FK__CarePlanP__StepI__49C3F6B7");
 
             entity.HasOne(d => d.User).WithMany(p => p.CarePlanProducts)
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CarePlanP__UserI__245D67DE");
+                .HasConstraintName("FK__CarePlanP__UserI__4AB81AF0");
         });
 
         modelBuilder.Entity<CarePlanStep>(entity =>

@@ -55,14 +55,13 @@ namespace BeautySky.Controllers
                     product.Description,
                     product.Quantity,
                     product.CategoryId,
-                    categoryName = product.Category?.CategoryName,
+                    CategoryName = product.Category?.CategoryName,
                     product.SkinTypeId,
-                    skinTypeName = product.SkinType?.SkinTypeName,
+                    SkinTypeName = product.SkinType?.SkinTypeName,
                     Rating = rating,
-                    productsImages = product.ProductsImages,
-                    CategoryName = product.Category?.CategoryName, // Lấy tên thay vì ID
-                    SkinTypeName = product.SkinType?.SkinTypeName  // Lấy tên thay vì ID
+                    productsImages = product.ProductsImages
                 });
+
             }
 
             if (!string.IsNullOrWhiteSpace(name))

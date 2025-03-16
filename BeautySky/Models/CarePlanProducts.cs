@@ -4,8 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace BeautySky.Models;
 
-public partial class CarePlanProduct
+public partial class CarePlanProducts
 {
+    public int CarePlanProductId { get; set; }
     public int CarePlanId { get; set; }
 
     public int StepId { get; set; }
