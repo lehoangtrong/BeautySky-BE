@@ -1556,46 +1556,6 @@
         }
       }
     },
-    "/api/Orders/orders/{orderId}": {
-      "get": {
-        "tags": [
-          "Orders"
-        ],
-        "parameters": [
-          {
-            "name": "orderId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/Order"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Order"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Order"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Orders/order-products": {
       "post": {
         "tags": [
@@ -1647,46 +1607,6 @@
       }
     },
     "/api/Orders/{id}": {
-      "put": {
-        "tags": [
-          "Orders"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Order"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Order"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/Order"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      },
       "delete": {
         "tags": [
           "Orders"
@@ -1694,29 +1614,6 @@
         "parameters": [
           {
             "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Payments/Details/{paymentId}": {
-      "get": {
-        "tags": [
-          "Payments"
-        ],
-        "parameters": [
-          {
-            "name": "paymentId",
             "in": "path",
             "required": true,
             "schema": {
@@ -1772,18 +1669,6 @@
         }
       }
     },
-    "/api/Payments/AllDetails": {
-      "get": {
-        "tags": [
-          "Payments"
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
     "/api/Payments/{id}": {
       "delete": {
         "tags": [
@@ -1799,47 +1684,6 @@
               "format": "int32"
             }
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      }
-    },
-    "/api/Payments": {
-      "post": {
-        "tags": [
-          "Payments"
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PaymentInformationModel"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PaymentInformationModel"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/PaymentInformationModel"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Payments"
         ],
         "responses": {
           "200": {
@@ -3931,28 +3775,6 @@
           "paymentDate": {
             "type": "string",
             "format": "date-time",
-            "nullable": true
-          }
-        },
-        "additionalProperties": false
-      },
-      "PaymentInformationModel": {
-        "type": "object",
-        "properties": {
-          "orderType": {
-            "type": "string",
-            "nullable": true
-          },
-          "amount": {
-            "type": "number",
-            "format": "double"
-          },
-          "orderDescription": {
-            "type": "string",
-            "nullable": true
-          },
-          "name": {
-            "type": "string",
             "nullable": true
           }
         },

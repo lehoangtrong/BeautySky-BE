@@ -928,27 +928,6 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.OrdersController",
-    "Method": "UpdateOrder",
-    "RelativePath": "api/Orders/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      },
-      {
-        "Name": "order",
-        "Type": "BeautySky.Models.Order",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.OrdersController",
     "Method": "DeleteOrder",
     "RelativePath": "api/Orders/{id}",
     "HttpMethod": "DELETE",
@@ -986,32 +965,6 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.OrdersController",
-    "Method": "GetOrderDetail",
-    "RelativePath": "api/Orders/orders/{orderId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "orderId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": [
-      {
-        "Type": "BeautySky.Models.Order",
-        "MediaTypes": [
-          "text/plain",
-          "application/json",
-          "text/json"
-        ],
-        "StatusCode": 200
-      }
-    ]
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.OrdersController",
     "Method": "GetMyOrders",
     "RelativePath": "api/Orders/orders/myOrders",
     "HttpMethod": "GET",
@@ -1032,32 +985,6 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "CreatePaymentUrlVnpay",
-    "RelativePath": "api/Payments",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "model",
-        "Type": "BeautySky.Models.Vnpay.PaymentInformationModel",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "PaymentCallbackVnpay",
-    "RelativePath": "api/Payments",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
     "Method": "DeletePayment",
     "RelativePath": "api/Payments/{id}",
     "HttpMethod": "DELETE",
@@ -1066,32 +993,6 @@
     "Parameters": [
       {
         "Name": "id",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "GetAllPaymentDetails",
-    "RelativePath": "api/Payments/AllDetails",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "BeautySky.Controllers.PaymentsController",
-    "Method": "GetPaymentDetails",
-    "RelativePath": "api/Payments/Details/{paymentId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "paymentId",
         "Type": "System.Int32",
         "IsRequired": true
       }
