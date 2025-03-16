@@ -82,7 +82,7 @@ namespace BeautySky
                 option.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"));
             });
 
-            //builder.Services.AddScoped<IVnPayService, VnPayService>();
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
 
             // Authentication configuration
             builder.Services.AddAuthentication(option =>
