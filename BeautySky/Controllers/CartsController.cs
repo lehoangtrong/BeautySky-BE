@@ -22,6 +22,7 @@ public class CartsController : ControllerBase
     {
         int? userId = GetUserId();
 
+
         if (userId == null)
         {
             // Lấy giỏ hàng từ session cho guest
@@ -219,7 +220,7 @@ public class CartsController : ControllerBase
             {
                 cart.CartId,
                 cart.ProductId,
-                cart.Quantity,
+                cart.Quantity,  
                 cart.TotalPrice,
                 ProductName = product.ProductName,
                 Price = product.Price,
@@ -353,10 +354,26 @@ public class CartsController : ControllerBase
     {
         if (User.Identity?.IsAuthenticated == true)
         {
-            string? userIdClaim = User.Claims.FirstOrDefault(c => c.Type == "userId")?.Value;
-            if (int.TryParse(userIdClaim, out int userId) && userId > 0)
+            // Log tất cả claims để debug
+            foreach (var claim in User.Claims)
             {
-                return userId;
+                Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
+            }
+
+            // Kiểm tra nhiều loại claim có thể chứa userId
+            string? userIdClaim = User.Claims.FirstOrDefault(c =>
+                c.Type == "userId" ||
+                c.Type == "sub" ||  // Google sử dụng "sub" cho unique identifier
+                c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
+
+            Console.WriteLine($"Found userId claim: {userIdClaim}");
+
+            if (!string.IsNullOrEmpty(userIdClaim))
+            {
+                if (int.TryParse(userIdClaim, out int userId) && userId > 0)
+                {
+                    return userId;
+                }
             }
         }
         return null;

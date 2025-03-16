@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using BeautySky.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace BeautySky.Controllers
 {
@@ -17,62 +19,129 @@ namespace BeautySky.Controllers
         {
             _context = context;
         }
+        [HttpGet("orders/myOrders")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<Order>>> GetMyOrders()
+        {
+            var userIdClaim = User.FindFirst("userId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                return Unauthorized("Invalid token or missing userId claim.");
+            }
+
+            var userId = int.Parse(userIdClaim);
+
+            var orders = await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
+            if (!orders.Any()) return NotFound("No orders found for this user");
+
+            return Ok(orders);
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAllOrders()
         {
-            var orders = await _context.Orders.Include(o => o.OrderProducts).ToListAsync();
+            var orders = await _context.Orders
+                .Include(o => o.OrderProducts)
+                .Include(o => o.User)
+                .Select(o => new
+                {
+                    o.OrderId,
+                    o.OrderDate,
+                    o.TotalAmount,
+                    User = new
+                    {
+                        o.User.UserId,
+                        o.User.FullName,
+                        o.User.Phone,
+                        o.User.Address
+                    },
+                    OrderProducts = o.OrderProducts.Select(op => new
+                    {
+                        op.ProductId,
+                        op.Quantity
+                    })
+                })
+                .ToListAsync();
+
             return Ok(orders);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
+        [HttpGet("orders/{orderId}")]
+        [Authorize]
+        public async Task<ActionResult<Order>> GetOrderDetail(int orderId)
         {
-            if (id != order.OrderId)
+            // Lấy userId từ token
+            var userIdClaim = User.FindFirst("userId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
             {
-                return BadRequest("ID đơn hàng không khớp");
+                return Unauthorized("Invalid token or missing userId claim.");
             }
 
-            _context.Entry(order).State = EntityState.Modified;
+            var userId = int.Parse(userIdClaim);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Orders.Any(o => o.OrderId == id))
+            // Lấy chi tiết đơn hàng kèm theo thông tin sản phẩm và người dùng
+            var order = await _context.Orders
+                .Include(o => o.OrderProducts)
+                    .ThenInclude(op => op.Product)
+                .Include(o => o.User)
+                .Include(o => o.Promotion)
+                .Where(o => o.OrderId == orderId && o.UserId == userId)
+                .Select(o => new
                 {
-                    return NotFound("Đơn hàng không tồn tại");
-                }
-                else
-                {
-                    throw;
-                }
-            }
+                    o.OrderId,
+                    o.OrderDate,
+                    o.TotalAmount,
+                    o.DiscountAmount,
+                    o.FinalAmount,
+                    o.Status,
+                    User = new
+                    {
+                        o.User.UserId,
+                        o.User.FullName,
+                        o.User.Phone,
+                        o.User.Address
+                    },
+                    Promotion = o.Promotion != null ? new
+                    {
+                        o.Promotion.PromotionId,
+                        o.Promotion.DiscountPercentage
+                    } : null,
+                    OrderProducts = o.OrderProducts.Select(op => new
+                    {
+                        op.ProductId,
+                        op.Product.ProductName,
+                        op.Product.Price,
+                        op.Quantity,
+                        op.TotalPrice
+                    })
+                })
+                .FirstOrDefaultAsync();
 
-            return NoContent();
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
-        {
-            var order = await _context.Orders.Include(o => o.OrderProducts).FirstOrDefaultAsync(o => o.OrderId == id);
             if (order == null)
             {
-                return NotFound("Đơn hàng không tồn tại");
+                return NotFound("Không tìm thấy đơn hàng hoặc bạn không có quyền xem đơn hàng này.");
             }
 
-            _context.OrderProducts.RemoveRange(order.OrderProducts);
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(order);
         }
 
+
+
+        [Authorize] // Bảo vệ API, chỉ cho phép người dùng đã đăng nhập
         [HttpPost("order-products")]
-        public async Task<IActionResult> CreateOrder(int userID, int? promotionID, List<OrderProductRequest> products)
+        public async Task<IActionResult> CreateOrder(int? promotionID, List<OrderProductRequest> products)
         {
+            var userIdClaim = HttpContext.User.FindFirst("userId");
+            if (userIdClaim == null)
+            {
+                return Unauthorized("Không tìm thấy thông tin người dùng.");
+            }
+
+            if (!int.TryParse(userIdClaim.Value, out int userID))
+            {
+                return Unauthorized("ID người dùng không hợp lệ.");
+            }
+
             if (products == null || !products.Any())
             {
                 return BadRequest("Danh sách sản phẩm trống");
@@ -137,6 +206,54 @@ namespace BeautySky.Controllers
 
             return Ok(new { order.OrderId, order.Status, totalAmount, discountAmount, finalAmount });
         }
+
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
+        {
+            if (id != order.OrderId)
+            {
+                return BadRequest("ID đơn hàng không khớp");
+            }
+
+            _context.Entry(order).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Orders.Any(o => o.OrderId == id))
+                {
+                    return NotFound("Đơn hàng không tồn tại");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteOrder(int id)
+        {
+            var order = await _context.Orders.Include(o => o.OrderProducts).FirstOrDefaultAsync(o => o.OrderId == id);
+            if (order == null)
+            {
+                return NotFound("Đơn hàng không tồn tại");
+            }
+
+            _context.OrderProducts.RemoveRange(order.OrderProducts);
+            _context.Orders.Remove(order);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+
     }
 
     public class OrderProductRequest

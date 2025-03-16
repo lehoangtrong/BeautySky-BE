@@ -33,4 +33,5 @@ public partial class Order
     public virtual Promotion? Promotion { get; set; }
     [JsonIgnore]
     public virtual User? User { get; set; }
+    
 }
