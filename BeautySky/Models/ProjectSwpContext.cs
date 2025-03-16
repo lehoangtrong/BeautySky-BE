@@ -122,7 +122,7 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<CarePlanProduct>(entity =>
         {
-            entity.HasKey(e => new { e.CarePlanId, e.StepId, e.ProductId }).HasName("PK__CarePlan__A043ED6882876554");
+            entity.HasKey(e => e.CarePlanProductId);
 
             entity.ToTable("CarePlanProduct");
 
