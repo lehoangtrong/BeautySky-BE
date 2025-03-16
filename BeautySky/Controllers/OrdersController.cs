@@ -149,34 +149,7 @@ namespace BeautySky.Controllers
     }
 
 
-    [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
-        {
-            if (id != order.OrderId)
-            {
-                return BadRequest("ID đơn hàng không khớp");
-            }
 
-            _context.Entry(order).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Orders.Any(o => o.OrderId == id))
-                {
-                    return NotFound("Đơn hàng không tồn tại");
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteOrder(int id)
