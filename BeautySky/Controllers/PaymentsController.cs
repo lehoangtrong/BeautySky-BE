@@ -17,143 +17,75 @@ namespace BeautySky.Controllers
     {
         private readonly ProjectSwpContext _context;
         private readonly IVnPayService _vnPayService;
+        private readonly ILogger<PaymentsController> _logger;
 
-        public PaymentsController(ProjectSwpContext context, IVnPayService vnPayService)
+        public PaymentsController(ProjectSwpContext context, IVnPayService vnPayService, ILogger<PaymentsController> logger)
         {
             _context = context;
             _vnPayService = vnPayService;
+            _logger = logger;
         }
 
-
-
-        // GET: api/Payments/Details/{paymentId}
-        [HttpGet("Details/{paymentId}")]
-        public async Task<ActionResult<object>> GetPaymentDetails(int paymentId)
-        {
-            var paymentDetails = await _context.Payments
-                .Where(p => p.PaymentId == paymentId)
-                .Select(p => new
-                {
-                    p.PaymentId,
-                    p.PaymentDate,
-                    PaymentType = _context.PaymentTypes
-                        .Where(pt => pt.PaymentTypeId == p.PaymentTypeId)
-                        .Select(pt => pt.PaymentTypeName)
-                        .FirstOrDefault(),
-                    PaymentStatus = _context.PaymentStatuses
-                        .Where(ps => ps.PaymentStatusId == p.PaymentStatusId)
-                        .Select(ps => ps.PaymentStatus1)
-                        .FirstOrDefault(),
-                    Order = _context.Orders
-                        .Where(o => o.PaymentId == p.PaymentId)
-                        .Select(o => new
-                        {
-                            o.OrderId,
-                            o.OrderDate,
-                            o.FinalAmount,
-                            o.Status
-                        }).FirstOrDefault(),
-                    User = _context.Users
-                        .Where(u => u.UserId == p.UserId)
-                        .Select(u => new
-                        {
-                            u.UserId,
-                            u.UserName,
-                            u.FullName,
-                            u.Email,
-                            u.Phone,
-                            u.Address,
-                            u.DateCreate,
-                            u.IsActive
-                        }).FirstOrDefault()
-                }).FirstOrDefaultAsync();
-
-            if (paymentDetails == null)
-            {
-                return NotFound("Payment details not found.");
-            }
-
-            return Ok(paymentDetails);
-        }
-
-        // POST: api/Payments/ProcessAndConfirmPayment/{orderId}
         [HttpPost("ProcessAndConfirmPayment/{orderId}")]
         public async Task<ActionResult<Payment>> ProcessAndConfirmPayment(int orderId)
         {
-            var order = await _context.Orders.FindAsync(orderId);
-            if (order == null)
+            _logger.LogInformation($"Processing payment for Order ID: {orderId}");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                return NotFound("Order not found.");
-            }
-
-            var payment = new Payment
-            {
-                UserId = order.UserId,
-                PaymentTypeId = 1, // Default payment type
-                PaymentStatusId = 2, // Confirmed status
-                PaymentDate = DateTime.Now
-            };
-
-            _context.Payments.Add(payment);
-            await _context.SaveChangesAsync();
-
-            order.PaymentId = payment.PaymentId;
-            order.Status = "Completed";
-
-            _context.Entry(order).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPayment", new { id = payment.PaymentId }, payment);
-        }
-
-        // GET: api/Payments/AllDetails
-        [HttpGet("AllDetails")]
-        public async Task<ActionResult<object>> GetAllPaymentDetails()
-        {
-            var allPaymentDetails = await _context.Payments
-                .Select(p => new
+                var order = await _context.Orders.FindAsync(orderId);
+                if (order == null)
                 {
-                    p.PaymentId,
-                    p.PaymentDate,
-                    PaymentType = _context.PaymentTypes
-                        .Where(pt => pt.PaymentTypeId == p.PaymentTypeId)
-                        .Select(pt => pt.PaymentTypeName)
-                        .FirstOrDefault(),
-                    PaymentStatus = _context.PaymentStatuses
-                        .Where(ps => ps.PaymentStatusId == p.PaymentStatusId)
-                        .Select(ps => ps.PaymentStatus1)
-                        .FirstOrDefault(),
-                    Order = _context.Orders
-                        .Where(o => o.PaymentId == p.PaymentId)
-                        .Select(o => new
-                        {
-                            o.OrderId,
-                            o.OrderDate,
-                            o.FinalAmount,
-                            o.Status
-                        }).FirstOrDefault(),
-                    User = _context.Users
-                        .Where(u => u.UserId == p.UserId)
-                        .Select(u => new
-                        {
-                            u.UserId,
-                            u.UserName,
-                            u.FullName,
-                            u.Email,
-                            u.Phone,
-                            u.Address,
-                            u.DateCreate,
-                            u.IsActive
-                        }).FirstOrDefault()
-                }).ToListAsync();
+                    _logger.LogWarning($"Order {orderId} not found.");
+                    return NotFound("Order not found.");
+                }
 
-            if (!allPaymentDetails.Any())
-            {
-                return NotFound("No payment details found.");
+                if (order.PaymentId != null)
+                {
+                    _logger.LogWarning($"Order {orderId} already has a payment.");
+                    return BadRequest("Order already has a payment.");
+                }
+
+                if (order.UserId == null)
+                {
+                    _logger.LogWarning($"Order {orderId} has no associated User.");
+                    return BadRequest("Order has no associated User.");
+                }
+
+                var payment = new Payment
+                {
+                    UserId = order.UserId,
+                    PaymentTypeId = 1, // Default payment type
+                    PaymentStatusId = 2, // Confirmed status
+                    PaymentDate = DateTime.Now
+                };
+
+                _context.Payments.Add(payment);
+                await _context.SaveChangesAsync();
+                _context.Entry(payment).GetDatabaseValues(); // Load PaymentId
+
+                order.PaymentId = payment.PaymentId;
+                order.Status = "Completed";
+
+                _context.Entry(order).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                _logger.LogInformation($"Payment {payment.PaymentId} processed successfully.");
+
+                return Created($"api/Payments/{payment.PaymentId}", payment);
             }
-
-            return Ok(allPaymentDetails);
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, $"Error processing payment for Order ID {orderId}");
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
+
+
+
 
 
 
@@ -177,29 +109,29 @@ namespace BeautySky.Controllers
         {
             return _context.Payments.Any(e => e.PaymentId == id);
         }
+        
 
+  
 
+            //[HttpPost]
+            //public IActionResult CreatePaymentUrlVnpay(PaymentInformationModel model)
+            //{
+            //    var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
 
+            //    return Redirect(url);
+            //}
+            //[HttpGet]
+            //public IActionResult PaymentCallbackVnpay()
+            //{
+            //    var response = _vnPayService.PaymentExecute(Request.Query);
 
-        [HttpPost]
-        public IActionResult CreatePaymentUrlVnpay(PaymentInformationModel model)
-        {
-            var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
+            //    return Json(response);
+            //}
 
-            return Redirect(url);
-        }
-        [HttpGet]
-        public IActionResult PaymentCallbackVnpay()
-        {
-            var response = _vnPayService.PaymentExecute(Request.Query);
-
-            return Json(response);
-        }
-
-        private IActionResult Json(PaymentResponseModel response)
-        {
-            throw new NotImplementedException();
+            //private IActionResult Json(PaymentResponseModel response)
+            //{
+            //    throw new NotImplementedException();
+            //}
         }
     }
-}
 

@@ -22,9 +22,13 @@ namespace BeautySky.Services.Vnpay
             var pay = new VnPayLibrary();
             var urlCallBack = _configuration["Vnpay:PaymentBackReturnUrl"];
 
+
             var exchangeRate = double.Parse(_configuration["Vnpay:ExchangeRate"]);
+
+
+
             var amountInVND = model.Amount * exchangeRate;
-            var amountInCents = (long)(amountInVND * 100);
+            var amountInCents = (long)(amountInVND * 100); 
 
             pay.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
             pay.AddRequestData("vnp_Command", _configuration["Vnpay:Command"]);
