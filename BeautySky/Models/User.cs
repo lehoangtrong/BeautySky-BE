@@ -37,6 +37,9 @@ public partial class User
     [JsonIgnore]
     public virtual ICollection<CarePlanProducts> CarePlanProducts { get; set; } = new List<CarePlanProducts>();
     [JsonIgnore]
+    public virtual ICollection<CarePlanProduct> CarePlanProducts { get; set; } = new List<CarePlanProduct>();
+
+    [JsonIgnore]
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     [JsonIgnore]
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();

@@ -46,8 +46,11 @@ public class CarePlanRoutineController : ControllerBase
             .OrderBy(s => s.StepOrder)
             .ToList();
 
-        // ❌ Chỉ xóa dữ liệu cũ trong CarePlanProducts, KHÔNG xóa UserCarePlan
-        DeleteOldUserCarePlanProducts(userId);
+        // Xóa lộ trình cũ trước khi lưu mới
+        DeleteOldUserCarePlan(userId);
+
+        // Lưu lộ trình mới vào bảng UserCarePlan
+        SaveUserCarePlan(userId, carePlan.CarePlanId);
 
         List<object> stepResults = new List<object>();
         foreach (var step in steps)
@@ -59,15 +62,15 @@ public class CarePlanRoutineController : ControllerBase
             if (products.Any())
             {
                 var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
-                if (randomProduct == null) continue;
 
+                // Lấy hình ảnh sản phẩm (lấy ảnh đầu tiên nếu có)
                 var productImage = _context.ProductsImages
                     .Where(pi => pi.ProductId == randomProduct.ProductId)
                     .Select(pi => pi.ImageUrl)
                     .FirstOrDefault();
 
-                // ✅ Thêm sản phẩm vào CarePlanProducts (với UserId)
-                var carePlanProduct = new CarePlanProducts
+                // Lưu vào DB ngay khi chọn
+                var carePlanProduct = new CarePlanProduct
                 {
                     CarePlanId = carePlan.CarePlanId,
                     ProductId = randomProduct.ProductId,
@@ -82,20 +85,20 @@ public class CarePlanRoutineController : ControllerBase
                     step.StepOrder,
                     step.StepName,
                     Products = new List<object>
-                {
-                    new
                     {
-                        randomProduct.ProductId,
-                        randomProduct.ProductName,
-                        randomProduct.Price,   // Thêm giá sản phẩm
-                        ProductImage  = productImage ?? ""  // Thêm ảnh sản phẩm
+                        new
+                        {
+                            randomProduct.ProductId,
+                            randomProduct.ProductName,
+                            randomProduct.Price,   // Thêm giá sản phẩm
+                            ProductImage  = productImage ?? ""  // Thêm ảnh sản phẩm
+                        }
                     }
-                }
                 });
             }
         }
 
-        _context.SaveChanges(); // 🔴 Chỉ lưu thay đổi sau khi tất cả bước đã được xử lý
+        _context.SaveChanges(); // Lưu toàn bộ sản phẩm sau khi chọn xong
 
         var result = new
         {
@@ -107,17 +110,20 @@ public class CarePlanRoutineController : ControllerBase
         return Ok(result);
     }
 
-
-    private void DeleteOldUserCarePlanProducts(int userId)
+    private void DeleteOldUserCarePlan(int userId)
     {
         var oldCarePlanProducts = _context.CarePlanProducts
             .Where(cp => cp.UserId == userId)
             .ToList();
         _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
 
+        var oldUserCarePlan = _context.UserCarePlans
+            .Where(u => u.UserId == userId)
+            .ToList();
+        _context.UserCarePlans.RemoveRange(oldUserCarePlan);
+
         _context.SaveChanges();
     }
-
 
     private void SaveUserCarePlan(int userId, int carePlanId)
     {

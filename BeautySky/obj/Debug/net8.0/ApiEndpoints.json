@@ -388,9 +388,9 @@
     "ReturnTypes": []
   },
   {
-    "ContainingType": "CarePlanController",
+    "ContainingType": "CarePlanRoutineController",
     "Method": "GetCarePlan",
-    "RelativePath": "api/CarePlan/GetCarePlan",
+    "RelativePath": "api/CarePlanRoutine/GetCarePlan",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -399,38 +399,6 @@
         "Name": "userId",
         "Type": "System.Int32",
         "IsRequired": false
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "CarePlanController",
-    "Method": "GetUserCarePlan",
-    "RelativePath": "api/CarePlan/GetUserCarePlan/{userId}",
-    "HttpMethod": "GET",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "userId",
-        "Type": "System.Int32",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "CarePlanController",
-    "Method": "SaveUserCarePlan",
-    "RelativePath": "api/CarePlan/SaveUserCarePlan",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "request",
-        "Type": "BeautySky.Models.SaveCarePlanRequest",
-        "IsRequired": true
       }
     ],
     "ReturnTypes": []
@@ -532,6 +500,115 @@
     "ContainingType": "BeautySky.Controllers.CarePlansController",
     "Method": "DeleteCarePlan",
     "RelativePath": "api/CarePlans/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlanStepsController",
+    "Method": "GetCarePlanSteps",
+    "RelativePath": "api/CarePlanSteps",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[BeautySky.Models.CarePlanStep, BeautySky, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlanStepsController",
+    "Method": "PostCarePlanStep",
+    "RelativePath": "api/CarePlanSteps",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "carePlanStep",
+        "Type": "BeautySky.Models.CarePlanStep",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BeautySky.Models.CarePlanStep",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlanStepsController",
+    "Method": "GetCarePlanStep",
+    "RelativePath": "api/CarePlanSteps/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BeautySky.Models.CarePlanStep",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlanStepsController",
+    "Method": "PutCarePlanStep",
+    "RelativePath": "api/CarePlanSteps/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "updateCarePlanStep",
+        "Type": "BeautySky.Models.CarePlanStep",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.CarePlanStepsController",
+    "Method": "DeleteCarePlanStep",
+    "RelativePath": "api/CarePlanSteps/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
     "Order": 0,
@@ -969,6 +1046,16 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.PaymentsController",
+    "Method": "PaymentCallbackVnpay",
+    "RelativePath": "api/Payments",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.PaymentsController",
     "Method": "DeletePayment",
     "RelativePath": "api/Payments/{id}",
     "HttpMethod": "DELETE",
@@ -991,6 +1078,22 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.PaymentsController",
+    "Method": "CreatePaymentUrlVnpay",
+    "RelativePath": "api/Payments/create-payment",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "BeautySky.Models.Vnpay.PaymentInformationModel",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {
