@@ -1,12 +1,12 @@
 ﻿using BeautySky.Models.Vnpay;
-using System.Globalization;
-using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
+using System.Net;
 using System.Text;
+using System.Security.Cryptography;
+using System.Globalization;
+using System.Diagnostics;
 
 namespace BeautySky.Library
-
 {
     public class VnPayLibrary
     {
@@ -23,7 +23,16 @@ namespace BeautySky.Library
                     vnPay.AddResponseData(key, value);
                 }
             }
-            var orderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
+            var txnRefString = vnPay.GetResponseData("vnp_TxnRef");
+
+            if (string.IsNullOrEmpty(txnRefString))
+            {
+                throw new Exception("Lỗi: vnp_TxnRef không có giá trị hợp lệ!");
+            }
+
+            var orderId = Convert.ToInt64(txnRefString);
+
+
             var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
             var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
             var vnpSecureHash =
@@ -85,7 +94,7 @@ namespace BeautySky.Library
             }
         }
 
-        public void AddResponseData(string key, string? value)
+        public void AddResponseData(string key, string value)
         {
             if (!string.IsNullOrEmpty(value))
             {
@@ -109,6 +118,7 @@ namespace BeautySky.Library
 
             var querystring = data.ToString();
 
+
             baseUrl += "?" + querystring;
             var signData = querystring;
             if (signData.Length > 0)
@@ -118,11 +128,14 @@ namespace BeautySky.Library
 
             var vnpSecureHash = HmacSha512(vnpHashSecret, signData);
             baseUrl += "vnp_SecureHash=" + vnpSecureHash;
+            Debug.WriteLine($"🔍 Debug SignData: {signData}");
+            Debug.WriteLine($"🔐 Debug Secure Hash: {vnpSecureHash}");
 
-            return baseUrl;
+            //return baseUrl;
+            return $"{baseUrl}?{querystring}vnp_SecureHash={vnpSecureHash}";
         }
 
-        public bool ValidateSignature(string? inputHash, string secretKey)
+        public bool ValidateSignature(string inputHash, string secretKey)
         {
             var rspRaw = GetResponseData();
             var myChecksum = HmacSha512(secretKey, rspRaw);
@@ -173,22 +186,17 @@ namespace BeautySky.Library
             return data.ToString();
         }
 
-
-
-
     }
+}
 
-    public class VnPayCompare : IComparer<string>
+public class VnPayCompare : IComparer<string>
+{
+    public int Compare(string x, string y)
     {
-        public int Compare(string? x, string? y)
-        {
-            if (x == y) return 0;
-            if (x == null) return -1;
-            if (y == null) return 1;
-            var vnpCompare = CompareInfo.GetCompareInfo("en-US");
-            return vnpCompare.Compare(x, y, CompareOptions.Ordinal);
-        }
+        if (x == y) return 0;
+        if (x == null) return -1;
+        if (y == null) return 1;
+        var vnpCompare = CompareInfo.GetCompareInfo("en-US");
+        return vnpCompare.Compare(x, y, CompareOptions.Ordinal);
     }
-
-
 }

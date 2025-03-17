@@ -2,6 +2,7 @@
 using Amazon.S3;
 using BeautySky.Models;
 using BeautySky.Service;
+using BeautySky.Service.Vnpay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -66,10 +67,12 @@ namespace BeautySky
 
 
 
+
             builder.Services.AddDbContext<ProjectSwpContext>(option =>
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"));
             });
+
 
             // Authentication configuration
             builder.Services.AddAuthentication(option =>
@@ -147,6 +150,8 @@ namespace BeautySky
                                     .AllowAnyMethod()
                                     .AllowAnyHeader());
             });
+            //Connect VNPay API
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

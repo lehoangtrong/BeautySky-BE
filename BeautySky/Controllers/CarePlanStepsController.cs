@@ -55,6 +55,8 @@ namespace BeautySky.Controllers
                 existingCarePlanStep.StepName = updateCarePlanStep.StepName;
             if (!string.IsNullOrEmpty(updateCarePlanStep.StepDescription))
                 existingCarePlanStep.StepDescription = updateCarePlanStep.StepDescription;
+            if (updateCarePlanStep.StepOrder > 0)
+                existingCarePlanStep.StepOrder = updateCarePlanStep.StepOrder;
             try
             {
                 await _context.SaveChangesAsync();

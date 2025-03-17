@@ -11,7 +11,5 @@ namespace BeautySky.Models.Vnpay
         public string? Name { get; set; }
         public int UserId { get; set; }
 
-
-
     }
 }

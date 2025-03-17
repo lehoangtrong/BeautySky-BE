@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
+using BeautySky.Service.Vnpay;
+using BeautySky.Models.Vnpay;
+using System.Diagnostics;
+using Azure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BeautySky.Controllers
 {
@@ -13,12 +18,53 @@ namespace BeautySky.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
+        private readonly IVnPayService _vnPayService;
         private readonly ProjectSwpContext _context;
 
-        public PaymentsController(ProjectSwpContext context)
+        public PaymentsController(ProjectSwpContext context, IVnPayService vnPayService)
         {
             _context = context;
+            _vnPayService = vnPayService;
         }
+
+
+        [HttpPost("create-payment")]
+        [Authorize]
+        public IActionResult CreatePaymentUrlVnpay([FromBody] PaymentInformationModel model)
+        {
+            var userIdClaim = User.FindFirst("userId");
+            if (userIdClaim == null)
+            {
+                return Unauthorized("userId không tồn tại trong token.");
+            }
+            int userId = int.Parse(userIdClaim.Value);
+            model.UserId = userId;
+            Debug.WriteLine($"Debug: orderType = {model.OrderType}, amount = {model.Amount}, userId = {model.UserId}");
+            if (model == null || model.Amount <= 0 || string.IsNullOrEmpty(model.OrderType))
+            {
+                return BadRequest("Invalid payment information");
+            }
+
+            var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
+
+            return Ok(new { paymentUrl = url });
+        }
+
+        [HttpGet]
+        public IActionResult PaymentCallbackVnpay()
+        {
+            var response = _vnPayService.PaymentExecute(Request.Query);
+
+            // Nếu thanh toán thành công, chuyển hướng đến trang thành công
+            if (response.Success)
+            {
+                return Redirect("https://localhost:5173/paymentsuccess");
+            }
+
+            // Nếu thất bại, chuyển hướng đến trang thất bại
+            return Redirect("https://localhost:5173/paymentfailed");
+        }   
+
 
 
 
@@ -172,5 +218,6 @@ namespace BeautySky.Controllers
         {
             return _context.Payments.Any(e => e.PaymentId == id);
         }
+
     }
 }

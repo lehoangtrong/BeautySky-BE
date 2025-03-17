@@ -123,11 +123,19 @@ namespace BeautySky.Controllers
                     }
                 }
 
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                //var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userIdClaim = User.FindFirst("userId")?.Value;
+                if (string.IsNullOrEmpty(userIdClaim))
+                {
+                    return Unauthorized("Invalid token or missing userId claim.");
+                }
+
+                int userId = int.Parse(userIdClaim);
+
                 var order = new Order
                 {
                     OrderDate = DateTime.Now,
-                    UserId = userId != null ? int.Parse(userId) : request.UserID,
+                    UserId = userId,
                     PromotionId = request.PromotionID,
                     DiscountAmount = discountAmount,
                     Status = "Pending"
