@@ -1,43 +1,56 @@
 ﻿using BeautySky.Library;
 using BeautySky.Models.Vnpay;
+using System.Globalization;
 
-namespace BeautySky.Service.Vnpay
+
+namespace BeautySky.Services.Vnpay
 {
     public class VnPayService : IVnPayService
     {
         private readonly IConfiguration _configuration;
+        private readonly ILogger<VnPayService> _logger;
 
-        public VnPayService(IConfiguration configuration)
+        public VnPayService(IConfiguration configuration, ILogger<VnPayService> logger)
         {
             _configuration = configuration;
+            _logger = logger;
         }
-
         public string CreatePaymentUrl(PaymentInformationModel model, HttpContext context)
         {
-            var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
-            var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
-            var tick = DateTime.Now.Ticks.ToString();
-            var pay = new VnPayLibrary();
-            var urlCallBack = _configuration["PaymentCallBack:ReturnUrl"];
+            try
+            {
+                var timeZoneById = TimeZoneInfo.FindSystemTimeZoneById(_configuration["TimeZoneId"]);
+                var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
+                var tick = DateTime.Now.Ticks.ToString();
 
-            pay.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
-            pay.AddRequestData("vnp_Command", _configuration["Vnpay:Command"]);
-            pay.AddRequestData("vnp_TmnCode", _configuration["Vnpay:TmnCode"]);
-            pay.AddRequestData("vnp_Amount", ((int)model.Amount * 100).ToString());
-            pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
-            pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
-            pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
-            pay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
-            pay.AddRequestData("vnp_OrderInfo", $"{model.Name} {model.OrderDescription} {model.Amount}");
-            pay.AddRequestData("vnp_OrderType", model.OrderType);
-            pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
-            pay.AddRequestData("vnp_TxnRef", tick);
+                var pay = new VnPayLibrary();
 
-            var paymentUrl =
-                pay.CreateRequestUrl(_configuration["Vnpay:BaseUrl"], _configuration["Vnpay:HashSecret"]);
+                // Đảm bảo các tham số bắt buộc
+                pay.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
+                pay.AddRequestData("vnp_Command", "pay");
+                pay.AddRequestData("vnp_TmnCode", _configuration["Vnpay:TmnCode"]);
+                pay.AddRequestData("vnp_Amount", ((long)(model.Amount * 100)).ToString());
+                pay.AddRequestData("vnp_BankCode", "");
+                pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
+                pay.AddRequestData("vnp_CurrCode", "VND");
+                pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
+                pay.AddRequestData("vnp_Locale", "vn");
+                pay.AddRequestData("vnp_OrderInfo", $"Thanh toan don hang: {model.OrderId}");
+                pay.AddRequestData("vnp_OrderType", "other");
+                pay.AddRequestData("vnp_ReturnUrl", _configuration["Vnpay:ReturnUrl"]);
+                pay.AddRequestData("vnp_TxnRef", model.OrderId.ToString());
 
-            return paymentUrl;
+                var paymentUrl = pay.CreateRequestUrl(_configuration["Vnpay:BaseUrl"], _configuration["Vnpay:HashSecret"]);
+
+                return paymentUrl;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Lỗi tạo URL thanh toán VNPay");
+                throw;
+            }
         }
+
 
         public PaymentResponseModel PaymentExecute(IQueryCollection collections)
         {
@@ -46,6 +59,5 @@ namespace BeautySky.Service.Vnpay
 
             return response;
         }
-
     }
 }

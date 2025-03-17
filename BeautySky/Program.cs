@@ -2,7 +2,7 @@
 using Amazon.S3;
 using BeautySky.Models;
 using BeautySky.Service;
-using BeautySky.Service.Vnpay;
+using BeautySky.Services.Vnpay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,6 +21,16 @@ namespace BeautySky
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn session
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            // Thêm IHttpContextAccessor để sử dụng session trong controller
+            builder.Services.AddHttpContextAccessor();
 
             // Add services to the container.
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -64,7 +74,6 @@ namespace BeautySky
                     }
                 });
             });
-
 
 
 
@@ -150,7 +159,7 @@ namespace BeautySky
                                     .AllowAnyMethod()
                                     .AllowAnyHeader());
             });
-            //Connect VNPay API
+
             builder.Services.AddScoped<IVnPayService, VnPayService>();
             var app = builder.Build();
 
@@ -164,6 +173,7 @@ namespace BeautySky
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
+            app.UseSession();
             app.UseAuthorization();
 
 

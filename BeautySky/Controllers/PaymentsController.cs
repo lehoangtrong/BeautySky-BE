@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
-using BeautySky.Service.Vnpay;
 using BeautySky.Models.Vnpay;
-using System.Diagnostics;
-using Azure;
-using Microsoft.AspNetCore.Authorization;
+using BeautySky.Services.Vnpay;
+using BeautySky.Library;
 
 namespace BeautySky.Controllers
 {
@@ -18,187 +11,94 @@ namespace BeautySky.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        private readonly IVnPayService _vnPayService;
         private readonly ProjectSwpContext _context;
+        private readonly IVnPayService _vnPayService;
+        private readonly ILogger<PaymentsController> _logger;
+        private readonly IConfiguration _configuration;
 
-        public PaymentsController(ProjectSwpContext context, IVnPayService vnPayService)
+        public PaymentsController(
+            ProjectSwpContext context,
+            IVnPayService vnPayService,
+            ILogger<PaymentsController> logger,
+            IConfiguration configuration)
         {
             _context = context;
             _vnPayService = vnPayService;
+            _logger = logger;
+            _configuration = configuration;
         }
-
 
         [HttpPost("create-payment")]
-        [Authorize]
-        public IActionResult CreatePaymentUrlVnpay([FromBody] PaymentInformationModel model)
+        public async Task<IActionResult> CreatePayment([FromBody] PaymentInformationModel request)
         {
-            var userIdClaim = User.FindFirst("userId");
-            if (userIdClaim == null)
+            try
             {
-                return Unauthorized("userId không tồn tại trong token.");
-            }
-            int userId = int.Parse(userIdClaim.Value);
-            model.UserId = userId;
-            Debug.WriteLine($"Debug: orderType = {model.OrderType}, amount = {model.Amount}, userId = {model.UserId}");
-            if (model == null || model.Amount <= 0 || string.IsNullOrEmpty(model.OrderType))
-            {
-                return BadRequest("Invalid payment information");
-            }
+                _logger.LogInformation("Creating payment for Order ID: {OrderId}", request.OrderId);
 
-            var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
-
-            return Ok(new { paymentUrl = url });
-        }
-
-        [HttpGet]
-        public IActionResult PaymentCallbackVnpay()
-        {
-            var response = _vnPayService.PaymentExecute(Request.Query);
-
-            // Nếu thanh toán thành công, chuyển hướng đến trang thành công
-            if (response.Success)
-            {
-                return Redirect("https://localhost:5173/paymentsuccess");
-            }
-
-            // Nếu thất bại, chuyển hướng đến trang thất bại
-            return Redirect("https://localhost:5173/paymentfailed");
-        }   
-
-
-
-
-
-        // GET: api/Payments/Details/{paymentId}
-        [HttpGet("Details/{paymentId}")]
-        public async Task<ActionResult<object>> GetPaymentDetails(int paymentId)
-        {
-            var paymentDetails = await _context.Payments
-                .Where(p => p.PaymentId == paymentId)
-                .Select(p => new
+                if (!ModelState.IsValid)
                 {
-                    p.PaymentId,
-                    p.PaymentDate,
-                    PaymentType = _context.PaymentTypes
-                        .Where(pt => pt.PaymentTypeId == p.PaymentTypeId)
-                        .Select(pt => pt.PaymentTypeName)
-                        .FirstOrDefault(),
-                    PaymentStatus = _context.PaymentStatuses
-                        .Where(ps => ps.PaymentStatusId == p.PaymentStatusId)
-                        .Select(ps => ps.PaymentStatus1)
-                        .FirstOrDefault(),
-                    Order = _context.Orders
-                        .Where(o => o.PaymentId == p.PaymentId)
-                        .Select(o => new
-                        {
-                            o.OrderId,
-                            o.OrderDate,
-                            o.FinalAmount,
-                            o.Status
-                        }).FirstOrDefault(),
-                    User = _context.Users
-                        .Where(u => u.UserId == p.UserId)
-                        .Select(u => new
-                        {
-                            u.UserId,
-                            u.UserName,
-                            u.FullName,
-                            u.Email,
-                            u.Phone,
-                            u.Address,
-                            u.DateCreate,
-                            u.IsActive
-                        }).FirstOrDefault()
-                }).FirstOrDefaultAsync();
+                    var errors = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+                    return BadRequest(new { success = false, message = "Dữ liệu không hợp lệ", errors });
+                }
 
-            if (paymentDetails == null)
-            {
-                return NotFound("Payment details not found.");
-            }
-
-            return Ok(paymentDetails);
-        }
-
-        // GET: api/Payments/AllDetails
-        [HttpGet("AllDetails")]
-        public async Task<ActionResult<object>> GetAllPaymentDetails()
-        {
-            var allPaymentDetails = await _context.Payments
-                .Select(p => new
+                // Kiểm tra đơn hàng
+                var order = await _context.Orders.FindAsync(request.OrderId);
+                if (order == null)
                 {
-                    p.PaymentId,
-                    p.PaymentDate,
-                    PaymentType = _context.PaymentTypes
-                        .Where(pt => pt.PaymentTypeId == p.PaymentTypeId)
-                        .Select(pt => pt.PaymentTypeName)
-                        .FirstOrDefault(),
-                    PaymentStatus = _context.PaymentStatuses
-                        .Where(ps => ps.PaymentStatusId == p.PaymentStatusId)
-                        .Select(ps => ps.PaymentStatus1)
-                        .FirstOrDefault(),
-                    Order = _context.Orders
-                        .Where(o => o.PaymentId == p.PaymentId)
-                        .Select(o => new
-                        {
-                            o.OrderId,
-                            o.OrderDate,
-                            o.FinalAmount,
-                            o.Status
-                        }).FirstOrDefault(),
-                    User = _context.Users
-                        .Where(u => u.UserId == p.UserId)
-                        .Select(u => new
-                        {
-                            u.UserId,
-                            u.UserName,
-                            u.FullName,
-                            u.Email,
-                            u.Phone,
-                            u.Address,
-                            u.DateCreate,
-                            u.IsActive
-                        }).FirstOrDefault()
-                }).ToListAsync();
+                    return BadRequest(new { success = false, message = "Không tìm thấy đơn hàng" });
+                }
 
-            if (!allPaymentDetails.Any())
-            {
-                return NotFound("No payment details found.");
+                // Xử lý thanh toán VNPay
+                var paymentUrl = await CreateVnPayRequest(request);
+
+                return Ok(new { success = true, paymentUrl });
             }
-
-            return Ok(allPaymentDetails);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating payment URL");
+                return BadRequest(new { success = false, message = ex.Message });
+            }
         }
-        // POST: api/Payments/ProcessAndConfirmPayment/{orderId}
+
+        [HttpGet("payment-callback")]
+        public async Task<IActionResult> PaymentCallback([FromQuery] string vnp_ResponseCode, [FromQuery] string vnp_TxnRef)
+        {
+            try
+            {
+                var response = _vnPayService.PaymentExecute(Request.Query);
+                var redirectUrl = GetRedirectUrl(response);
+                return Redirect(redirectUrl);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing payment callback");
+                return Redirect("https://localhost:5173/paymentfailed?message=Có lỗi xảy ra trong quá trình xử lý thanh toán");
+            }
+        }
+
         [HttpPost("ProcessAndConfirmPayment/{orderId}")]
         public async Task<ActionResult<Payment>> ProcessAndConfirmPayment(int orderId)
         {
-            var order = await _context.Orders.FindAsync(orderId);
-            if (order == null)
+            _logger.LogInformation($"Processing payment for Order ID: {orderId}");
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                return NotFound("Order not found.");
+                var result = await ProcessPaymentTransaction(orderId);
+                await transaction.CommitAsync();
+                return result;
             }
-
-            var payment = new Payment
+            catch (Exception ex)
             {
-                UserId = order.UserId,
-                PaymentTypeId = 1, // Default payment type
-                PaymentStatusId = 2, // Confirmed status
-                PaymentDate = DateTime.Now
-            };
-
-            _context.Payments.Add(payment);
-            await _context.SaveChangesAsync();
-
-            order.PaymentId = payment.PaymentId;
-            order.Status = "Paid";
-
-            _context.Entry(order).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetPayment", new { id = payment.PaymentId }, payment);
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, $"Error processing payment for Order ID {orderId}");
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
 
-
-        // DELETE: api/Payments/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePayment(int id)
         {
@@ -210,8 +110,95 @@ namespace BeautySky.Controllers
 
             _context.Payments.Remove(payment);
             await _context.SaveChangesAsync();
-
             return NoContent();
+        }
+
+        #region Private Methods
+
+        private async Task<string> CreateVnPayRequest(PaymentInformationModel request)
+        {
+            var vnPayLibrary = new VnPayLibrary();
+            decimal amount = (decimal)request.Amount;
+            long amountInVnd = (long)(amount * 100); // Đảm bảo số tiền được chuyển đổi đúng
+            string transactionRef = $"{DateTime.Now:yyyyMMddHHmmss}_{request.OrderId}";
+
+            vnPayLibrary.AddRequestData("vnp_Version", "2.1.0");
+            vnPayLibrary.AddRequestData("vnp_Command", "pay");
+            vnPayLibrary.AddRequestData("vnp_TmnCode", _configuration["VnPay:TmnCode"]);
+            vnPayLibrary.AddRequestData("vnp_Amount", amountInVnd.ToString());
+            vnPayLibrary.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
+            vnPayLibrary.AddRequestData("vnp_CurrCode", "VND");
+            vnPayLibrary.AddRequestData("vnp_IpAddr", vnPayLibrary.GetIpAddress(HttpContext));
+            vnPayLibrary.AddRequestData("vnp_Locale", "vn");
+            vnPayLibrary.AddRequestData("vnp_OrderInfo", $"Thanh toan don hang #{request.OrderId}");
+            vnPayLibrary.AddRequestData("vnp_OrderType", "other"); // Thay đổi thành "other"
+            vnPayLibrary.AddRequestData("vnp_ReturnUrl", _configuration["VnPay:ReturnUrl"]);
+            vnPayLibrary.AddRequestData("vnp_TxnRef", transactionRef);
+
+            var paymentUrl = vnPayLibrary.CreateRequestUrl(
+                _configuration["VnPay:BaseUrl"],
+                _configuration["VnPay:HashSecret"]
+            );
+
+            return paymentUrl;
+        }
+
+        private string GetRedirectUrl(PaymentResponseModel response)
+        {
+            return response.Success
+                ? $"https://localhost:5173/paymentsuccess?orderId={response.OrderId}"
+                : $"https://localhost:5173/paymentfailed?orderId={response.OrderId}&message={response.OrderDescription}";
+        }
+
+        private async Task<ActionResult<Payment>> ProcessPaymentTransaction(int orderId)
+        {
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order == null)
+            {
+                _logger.LogWarning($"Order {orderId} not found.");
+                return NotFound("Order not found.");
+            }
+
+            if (order.PaymentId != null)
+            {
+                _logger.LogWarning($"Order {orderId} already has a payment.");
+                return BadRequest("Order already has a payment.");
+            }
+
+            if (order.UserId == null)
+            {
+                _logger.LogWarning($"Order {orderId} has no associated User.");
+                return BadRequest("Order has no associated User.");
+            }
+
+            var payment = await CreatePaymentRecord(order);
+            await UpdateOrderStatus(order, payment);
+
+            _logger.LogInformation($"Payment {payment.PaymentId} processed successfully.");
+            return Created($"api/Payments/{payment.PaymentId}", payment);
+        }
+
+        private async Task<Payment> CreatePaymentRecord(Order order)
+        {
+            var payment = new Payment
+            {
+                UserId = order.UserId,
+                PaymentTypeId = 1, // VNPay
+                PaymentStatusId = 2, // Confirmed
+                PaymentDate = DateTime.Now
+            };
+
+            _context.Payments.Add(payment);
+            await _context.SaveChangesAsync();
+            return payment;
+        }
+
+        private async Task UpdateOrderStatus(Order order, Payment payment)
+        {
+            order.PaymentId = payment.PaymentId;
+            order.Status = "Completed";
+            _context.Entry(order).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
         }
 
         private bool PaymentExists(int id)
@@ -219,5 +206,6 @@ namespace BeautySky.Controllers
             return _context.Payments.Any(e => e.PaymentId == id);
         }
 
+        #endregion
     }
 }

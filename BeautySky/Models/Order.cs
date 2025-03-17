@@ -21,6 +21,8 @@ public partial class Order
     public decimal? FinalAmount { get; set; }
 
     public int? PaymentId { get; set; }
+    public DateTime? CancelledDate { get; set; }
+    public string? CancelledReason { get; set; }
 
     public string Status { get; set; } = null!;
     [JsonIgnore]
@@ -31,4 +33,5 @@ public partial class Order
     public virtual Promotion? Promotion { get; set; }
     [JsonIgnore]
     public virtual User? User { get; set; }
+    
 }
