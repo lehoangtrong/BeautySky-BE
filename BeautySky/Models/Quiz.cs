@@ -11,7 +11,7 @@ public partial class Quiz
     public string QuizName { get; set; } = null!;
 
     public string? Description { get; set; }
-
+    [JsonIgnore]
     public DateTime? DateCreated { get; set; }
     [JsonIgnore]
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
