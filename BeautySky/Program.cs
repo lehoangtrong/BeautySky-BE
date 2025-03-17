@@ -2,6 +2,7 @@
 using Amazon.S3;
 using BeautySky.Models;
 using BeautySky.Service;
+using BeautySky.Service.Vnpay;
 using BeautySky.Services.Vnpay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -81,6 +82,8 @@ namespace BeautySky
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"));
             });
+
+
 
 
             // Authentication configuration

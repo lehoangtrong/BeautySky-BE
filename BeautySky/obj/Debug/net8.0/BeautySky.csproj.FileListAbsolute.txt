@@ -66,7 +66,6 @@ C:\Users\ToanDev\WorkSpace\SWP\BeautySky\BeautySky\BeautySky\obj\Debug\net8.0\re
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky\BeautySky\BeautySky\obj\Debug\net8.0\BeautySky.pdb
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky\BeautySky\BeautySky\obj\Debug\net8.0\BeautySky.genruntimeconfig.cache
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky\BeautySky\BeautySky\obj\Debug\net8.0\ref\BeautySky.dll
-C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\appsettings.json
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.staticwebassets.endpoints.json
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.exe
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.deps.json
