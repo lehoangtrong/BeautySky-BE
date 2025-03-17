@@ -48,6 +48,8 @@ namespace BeautySky.Controllers
                     o.OrderId,
                     o.OrderDate,
                     o.TotalAmount,
+                    o.Status,        // Thêm status
+                    o.PaymentId,
                     User = new
                     {
                         o.User.UserId,

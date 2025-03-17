@@ -6,6 +6,7 @@ namespace BeautySky.Models;
 
 public partial class CarePlanProduct
 {
+    public int CarePlanProductId { get; set; }
     public int CarePlanId { get; set; }
 
     public int StepId { get; set; }
