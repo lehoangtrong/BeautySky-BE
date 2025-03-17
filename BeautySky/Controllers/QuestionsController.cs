@@ -35,7 +35,7 @@ namespace BeautySky.Controllers
 
             if (question == null)
             {
-                return NotFound();
+                return NotFound("Quiz not found");
             }
 
             return question;
@@ -44,14 +44,23 @@ namespace BeautySky.Controllers
         // PUT: api/Questions/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutQuestion(int id, Question question)
+        public async Task<IActionResult> PutQuestion(int id, [FromBody] Question updatedQuestion)
         {
-            if (id != question.QuestionId)
+            var existingQuestion = await _context.Questions.FindAsync(id);
+            if (existingQuestion == null)
             {
-                return BadRequest();
+                return NotFound("Quiz not found");
             }
 
-            _context.Entry(question).State = EntityState.Modified;
+            if (updatedQuestion.QuestionId > 0)
+                existingQuestion.QuestionId = updatedQuestion.QuestionId;
+
+            if (!string.IsNullOrEmpty(updatedQuestion.QuestionText))
+                existingQuestion.QuestionText = updatedQuestion.QuestionText;
+
+            if (updatedQuestion.OrderNumber > 0)
+                existingQuestion.OrderNumber = updatedQuestion.OrderNumber;
+
 
             try
             {
@@ -59,17 +68,10 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!QuestionExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the Question.");
             }
 
-            return NoContent();
+            return Ok("Update Successful");
         }
 
         // POST: api/Questions
@@ -80,7 +82,7 @@ namespace BeautySky.Controllers
             _context.Questions.Add(question);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetQuestion", new { id = question.QuestionId }, question);
+            return Ok("Add quiz success");
         }
 
         // DELETE: api/Questions/5
@@ -90,13 +92,13 @@ namespace BeautySky.Controllers
             var question = await _context.Questions.FindAsync(id);
             if (question == null)
             {
-                return NotFound();
+                return NotFound("Quiz not found");
             }
 
             _context.Questions.Remove(question);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool QuestionExists(int id)

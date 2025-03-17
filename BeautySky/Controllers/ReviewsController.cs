@@ -22,9 +22,24 @@ namespace BeautySky.Controllers
 
         // GET: api/Reviews
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Review>>> GetReviews()
+        public async Task<ActionResult<IEnumerable<object>>> GetReviews()
         {
-            return await _context.Reviews.ToListAsync();
+            var reviews = await _context.Reviews
+                .Include(r => r.Product) // Lấy thông tin sản phẩm
+                .Include(r => r.User)    // Lấy thông tin người dùng
+                .Select(r => new {
+                    r.ReviewId,
+                    r.ProductId,
+                    ProductName = r.Product != null ? r.Product.ProductName : "Không xác định",
+                    r.UserId,
+                    UserName = r.User != null ? r.User.FullName : "Không xác định",
+                    r.Rating,
+                    r.Comment,
+                    r.ReviewDate
+                })
+                .ToListAsync();
+
+            return Ok(reviews);
         }
 
         // GET: api/Reviews/5
@@ -35,41 +50,10 @@ namespace BeautySky.Controllers
 
             if (review == null)
             {
-                return NotFound();
+                return NotFound("Review not found");
             }
 
             return review;
-        }
-
-        // PUT: api/Reviews/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutReview(int id, Review review)
-        {
-            if (id != review.ReviewId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(review).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ReviewExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
         }
 
         // POST: api/Reviews
@@ -80,7 +64,7 @@ namespace BeautySky.Controllers
             _context.Reviews.Add(review);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetReview", new { id = review.ReviewId }, review);
+            return Ok("Review success");
         }
 
         // DELETE: api/Reviews/5
@@ -90,13 +74,13 @@ namespace BeautySky.Controllers
             var review = await _context.Reviews.FindAsync(id);
             if (review == null)
             {
-                return NotFound();
+                return NotFound("Review not found");
             }
 
             _context.Reviews.Remove(review);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool ReviewExists(int id)

@@ -12,11 +12,10 @@ public partial class Answer
 
     public string AnswerText { get; set; } = null!;
 
-    public bool? IsCorrect { get; set; }
+    public string? SkinTypeId { get; set; }
 
+    public string? Point { get; set; }
     [JsonIgnore]
+
     public virtual Question? Question { get; set; }
-
-    [JsonIgnore]
-    public virtual ICollection<UserAnswer> UserAnswers { get; set; } = new List<UserAnswer>();
 }

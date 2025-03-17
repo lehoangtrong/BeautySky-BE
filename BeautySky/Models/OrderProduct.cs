@@ -15,10 +15,10 @@ public partial class OrderProduct
     public decimal UnitPrice { get; set; }
 
     public decimal TotalPrice { get; set; }
-
     [JsonIgnore]
+
     public virtual Order Order { get; set; } = null!;
-
     [JsonIgnore]
+
     public virtual Product Product { get; set; } = null!;
 }

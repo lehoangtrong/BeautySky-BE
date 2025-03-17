@@ -4,8 +4,9 @@ using System.Text.Json.Serialization;
 
 namespace BeautySky.Models;
 
-public partial class CarePlanProduct
+public partial class CarePlanProducts
 {
+    public int CarePlanProductId { get; set; }
     public int CarePlanId { get; set; }
 
     public int StepId { get; set; }
@@ -14,12 +15,13 @@ public partial class CarePlanProduct
 
     public string? ProductName { get; set; }
 
+    public int? UserId { get; set; }
     [JsonIgnore]
+
     public virtual CarePlan CarePlan { get; set; } = null!;
-
-    [JsonIgnore]
-    public virtual Product Product { get; set; } = null!;
-
     [JsonIgnore]
     public virtual CarePlanStep Step { get; set; } = null!;
+    [JsonIgnore]
+
+    public virtual User? User { get; set; }
 }

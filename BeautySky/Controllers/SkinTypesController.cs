@@ -35,7 +35,7 @@ namespace BeautySky.Controllers
 
             if (skinType == null)
             {
-                return NotFound();
+                return NotFound("SkinType not found");
             }
 
             return skinType;
@@ -44,14 +44,16 @@ namespace BeautySky.Controllers
         // PUT: api/SkinTypes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSkinType(int id, SkinType skinType)
+        public async Task<IActionResult> PutSkinType(int id, [FromBody] SkinType updatedSkinType)
         {
-            if (id != skinType.SkinTypeId)
+            var existingSkinTypes = await _context.SkinTypes.FindAsync(id);
+            if (existingSkinTypes == null)
             {
-                return BadRequest();
+                return NotFound("SkinType not found");
             }
 
-            _context.Entry(skinType).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updatedSkinType.SkinTypeName))
+                existingSkinTypes.SkinTypeName = updatedSkinType.SkinTypeName;
 
             try
             {
@@ -59,17 +61,10 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!SkinTypeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the SkinType.");
             }
 
-            return NoContent();
+            return Ok("Update Successful");
         }
 
         // POST: api/SkinTypes
@@ -80,7 +75,7 @@ namespace BeautySky.Controllers
             _context.SkinTypes.Add(skinType);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetSkinType", new { id = skinType.SkinTypeId }, skinType);
+            return Ok("Add skinType success");
         }
 
         // DELETE: api/SkinTypes/5
@@ -90,13 +85,13 @@ namespace BeautySky.Controllers
             var skinType = await _context.SkinTypes.FindAsync(id);
             if (skinType == null)
             {
-                return NotFound();
+                return NotFound("SkinType not found");
             }
 
             _context.SkinTypes.Remove(skinType);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool SkinTypeExists(int id)

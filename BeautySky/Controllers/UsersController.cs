@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BeautySky.Models;
+using BeautySky.DTO;
 
 namespace BeautySky.Controllers
 {
@@ -21,14 +22,14 @@ namespace BeautySky.Controllers
         }
 
         // GET: api/Users
-        [HttpGet("Get All User that that can only be used by Staff, Manager")]
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
         }
 
         // GET: api/Users/5
-        [HttpGet("Get User By ID that that can only be used by Staff, Manager")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<User>> GetUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -43,60 +44,99 @@ namespace BeautySky.Controllers
 
         // PUT: api/Users/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("Update User By ID that that can only be used by Staff, Manager")]
-        public async Task<IActionResult> PutUser(int id, User user)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest updatedUser)
         {
-            if (id != user.UserId)
+            var existingUser = await _context.Users.FindAsync(id);
+            if (existingUser == null)
             {
-                return BadRequest();
+                return NotFound(new { message = "User not found." });
             }
 
-            _context.Entry(user).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updatedUser.UserName))
+                existingUser.UserName = updatedUser.UserName;
+            if (!string.IsNullOrEmpty(updatedUser.FullName))
+                existingUser.FullName = updatedUser.FullName;
 
-            try
+            if (!string.IsNullOrEmpty(updatedUser.Email))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!UserExists(id))
+                var emailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|vn|net|org|edu|gov|info)$";
+                if (!System.Text.RegularExpressions.Regex.IsMatch(updatedUser.Email, emailRegex))
                 {
-                    return NotFound();
+                    return BadRequest(new { message = "Email không hợp lệ. Chỉ chấp nhận đuôi: .com, .vn, .net, .org, .edu, .gov, .info" });
                 }
-                else
-                {
-                    throw;
-                }
+                existingUser.Email = updatedUser.Email;
+            }           
+
+            if (!string.IsNullOrEmpty(updatedUser.Password))
+                existingUser.Password = updatedUser.Password;
+
+            if (!string.IsNullOrEmpty(updatedUser.ConfirmPassword))
+                existingUser.ConfirmPassword = updatedUser.ConfirmPassword;
+
+            if (updatedUser.Password != updatedUser.ConfirmPassword)
+            {
+                return BadRequest("Mật khẩu và xác nhận mật khẩu không khớp.");
             }
 
-            return NoContent();
+            if (updatedUser.RoleId.HasValue)
+                existingUser.RoleId = updatedUser.RoleId;
+
+            if (!string.IsNullOrEmpty(updatedUser.Phone))
+                existingUser.Phone = updatedUser.Phone;
+
+            if (!string.IsNullOrEmpty(updatedUser.Address))
+                existingUser.Address = updatedUser.Address;
+
+            if (updatedUser.IsActive.HasValue)
+                existingUser.IsActive = updatedUser.IsActive;
+
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "Update Successful", user = existingUser });
         }
 
         // POST: api/Users
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("Register that can only use by Staff, Manager")]
-        public async Task<ActionResult<User>> Register(User user)
+        [HttpPost]
+        public async Task<ActionResult<User>> Register([FromBody] User user)
         {
-
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            // Kiểm tra nếu người dùng đã tồn tại trong hệ thống
             var existingUser = await _context.Users
-                .FirstOrDefaultAsync(u => u.Email == user.Email || u.UserName == user.UserName);
-
+                .FirstOrDefaultAsync(u => u.UserName == user.UserName || u.Email == user.Email);
             if (existingUser != null)
             {
-                return BadRequest("Email hoặc Username đã được sử dụng.");
+                return BadRequest("Tên người dùng hoặc email đã tồn tại.");
             }
+
+            // Kiểm tra mật khẩu và xác nhận mật khẩu có trùng khớp hay không
             if (user.Password != user.ConfirmPassword)
             {
                 return BadRequest("Mật khẩu và xác nhận mật khẩu không khớp.");
             }
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUser", new { id = user.UserId }, user);
+            // Check Email
+            var emailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|vn|net|org|edu|gov|info)$";
+            if (!System.Text.RegularExpressions.Regex.IsMatch(user.Email, emailRegex))
+            {
+                return BadRequest("Email không hợp lệ.");
+            }
+            user.IsActive = true;
+            user.DateCreate = DateTime.UtcNow;
+            _context.Users.Add(user);
+            if (!TryValidateModel(user))
+            {
+                return BadRequest(ModelState);
+            }
+            await _context.SaveChangesAsync();
+            return Ok(user);
         }
 
         // DELETE: api/Users/5
-        [HttpDelete("Delete User By ID that can only be used by Staff, Manager")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
             var user = await _context.Users.FindAsync(id);
@@ -104,14 +144,13 @@ namespace BeautySky.Controllers
             {
                 return NotFound();
             }
-            //user.IsActive = false;
-            _context.Users.Remove(user);
+            user.IsActive = false;
+            _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
-
-
+        
         private bool UserExists(int id)
         {
             return _context.Users.Any(e => e.UserId == id);

@@ -35,7 +35,7 @@ namespace BeautySky.Controllers
 
             if (category == null)
             {
-                return NotFound();
+                return NotFound("Category not found");
             }
 
             return category;
@@ -44,14 +44,15 @@ namespace BeautySky.Controllers
         // PUT: api/Categories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutCategory(int id, Category category)
+        public async Task<IActionResult> PutCategory(int id, [FromBody] Category updateCategory)
         {
-            if (id != category.CategoryId)
+            var existingCategory = await _context.Categories.FindAsync(id);
+            if (existingCategory == null)
             {
-                return BadRequest();
+                return NotFound("Category not found");
             }
-
-            _context.Entry(category).State = EntityState.Modified;
+            if (!string.IsNullOrEmpty(updateCategory.CategoryName))
+                existingCategory.CategoryName = updateCategory.CategoryName;
 
             try
             {
@@ -59,17 +60,9 @@ namespace BeautySky.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!CategoryExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return StatusCode(500, "Concurrency error occurred while updating the category.");
             }
-
-            return NoContent();
+            return Ok("Update Successful");
         }
 
         // POST: api/Categories
@@ -80,7 +73,7 @@ namespace BeautySky.Controllers
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetCategory", new { id = category.CategoryId }, category);
+            return Ok("Add category success");
         }
 
         // DELETE: api/Categories/5
@@ -90,13 +83,13 @@ namespace BeautySky.Controllers
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
             {
-                return NotFound();
+                return NotFound("Category not found");
             }
 
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok("Delete success");
         }
 
         private bool CategoryExists(int id)
