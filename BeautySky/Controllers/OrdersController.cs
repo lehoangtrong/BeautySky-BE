@@ -31,8 +31,49 @@ namespace BeautySky.Controllers
 
             var userId = int.Parse(userIdClaim);
 
-            var orders = await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
-            if (!orders.Any()) return NotFound("No orders found for this user");
+            var orders = await _context.Orders
+                .Include(o => o.OrderProducts)
+                    .ThenInclude(op => op.Product)
+                .Include(o => o.User)
+                .Include(o => o.Promotion)
+                .Where(o => o.UserId == userId)
+                .Select(o => new
+                {
+                    o.OrderId,
+                    o.OrderDate,
+                    o.TotalAmount,
+                    o.DiscountAmount,
+                    o.FinalAmount,
+                    o.Status,
+                    o.CancelledDate,
+                    o.CancelledReason,
+                    User = new
+                    {
+                        o.User.UserId,
+                        o.User.FullName,
+                        o.User.Phone,
+                        o.User.Address
+                    },
+                    Promotion = o.Promotion != null ? new
+                    {
+                        o.Promotion.PromotionId,
+                        o.Promotion.DiscountPercentage
+                    } : null,
+                    OrderProducts = o.OrderProducts.Select(op => new
+                    {
+                        op.ProductId,
+                        op.Product.ProductName,
+                        op.Product.Price,
+                        op.Quantity,
+                        op.TotalPrice
+                    })
+                })
+                .ToListAsync();
+
+            if (!orders.Any())
+            {
+                return NotFound("Không tìm thấy đơn hàng nào.");
+            }
 
             return Ok(orders);
         }
@@ -210,50 +251,56 @@ namespace BeautySky.Controllers
         }
 
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateOrder(int id, [FromBody] Order order)
+        
+
+        [HttpPost("cancel/{orderId}")]
+        [Authorize]
+        public async Task<IActionResult> CancelOrder(int orderId)
         {
-            if (id != order.OrderId)
+            var userIdClaim = User.FindFirst("userId")?.Value;
+            if (string.IsNullOrEmpty(userIdClaim))
             {
-                return BadRequest("ID đơn hàng không khớp");
+                return Unauthorized("Invalid token or missing userId claim.");
             }
 
-            _context.Entry(order).State = EntityState.Modified;
+            var userId = int.Parse(userIdClaim);
+
+            var order = await _context.Orders
+                .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == userId);
+
+            if (order == null)
+            {
+                return NotFound("Không tìm thấy đơn hàng hoặc bạn không có quyền hủy đơn hàng này.");
+            }
+
+            if (order.Status != "Pending")
+            {
+                return BadRequest("Chỉ có thể hủy đơn hàng ở trạng thái chờ xử lý.");
+            }
 
             try
             {
+                // Cập nhật trạng thái đơn hàng
+                order.Status = "Cancelled";
+                order.CancelledDate = DateTime.Now; // Nếu bạn có trường này
+                order.CancelledReason = ""; // Nếu bạn có trường này
+
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Orders.Any(o => o.OrderId == id))
-                {
-                    return NotFound("Đơn hàng không tồn tại");
-                }
-                else
-                {
-                    throw;
-                }
-            }
 
-            return NoContent();
+                return Ok(new
+                {
+                    message = "Đơn hàng đã được hủy thành công.",
+                    orderId = order.OrderId,
+                    status = order.Status,
+                    cancelledDate = order.CancelledDate
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Có lỗi xảy ra khi hủy đơn hàng.", error = ex.Message });
+            }
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrder(int id)
-        {
-            var order = await _context.Orders.Include(o => o.OrderProducts).FirstOrDefaultAsync(o => o.OrderId == id);
-            if (order == null)
-            {
-                return NotFound("Đơn hàng không tồn tại");
-            }
-
-            _context.OrderProducts.RemoveRange(order.OrderProducts);
-            _context.Orders.Remove(order);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
 
 
     }
