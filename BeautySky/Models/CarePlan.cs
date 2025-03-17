@@ -14,7 +14,7 @@ public partial class CarePlan
 
     public string? Description { get; set; }
     [JsonIgnore]
-    public virtual ICollection<CarePlanProduct> CarePlanProducts { get; set; } = new List<CarePlanProduct>();
+    public virtual ICollection<CarePlanProducts> CarePlanProducts { get; set; } = new List<CarePlanProducts>();
     [JsonIgnore]
     public virtual ICollection<CarePlanStep> CarePlanSteps { get; set; } = new List<CarePlanStep>();
     [JsonIgnore]

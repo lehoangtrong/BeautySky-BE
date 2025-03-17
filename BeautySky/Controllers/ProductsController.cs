@@ -61,6 +61,7 @@ namespace BeautySky.Controllers
                     Rating = rating,
                     productsImages = product.ProductsImages
                 });
+
             }
 
             if (!string.IsNullOrWhiteSpace(name))
