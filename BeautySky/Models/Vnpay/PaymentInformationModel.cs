@@ -1,10 +1,10 @@
 ﻿using System.Text.Json.Serialization;
-
 namespace BeautySky.Models.Vnpay
+
 {
     public class PaymentInformationModel
     {
- 
+
         public string OrderType { get; set; }
 
         public double Amount { get; set; }
@@ -12,7 +12,6 @@ namespace BeautySky.Models.Vnpay
         public string OrderDescription { get; set; }
 
         public string Name { get; set; }
+        public int OrderId { get; set; }
     }
-
 }
-

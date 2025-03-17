@@ -82,7 +82,6 @@ namespace BeautySky
                 option.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"));
             });
 
-            builder.Services.AddScoped<IVnPayService, VnPayService>();
 
             // Authentication configuration
             builder.Services.AddAuthentication(option =>
@@ -160,6 +159,8 @@ namespace BeautySky
                                     .AllowAnyMethod()
                                     .AllowAnyHeader());
             });
+
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

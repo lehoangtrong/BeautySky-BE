@@ -928,14 +928,14 @@
   },
   {
     "ContainingType": "BeautySky.Controllers.OrdersController",
-    "Method": "DeleteOrder",
-    "RelativePath": "api/Orders/{id}",
-    "HttpMethod": "DELETE",
+    "Method": "CancelOrder",
+    "RelativePath": "api/Orders/cancel/{orderId}",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
     "Parameters": [
       {
-        "Name": "id",
+        "Name": "orderId",
         "Type": "System.Int32",
         "IsRequired": true
       }
@@ -962,6 +962,32 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.OrdersController",
+    "Method": "GetOrderDetail",
+    "RelativePath": "api/Orders/orders/{orderId}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "orderId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "BeautySky.Models.Order",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "BeautySky.Controllers.OrdersController",
@@ -995,6 +1021,43 @@
         "Name": "id",
         "Type": "System.Int32",
         "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.PaymentsController",
+    "Method": "CreatePayment",
+    "RelativePath": "api/Payments/create-payment",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "BeautySky.Models.Vnpay.PaymentInformationModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "BeautySky.Controllers.PaymentsController",
+    "Method": "PaymentCallback",
+    "RelativePath": "api/Payments/payment-callback",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "vnp_ResponseCode",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "vnp_TxnRef",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
