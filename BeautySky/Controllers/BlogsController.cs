@@ -118,6 +118,7 @@ namespace BeautySky.Controllers
                 blog.SkinType = blogDTO.SkinType;
                 blog.Category = blogDTO.Category;
                 blog.UpdatedDate = DateTime.UtcNow;
+                blog.IsActive = blogDTO.IsActive ?? blog.IsActive;
 
                 // Xử lý upload file mới nếu có
                 if (blogDTO.File != null && blogDTO.File.Length > 0)
