@@ -1531,3 +1531,4 @@ C:\Workspace\SWP391\BeautySkyShopBE\BeautySky-BE\BeautySky\bin\Debug\net8.0\Beau
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.staticwebassets.runtime.json
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.RazorAssemblyInfo.cache
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.RazorAssemblyInfo.cs
+C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\VNPAY.NET.dll
