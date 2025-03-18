@@ -1,5 +1,6 @@
 ﻿using BeautySky.Library;
 using BeautySky.Models.Vnpay;
+using BeautySky.Service.Vnpay;
 using System.Globalization;
 
 

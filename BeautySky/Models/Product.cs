@@ -23,6 +23,8 @@ public partial class Product
     public int? CategoryId { get; set; }
 
     public int? SkinTypeId { get; set; }
+
+    public bool IsActive { get; set; }
     [JsonIgnore]
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
     [JsonIgnore]

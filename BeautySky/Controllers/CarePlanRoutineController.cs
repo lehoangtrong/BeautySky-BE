@@ -14,8 +14,8 @@ public class CarePlanController : ControllerBase
     }
 
 
-    [HttpGet("GetUserCarePlan/{userId}")]
-    public async Task<IActionResult> GetUserCarePlan(int userId)
+    [HttpGet("GetUserCarePlans/{userId}")]
+    public async Task<IActionResult> GetUserCarePlans(int userId)
     {
         var user = await _context.Users.FindAsync(userId);
         if (user == null)
@@ -23,66 +23,49 @@ public class CarePlanController : ControllerBase
             return NotFound("User not found");
         }
 
-        var userQuiz = await _context.UserQuizzes
-            .Where(uq => uq.UserId == userId)
-            .OrderByDescending(uq => uq.DateTaken)
-            .FirstOrDefaultAsync();
-
-        if (userQuiz == null)
-        {
-            return NotFound("No quiz found for this user");
-        }
-
-        var userAnswer = await _context.UserAnswers
-            .Where(ua => ua.UserQuizId == userQuiz.UserQuizId)
-            .OrderByDescending(ua => ua.UserAnswerId)
-            .FirstOrDefaultAsync();
-
-        if (userAnswer == null)
-        {
-            return NotFound("No answer found for this user");
-        }
-
-        int skinTypeId = userAnswer.SkinTypeId ?? 0;
-
-        var carePlan = await _context.CarePlans
-            .Include(cp => cp.CarePlanSteps)
-                .ThenInclude(cps => cps.CarePlanProducts)
-            .FirstOrDefaultAsync(cp => cp.SkinTypeId == skinTypeId);
-
-        if (carePlan == null)
-        {
-            return NotFound("No care plan found for this skin type");
-        }
-
-        var result = new
-        {
-            carePlan.PlanName,
-            carePlan.Description,
-            Steps = carePlan.CarePlanSteps.OrderBy(s => s.StepOrder).Select(step => new
+        // Lấy tất cả lộ trình của user
+        var userCarePlans = await _context.UserCarePlans
+            .Where(ucp => ucp.UserId == userId)
+            .Select(ucp => new
             {
-                step.StepOrder,
-                step.StepName,
-                Products = step.CarePlanProducts
-                    .Where(cpp => cpp.CarePlanId == carePlan.CarePlanId && cpp.UserId == userId) // Lọc theo UserId
-                    .Select(cpp => new
+                ucp.CarePlan.CarePlanId,
+                ucp.CarePlan.PlanName,
+                ucp.CarePlan.Description,
+                ucp.DateCreate, // Ngày tạo lộ trình
+                Steps = ucp.CarePlan.CarePlanSteps
+                    .OrderBy(s => s.StepOrder)
+                    .Select(step => new
                     {
-                        ProductId = cpp.ProductId,
-                        ProductName = cpp.ProductName,
-                        ProductImage = _context.ProductsImages
-                            .Where(img => img.ProductId == cpp.ProductId)
-                            .Select(img => img.ImageUrl)
-                            .FirstOrDefault(),
-                        ProductPrice = _context.Products
-                            .Where(p => p.ProductId == cpp.ProductId)
-                            .Select(p => p.Price)
-                            .FirstOrDefault()
+                        step.StepOrder,
+                        step.StepName,
+                        Products = step.CarePlanProducts
+                            .Where(cpp => cpp.CarePlanId == ucp.CarePlanId && cpp.UserId == userId) // Lọc theo UserId
+                            .Select(cpp => new
+                            {
+                                ProductId = cpp.ProductId,
+                                ProductName = cpp.ProductName,
+                                ProductImage = _context.ProductsImages
+                                    .Where(img => img.ProductId == cpp.ProductId)
+                                    .Select(img => img.ImageUrl)
+                                    .FirstOrDefault(),
+                                ProductPrice = _context.Products
+                                    .Where(p => p.ProductId == cpp.ProductId)
+                                    .Select(p => p.Price)
+                                    .FirstOrDefault()
+                            }).ToList()
                     }).ToList()
-            }).ToList()
-        };
+            })
+            .OrderByDescending(ucp => ucp.DateCreate) // Sắp xếp theo ngày tạo mới nhất
+            .ToListAsync();
 
-        return Ok(result);
+        if (!userCarePlans.Any())
+        {
+            return NotFound("No care plans found for this user");
+        }
+
+        return Ok(userCarePlans);
     }
+
 
 
 
@@ -162,14 +145,14 @@ public class CarePlanController : ControllerBase
         foreach (var step in steps)
         {
             var products = _context.Products
-                .Where(p => p.SkinTypeId == request.SkinTypeId && p.CategoryId == step.StepOrder)
+                .Where(p => p.SkinTypeId == request.SkinTypeId && p.CategoryId == step.StepOrder && p.IsActive) // Thêm && p.IsActive để check sản phẩm nào có Active là true thì mới dc random còn false thì ko dc random
                 .ToList();
 
             if (products.Any())
             {
                 var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
 
-                var carePlanProduct = new CarePlanProduct
+                var carePlanProduct = new CarePlanProducts
                 {
                     CarePlanId = request.CarePlanId,
                     ProductId = randomProduct.ProductId,
@@ -223,17 +206,14 @@ public class CarePlanController : ControllerBase
             .OrderBy(s => s.StepOrder)
             .ToList();
 
-        // Xóa lộ trình cũ trước khi lưu mới
-        DeleteOldUserCarePlan(userId);
-
-        // Lưu lộ trình mới vào bảng UserCarePlan
-        SaveUserCarePlan(userId, carePlan.CarePlanId);
+        // Nếu loại da thay đổi, tạo lộ trình mới cho user
+        SaveUserCarePlan(userId, carePlan.CarePlanId, skinTypeId);
 
         List<object> stepResults = new List<object>();
         foreach (var step in steps)
         {
             var products = _context.Products
-                .Where(p => p.SkinTypeId == skinTypeId && p.CategoryId == step.StepOrder)
+                .Where(p => p.SkinTypeId == skinTypeId && p.CategoryId == step.StepOrder && p.IsActive) // Thêm && p.IsActive để check sản phẩm nào có Active là true thì mới dc random còn false thì ko dc random
                 .ToList();
 
             if (products.Any())
@@ -247,7 +227,7 @@ public class CarePlanController : ControllerBase
                     .FirstOrDefault();
 
                 // Lưu vào DB ngay khi chọn
-                var carePlanProduct = new CarePlanProduct
+                var carePlanProduct = new CarePlanProducts
                 {
                     CarePlanId = carePlan.CarePlanId,
                     ProductId = randomProduct.ProductId,
@@ -262,15 +242,15 @@ public class CarePlanController : ControllerBase
                     step.StepOrder,
                     step.StepName,
                     Products = new List<object>
+                {
+                    new
                     {
-                        new
-                        {
-                            randomProduct.ProductId,
-                            randomProduct.ProductName,
-                            randomProduct.Price,   // Thêm giá sản phẩm
-                            ProductImage  = productImage ?? ""  // Thêm ảnh sản phẩm
-                        }
+                        randomProduct.ProductId,
+                        randomProduct.ProductName,
+                        randomProduct.Price,   // Thêm giá sản phẩm
+                        ProductImage  = productImage ?? ""  // Thêm ảnh sản phẩm
                     }
+                }
                 });
             }
         }
@@ -287,34 +267,50 @@ public class CarePlanController : ControllerBase
         return Ok(result);
     }
 
-    private void DeleteOldUserCarePlan(int userId)
+
+    //private void DeleteOldUserCarePlan(int userId)
+    //{
+    //    var oldCarePlanProducts = _context.CarePlanProducts
+    //        .Where(cp => cp.UserId == userId)
+    //        .ToList();
+    //    _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
+
+    //    var oldUserCarePlan = _context.UserCarePlans
+    //        .Where(u => u.UserId == userId)
+    //        .ToList();
+    //    _context.UserCarePlans.RemoveRange(oldUserCarePlan);
+
+    //    _context.SaveChanges();
+    //}
+
+    private void SaveUserCarePlan(int userId, int carePlanId, int skinTypeId)
     {
-        var oldCarePlanProducts = _context.CarePlanProducts
-            .Where(cp => cp.UserId == userId)
-            .ToList();
-        _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
+        var existingCarePlan = _context.UserCarePlans
+            .FirstOrDefault(u => u.UserId == userId && u.CarePlan.SkinTypeId == skinTypeId);
 
-        var oldUserCarePlan = _context.UserCarePlans
-            .Where(u => u.UserId == userId)
-            .ToList();
-        _context.UserCarePlans.RemoveRange(oldUserCarePlan);
-
-        _context.SaveChanges();
-    }
-
-    private void SaveUserCarePlan(int userId, int carePlanId)
-    {
-        var userCarePlan = new UserCarePlan
+        if (existingCarePlan != null)
         {
-            UserId = userId,
-            CarePlanId = carePlanId,
-            DateCreate = DateTime.Now
-        };
-        _context.UserCarePlans.Add(userCarePlan);
-        _context.SaveChanges();
+            // Xóa các sản phẩm cũ trong lộ trình của loại da này
+            var oldCarePlanProducts = _context.CarePlanProducts
+                .Where(cp => cp.UserId == userId && cp.CarePlanId == existingCarePlan.CarePlanId)
+                .ToList();
+            _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
+
+            _context.SaveChanges(); // Lưu thay đổi trước khi cập nhật
+        }
+        else
+        {
+            // Nếu chưa có lộ trình cũ cho loại da này, tạo mới
+            var userCarePlan = new UserCarePlan
+            {
+                UserId = userId,
+                CarePlanId = carePlanId,
+                DateCreate = DateTime.Now
+            };
+            _context.UserCarePlans.Add(userCarePlan);
+            _context.SaveChanges();
+        }
     }
-
-
 
     // Lấy tất cả các bước của care plan theo CarePlanId
     private List<CarePlanStep> GetStepsByCarePlanId(int carePlanId)
