@@ -4,6 +4,7 @@ using BeautySky.Models;
 using BeautySky.Models.Vnpay;
 using BeautySky.Services.Vnpay;
 using BeautySky.Library;
+using BeautySky.Service.Vnpay;
 
 namespace BeautySky.Controllers
 {

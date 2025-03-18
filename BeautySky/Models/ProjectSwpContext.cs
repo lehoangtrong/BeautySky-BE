@@ -21,7 +21,7 @@ public partial class ProjectSwpContext : DbContext
 
     public virtual DbSet<CarePlan> CarePlans { get; set; }
 
-    public virtual DbSet<CarePlanProduct> CarePlanProducts { get; set; }
+    public virtual DbSet<CarePlanProducts> CarePlanProducts { get; set; }
 
     public virtual DbSet<CarePlanStep> CarePlanSteps { get; set; }
 
@@ -122,7 +122,7 @@ public partial class ProjectSwpContext : DbContext
                 .HasConstraintName("FK__CarePlan__SkinTy__6FE99F9F");
         });
 
-        modelBuilder.Entity<CarePlanProduct>(entity =>
+        modelBuilder.Entity<CarePlanProducts>(entity =>
         {
             entity.HasKey(e => e.CarePlanProductId);
 
