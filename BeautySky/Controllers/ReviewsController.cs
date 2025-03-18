@@ -77,7 +77,8 @@ namespace BeautySky.Controllers
                 return NotFound("Review not found");
             }
 
-            _context.Reviews.Remove(review);
+            review.IsActive = false;
+            _context.Reviews.Update(review);
             await _context.SaveChangesAsync();
 
             return Ok("Delete success");
