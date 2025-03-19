@@ -110,7 +110,8 @@ namespace BeautySky.Controllers
                 p.SkinTypeId,
                 SkinTypeName = p.SkinType != null ? p.SkinType.SkinTypeName : null,
                 Rating = p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : (double?)null,
-                productsImages = p.ProductsImages
+                productsImages = p.ProductsImages,
+                p.IsActive
             }).ToListAsync();
 
             return Ok(productList);
