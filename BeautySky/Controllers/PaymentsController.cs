@@ -70,8 +70,18 @@ namespace BeautySky.Controllers
             try
             {
                 var response = _vnPayService.PaymentExecute(Request.Query);
-                var redirectUrl = GetRedirectUrl(response);
-                return Redirect(redirectUrl);
+
+                // Kiểm tra mã phản hồi để xác định thành công hay thất bại
+                if (response.Success)
+                {
+                    // Redirect to success URL
+                    return Redirect($"https://localhost:5173/paymentsuccess?orderId={response.OrderId}");
+                }
+                else
+                {
+                    // Redirect to failed URL
+                    return Redirect($"https://localhost:5173/paymentfailed?orderId={response.OrderId}&message={response.OrderDescription}");
+                }
             }
             catch (Exception ex)
             {
