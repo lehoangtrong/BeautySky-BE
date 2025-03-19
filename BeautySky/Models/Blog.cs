@@ -24,4 +24,6 @@ public partial class Blog
     public string? SkinType { get; set; }
 
     public string? ImgUrl { get; set; }
+
+    public bool IsActive { get; set; }
 }

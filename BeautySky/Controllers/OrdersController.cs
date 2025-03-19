@@ -173,6 +173,7 @@ namespace BeautySky.Controllers
 
 
         [Authorize] // Bảo vệ API, chỉ cho phép người dùng đã đăng nhập
+        [Authorize]
         [HttpPost("order-products")]
         public async Task<IActionResult> CreateOrder(int? promotionID, List<OrderProductRequest> products)
         {
@@ -203,6 +204,11 @@ namespace BeautySky.Controllers
                     return NotFound($"Sản phẩm với ID {item.ProductID} không tồn tại");
                 }
 
+                if (product.Quantity < item.Quantity)
+                {
+                    return BadRequest($"Sản phẩm {product.ProductName} không đủ số lượng (còn {product.Quantity} cái)");
+                }
+
                 var itemTotal = product.Price * item.Quantity;
                 totalAmount += itemTotal;
 
@@ -213,6 +219,9 @@ namespace BeautySky.Controllers
                     UnitPrice = product.Price,
                     TotalPrice = itemTotal
                 });
+
+                // Giảm số lượng sản phẩm
+                product.Quantity -= item.Quantity;
             }
 
             decimal discountAmount = 0m;
@@ -253,7 +262,8 @@ namespace BeautySky.Controllers
         }
 
 
-        
+
+
 
         [HttpPost("cancel/{orderId}")]
         [Authorize]
@@ -268,6 +278,8 @@ namespace BeautySky.Controllers
             var userId = int.Parse(userIdClaim);
 
             var order = await _context.Orders
+                .Include(o => o.OrderProducts)
+                .ThenInclude(op => op.Product)
                 .FirstOrDefaultAsync(o => o.OrderId == orderId && o.UserId == userId);
 
             if (order == null)
@@ -282,10 +294,19 @@ namespace BeautySky.Controllers
 
             try
             {
+                // Hoàn trả lại số lượng sản phẩm
+                foreach (var orderProduct in order.OrderProducts)
+                {
+                    if (orderProduct.Product != null)
+                    {
+                        orderProduct.Product.Quantity += orderProduct.Quantity;
+                    }
+                }
+
                 // Cập nhật trạng thái đơn hàng
                 order.Status = "Cancelled";
-                order.CancelledDate = DateTime.Now; // Nếu bạn có trường này
-                order.CancelledReason = ""; // Nếu bạn có trường này
+                order.CancelledDate = DateTime.Now;
+                order.CancelledReason = "Người dùng hủy đơn hàng";
 
                 await _context.SaveChangesAsync();
 
@@ -302,6 +323,7 @@ namespace BeautySky.Controllers
                 return StatusCode(500, new { message = "Có lỗi xảy ra khi hủy đơn hàng.", error = ex.Message });
             }
         }
+
 
 
 

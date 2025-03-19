@@ -58,7 +58,8 @@ namespace BeautySky.Controllers
                     SkinType = blogDTO.SkinType,
                     Category = blogDTO.Category,
                     CreatedDate = DateTime.UtcNow,
-                    UpdatedDate = DateTime.UtcNow
+                    UpdatedDate = DateTime.UtcNow,
+                    IsActive = blogDTO.IsActive == true
                 };
 
                 if (blogDTO.File != null && blogDTO.File.Length > 0)
@@ -159,7 +160,8 @@ namespace BeautySky.Controllers
             var blog = await _context.Blogs.FindAsync(id);
             if (blog == null) return NotFound();
 
-            _context.Blogs.Remove(blog);
+            blog.IsActive = false;
+            _context.Blogs.Update(blog);
             await _context.SaveChangesAsync();
 
             return NoContent();

@@ -110,7 +110,8 @@ namespace BeautySky.Controllers
                 p.SkinTypeId,
                 SkinTypeName = p.SkinType != null ? p.SkinType.SkinTypeName : null,
                 Rating = p.Reviews.Any() ? p.Reviews.Average(r => r.Rating) : (double?)null,
-                productsImages = p.ProductsImages
+                productsImages = p.ProductsImages,
+                p.IsActive
             }).ToListAsync();
 
             return Ok(productList);
@@ -156,7 +157,9 @@ namespace BeautySky.Controllers
                     Description = ProductDTO.Description,
                     Ingredient = ProductDTO.Ingredient,
                     CategoryId = ProductDTO.CategoryId,
-                    SkinTypeId = ProductDTO.SkinTypeId
+                    SkinTypeId = ProductDTO.SkinTypeId,
+                    IsActive = ProductDTO.IsActive == true
+
                 };
 
                 if (ProductDTO.File != null && ProductDTO.File.Length > 0)
@@ -307,14 +310,14 @@ namespace BeautySky.Controllers
                 return NotFound("Product not found");
             }
 
-            foreach (var image in product.ProductsImages)
-            {
-                var deleteRequest = new DeleteObjectRequest { BucketName = _bucketName, Key = $"products/{Path.GetFileName(image.ImageUrl)}" };
-                await _amazonS3.DeleteObjectAsync(deleteRequest);
-                _context.ProductsImages.Remove(image);
-            }
-
-            _context.Products.Remove(product);
+            //foreach (var image in product.ProductsImages)
+            //{
+            //    var deleteRequest = new DeleteObjectRequest { BucketName = _bucketName, Key = $"products/{Path.GetFileName(image.ImageUrl)}" };
+            //    await _amazonS3.DeleteObjectAsync(deleteRequest);
+            //    _context.ProductsImages.Remove(image);
+            //}
+            product.IsActive = false;
+            _context.Products.Update(product);
             await _context.SaveChangesAsync();
             return Ok("Deleted successfully");
         }

@@ -24,6 +24,7 @@ public partial class ProjectSwpContext : DbContext
     public virtual DbSet<CarePlanProducts> CarePlanProducts { get; set; }
 
     public virtual DbSet<CarePlanStep> CarePlanSteps { get; set; }
+
     public virtual DbSet<Cart> Carts { get; set; }
 
     public virtual DbSet<Category> Categories { get; set; }
@@ -64,11 +65,12 @@ public partial class ProjectSwpContext : DbContext
 
     public virtual DbSet<UserQuiz> UserQuizzes { get; set; }
 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Answer>(entity =>
         {
-            entity.HasKey(e => e.AnswerId).HasName("PK__Answer__D4825024495FE978");
+            entity.HasKey(e => e.AnswerId).HasName("PK__Answer__D4825024A4A60BA2");
 
             entity.ToTable("Answer");
 
@@ -76,38 +78,38 @@ public partial class ProjectSwpContext : DbContext
             entity.Property(e => e.AnswerText).HasMaxLength(255);
             entity.Property(e => e.Point).HasMaxLength(255);
             entity.Property(e => e.QuestionId).HasColumnName("QuestionID");
-            entity.Property(e => e.SkinTypeId).HasMaxLength(255);
+            entity.Property(e => e.SkinTypeId)
+                .HasMaxLength(255)
+                .HasColumnName("SkinTypeID");
 
             entity.HasOne(d => d.Question).WithMany(p => p.Answers)
                 .HasForeignKey(d => d.QuestionId)
-                .HasConstraintName("FK__Answer__Question__46E78A0C");
+                .HasConstraintName("FK__Answer__Question__6E01572D");
         });
 
         modelBuilder.Entity<Blog>(entity =>
         {
-            entity.HasKey(e => e.BlogId).HasName("PK__Blog__54379E505182B478");
+            entity.HasKey(e => e.BlogId).HasName("PK__Blog__54379E507747EC8C");
 
             entity.ToTable("Blog");
 
             entity.Property(e => e.BlogId).HasColumnName("BlogID");
             entity.Property(e => e.AuthorId).HasColumnName("AuthorID");
-            entity.Property(e => e.Content).HasMaxLength(255);
-            entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
-                .HasColumnType("datetime");
+            entity.Property(e => e.Category).HasMaxLength(100);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.ImgUrl)
+                .HasMaxLength(255)
+                .HasColumnName("ImgURL");
+            entity.Property(e => e.SkinType).HasMaxLength(100);
             entity.Property(e => e.Status).HasMaxLength(50);
             entity.Property(e => e.Title).HasMaxLength(255);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
-            //entity.Property(e => e.AuthorName).HasMaxLength(100);
-
-            //entity.HasOne(d => d.Author).WithMany(p => p.Blogs)
-            //    .HasForeignKey(d => d.AuthorId)
-            //    .HasConstraintName("FK__Blog__AuthorID__6477ECF3");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<CarePlan>(entity =>
         {
-            entity.HasKey(e => e.CarePlanId).HasName("PK__CarePlan__2EB4A29DE80D6819");
+            entity.HasKey(e => e.CarePlanId).HasName("PK__CarePlan__2EB4A29DBC066487");
 
             entity.ToTable("CarePlan");
 
@@ -118,7 +120,7 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.SkinType).WithMany(p => p.CarePlans)
                 .HasForeignKey(d => d.SkinTypeId)
-                .HasConstraintName("FK__CarePlan__SkinTy__534D60F1");
+                .HasConstraintName("FK__CarePlan__SkinTy__6FE99F9F");
         });
 
         modelBuilder.Entity<CarePlanProducts>(entity =>
@@ -130,29 +132,27 @@ public partial class ProjectSwpContext : DbContext
             entity.Property(e => e.CarePlanId).HasColumnName("CarePlanID");
             entity.Property(e => e.StepId).HasColumnName("StepID");
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
-            entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.ProductName).HasMaxLength(255);
+            entity.Property(e => e.UserId).HasColumnName("UserID");
 
-            // Cập nhật relationships
             entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanProducts)
-            .HasForeignKey(d => d.CarePlanId)
-            .OnDelete(DeleteBehavior.ClientSetNull)
-            .HasConstraintName("FK__CarePlanP__CareP__48CFD27E");
+                .HasForeignKey(d => d.CarePlanId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CarePlanP__CareP__70DDC3D8");
 
             entity.HasOne(d => d.Step).WithMany(p => p.CarePlanProducts)
                 .HasForeignKey(d => d.StepId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CarePlanP__StepI__49C3F6B7");
+                .HasConstraintName("FK__CarePlanP__StepI__72C60C4A");
 
             entity.HasOne(d => d.User).WithMany(p => p.CarePlanProducts)
                 .HasForeignKey(d => d.UserId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__CarePlanP__UserI__4AB81AF0");
+                .HasConstraintName("FK__CarePlanP__UserI__2739D489");
         });
 
         modelBuilder.Entity<CarePlanStep>(entity =>
         {
-            entity.HasKey(e => e.StepId).HasName("PK__CarePlan__2434333785293410");
+            entity.HasKey(e => e.StepId).HasName("PK__CarePlan__2434333779ECD46E");
 
             entity.ToTable("CarePlanStep");
 
@@ -163,12 +163,12 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.CarePlan).WithMany(p => p.CarePlanSteps)
                 .HasForeignKey(d => d.CarePlanId)
-                .HasConstraintName("FK__CarePlanS__CareP__5629CD9C");
+                .HasConstraintName("FK__CarePlanS__CareP__73BA3083");
         });
 
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B761D93432");
+            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B7B8E317F0");
 
             entity.ToTable("Cart");
 
@@ -176,16 +176,16 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__Cart__ProductId__2A164134");
+                .HasConstraintName("FK__Cart__ProductId__503BEA1C");
 
             entity.HasOne(d => d.User).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Cart__UserId__29221CFB");
+                .HasConstraintName("FK__Cart__UserId__4F47C5E3");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A2BE858798C");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A2BD360D2CE");
 
             entity.ToTable("Category");
 
@@ -195,7 +195,7 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<News>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__News__3214EC272F3627A9");
+            entity.HasKey(e => e.Id).HasName("PK__News__3214EC2780E3427B");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.CreateDate)
@@ -207,12 +207,12 @@ public partial class ProjectSwpContext : DbContext
                 .HasColumnName("ImageURL");
             entity.Property(e => e.StartDate).HasColumnType("datetime");
             entity.Property(e => e.Title).HasMaxLength(255);
-            entity.Property(e => e.Content).HasMaxLength(255);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
         });
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAFB8DE81EA");
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAFCAD56814");
 
             entity.Property(e => e.OrderId).HasColumnName("OrderID");
             entity.Property(e => e.DiscountAmount).HasColumnType("decimal(10, 2)");
@@ -225,23 +225,27 @@ public partial class ProjectSwpContext : DbContext
             entity.Property(e => e.Status).HasMaxLength(255);
             entity.Property(e => e.TotalAmount).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.CancelledReason).HasMaxLength(255);
+            entity.Property(e => e.CancelledDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
 
             entity.HasOne(d => d.Payment).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.PaymentId)
-                .HasConstraintName("FK__Orders__PaymentI__31EC6D26");
+                .HasConstraintName("FK__Orders__PaymentI__76969D2E");
 
             entity.HasOne(d => d.Promotion).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.PromotionId)
-                .HasConstraintName("FK__Orders__Promotio__30F848ED");
+                .HasConstraintName("FK__Orders__Promotio__778AC167");
 
             entity.HasOne(d => d.User).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Orders__UserID__300424B4");
+                .HasConstraintName("FK__Orders__UserID__787EE5A0");
         });
 
         modelBuilder.Entity<OrderProduct>(entity =>
         {
-            entity.HasKey(e => new { e.OrderId, e.ProductId }).HasName("PK__OrderPro__08D097C1390B35B6");
+            entity.HasKey(e => new { e.OrderId, e.ProductId }).HasName("PK__OrderPro__08D097C166618DF2");
 
             entity.ToTable("OrderProduct");
 
@@ -253,17 +257,17 @@ public partial class ProjectSwpContext : DbContext
             entity.HasOne(d => d.Order).WithMany(p => p.OrderProducts)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderProd__Order__34C8D9D1");
+                .HasConstraintName("FK__OrderProd__Order__74AE54BC");
 
             entity.HasOne(d => d.Product).WithMany(p => p.OrderProducts)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderProd__Produ__35BCFE0A");
+                .HasConstraintName("FK__OrderProd__Produ__75A278F5");
         });
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A58C8679860");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A58E69C4A52");
 
             entity.ToTable("Payment");
 
@@ -277,20 +281,20 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.PaymentStatus).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.PaymentStatusId)
-                .HasConstraintName("FK__Payment__Payment__2C3393D0");
+                .HasConstraintName("FK__Payment__Payment__7A672E12");
 
             entity.HasOne(d => d.PaymentType).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.PaymentTypeId)
-                .HasConstraintName("FK__Payment__Payment__2B3F6F97");
+                .HasConstraintName("FK__Payment__Payment__797309D9");
 
             entity.HasOne(d => d.User).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Payment__UserID__2A4B4B5E");
+                .HasConstraintName("FK__Payment__UserID__7B5B524B");
         });
 
         modelBuilder.Entity<PaymentStatus>(entity =>
         {
-            entity.HasKey(e => e.PaymentStatusId).HasName("PK__PaymentS__34F8AC1F30EEEE99");
+            entity.HasKey(e => e.PaymentStatusId).HasName("PK__PaymentS__34F8AC1FA7E39706");
 
             entity.ToTable("PaymentStatus");
 
@@ -302,7 +306,7 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<PaymentType>(entity =>
         {
-            entity.HasKey(e => e.PaymentTypeId).HasName("PK__PaymentT__BA430B1565009CB5");
+            entity.HasKey(e => e.PaymentTypeId).HasName("PK__PaymentT__BA430B15C07D0ACE");
 
             entity.ToTable("PaymentType");
 
@@ -312,28 +316,27 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6ED49962F18");
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6ED02C2A513");
 
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
-            entity.Property(e => e.Description).HasMaxLength(255);
-            entity.Property(e => e.Ingredient).HasMaxLength(255);
             entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.ProductName).HasMaxLength(255);
             entity.Property(e => e.SkinTypeId).HasColumnName("SkinTypeID");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
 
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("FK__Products__Catego__1BFD2C07");
+                .HasConstraintName("FK__Products__Catego__7C4F7684");
 
             entity.HasOne(d => d.SkinType).WithMany(p => p.Products)
                 .HasForeignKey(d => d.SkinTypeId)
-                .HasConstraintName("FK__Products__SkinTy__1CF15040");
+                .HasConstraintName("FK__Products__SkinTy__7D439ABD");
         });
 
         modelBuilder.Entity<ProductsImage>(entity =>
         {
-            entity.HasKey(e => e.ProductsImageId).HasName("PK__Products__D92CC439A4C6357F");
+            entity.HasKey(e => e.ProductsImageId).HasName("PK__Products__D92CC439BBEBA9BD");
 
             entity.ToTable("ProductsImage");
 
@@ -346,12 +349,12 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.Product).WithMany(p => p.ProductsImages)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__ProductsI__Produ__1FCDBCEB");
+                .HasConstraintName("FK__ProductsI__Produ__7E37BEF6");
         });
 
         modelBuilder.Entity<Promotion>(entity =>
         {
-            entity.HasKey(e => e.PromotionId).HasName("PK__Promotio__52C42F2FB2DC6819");
+            entity.HasKey(e => e.PromotionId).HasName("PK__Promotio__52C42F2FB3E29679");
 
             entity.Property(e => e.PromotionId).HasColumnName("PromotionID");
             entity.Property(e => e.DiscountPercentage).HasColumnType("decimal(5, 2)");
@@ -363,7 +366,7 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<Question>(entity =>
         {
-            entity.HasKey(e => e.QuestionId).HasName("PK__Question__0DC06F8CA93C3D2D");
+            entity.HasKey(e => e.QuestionId).HasName("PK__Question__0DC06F8C8AFE052C");
 
             entity.ToTable("Question");
 
@@ -373,12 +376,12 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.Quiz).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.QuizId)
-                .HasConstraintName("FK__Question__QuizID__4316F928");
+                .HasConstraintName("FK__Question__QuizID__7F2BE32F");
         });
 
         modelBuilder.Entity<Quiz>(entity =>
         {
-            entity.HasKey(e => e.QuizId).HasName("PK__Quiz__8B42AE6EEFC2FAAA");
+            entity.HasKey(e => e.QuizId).HasName("PK__Quiz__8B42AE6E084D4957");
 
             entity.ToTable("Quiz");
 
@@ -392,7 +395,7 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.ReviewId).HasName("PK__Review__74BC79AE27FBA028");
+            entity.HasKey(e => e.ReviewId).HasName("PK__Review__74BC79AE2E0F249D");
 
             entity.ToTable("Review");
 
@@ -403,19 +406,20 @@ public partial class ProjectSwpContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.UserId).HasColumnName("UserID");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
 
             entity.HasOne(d => d.Product).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.ProductId)
-                .HasConstraintName("FK__Review__ProductI__3C69FB99");
+                .HasConstraintName("FK__Review__ProductI__00200768");
 
             entity.HasOne(d => d.User).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__Review__UserID__3D5E1FD2");
+                .HasConstraintName("FK__Review__UserID__01142BA1");
         });
 
         modelBuilder.Entity<Role>(entity =>
         {
-            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE3A5A038414");
+            entity.HasKey(e => e.RoleId).HasName("PK__Role__8AFACE3A83299CD2");
 
             entity.ToTable("Role");
 
@@ -427,7 +431,7 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<SkinType>(entity =>
         {
-            entity.HasKey(e => e.SkinTypeId).HasName("PK__SkinType__D5D2962BF35E889E");
+            entity.HasKey(e => e.SkinTypeId).HasName("PK__SkinType__D5D2962BCCBB16C7");
 
             entity.ToTable("SkinType");
 
@@ -439,9 +443,9 @@ public partial class ProjectSwpContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC0A25512A");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCACF31B0E59");
 
-            entity.HasIndex(e => e.Email, "UQ__Users__A9D1053489BB3AA7").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Users__A9D105344097AC75").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.Address).HasMaxLength(255);
@@ -469,12 +473,12 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.Role).WithMany(p => p.Users)
                 .HasForeignKey(d => d.RoleId)
-                .HasConstraintName("FK__Users__RoleID__15502E78");
+                .HasConstraintName("FK__Users__RoleID__07C12930");
         });
 
         modelBuilder.Entity<UserAnswer>(entity =>
         {
-            entity.HasKey(e => e.UserAnswerId).HasName("PK__UserAnsw__47CE235F34CD2DEC");
+            entity.HasKey(e => e.UserAnswerId).HasName("PK__UserAnsw__47CE235F99BD646D");
 
             entity.ToTable("UserAnswer");
 
@@ -490,16 +494,16 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.SkinType).WithMany(p => p.UserAnswers)
                 .HasForeignKey(d => d.SkinTypeId)
-                .HasConstraintName("FK__UserAnswe__SkinT__14270015");
+                .HasConstraintName("FK_UserAnswer_SkinType");
 
             entity.HasOne(d => d.UserQuiz).WithMany(p => p.UserAnswers)
                 .HasForeignKey(d => d.UserQuizId)
-                .HasConstraintName("FK__UserAnswe__UserQ__4E88ABD4");
+                .HasConstraintName("FK__UserAnswe__UserQ__02084FDA");
         });
 
         modelBuilder.Entity<UserCarePlan>(entity =>
         {
-            entity.HasKey(e => e.UserCarePlanId).HasName("PK__UserCare__9E6AF0B65A697F9B");
+            entity.HasKey(e => e.UserCarePlanId).HasName("PK__UserCare__9E6AF0B62C9A9A71");
 
             entity.ToTable("UserCarePlan");
 
@@ -512,16 +516,16 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.CarePlan).WithMany(p => p.UserCarePlans)
                 .HasForeignKey(d => d.CarePlanId)
-                .HasConstraintName("FK__UserCareP__CareP__5FB337D6");
+                .HasConstraintName("FK__UserCareP__CareP__03F0984C");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserCarePlans)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__UserCareP__UserI__5EBF139D");
+                .HasConstraintName("FK__UserCareP__UserI__04E4BC85");
         });
 
         modelBuilder.Entity<UserQuiz>(entity =>
         {
-            entity.HasKey(e => e.UserQuizId).HasName("PK__UserQuiz__20FA63A7C60101B8");
+            entity.HasKey(e => e.UserQuizId).HasName("PK__UserQuiz__20FA63A782FD61B0");
 
             entity.ToTable("UserQuiz");
 
@@ -534,11 +538,11 @@ public partial class ProjectSwpContext : DbContext
 
             entity.HasOne(d => d.Quiz).WithMany(p => p.UserQuizzes)
                 .HasForeignKey(d => d.QuizId)
-                .HasConstraintName("FK__UserQuiz__QuizID__4BAC3F29");
+                .HasConstraintName("FK__UserQuiz__QuizID__05D8E0BE");
 
             entity.HasOne(d => d.User).WithMany(p => p.UserQuizzes)
                 .HasForeignKey(d => d.UserId)
-                .HasConstraintName("FK__UserQuiz__UserID__4AB81AF0");
+                .HasConstraintName("FK__UserQuiz__UserID__06CD04F7");
         });
 
         OnModelCreatingPartial(modelBuilder);

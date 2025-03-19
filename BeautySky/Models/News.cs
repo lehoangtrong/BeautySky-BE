@@ -18,4 +18,6 @@ public partial class News
     public DateTime? EndDate { get; set; }
 
     public string? ImageUrl { get; set; }
+
+    public bool IsActive { get; set; }
 }
