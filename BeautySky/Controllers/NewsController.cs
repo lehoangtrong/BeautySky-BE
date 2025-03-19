@@ -99,6 +99,7 @@ namespace BeautySky.Controllers
                 news.Content = newsDTO.Content ?? news.Content;
                 news.StartDate = newsDTO.StartDate ?? news.StartDate;
                 news.EndDate = newsDTO.EndDate ?? news.EndDate;
+                news.IsActive = newsDTO.IsActive ?? news.IsActive;
 
                 if (newsDTO.File != null && newsDTO.File.Length > 0)
                 {

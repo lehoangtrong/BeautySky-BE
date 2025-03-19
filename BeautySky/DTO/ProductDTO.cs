@@ -13,7 +13,7 @@
         public int? SkinTypeId { get; set; }
         public IFormFile? File { get; set; }
         public string? ImageDescription { get; set; }
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
     }
 }
