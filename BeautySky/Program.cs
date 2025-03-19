@@ -2,7 +2,6 @@
 using Amazon.S3;
 using BeautySky.Models;
 using BeautySky.Service;
-using BeautySky.Service.Vnpay;
 using BeautySky.Services.Vnpay;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -22,31 +21,30 @@ namespace BeautySky
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Thêm session và cache
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession(options =>
             {
-                options.IdleTimeout = TimeSpan.FromMinutes(30); // Thời gian hết hạn session
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true;
             });
 
-            // Thêm IHttpContextAccessor để sử dụng session trong controller
+            // Thêm IHttpContextAccessor để truy cập session trong controller
             builder.Services.AddHttpContextAccessor();
 
-            // Add services to the container.
-            builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
-            {
-                options.SuppressModelStateInvalidFilter = false;
-            });
-
-            builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
-            {
-                options.InvalidModelStateResponseFactory = context =>
+            // Thêm controllers với cấu hình InvalidModelStateResponseFactory
+            builder.Services.AddControllers()
+                .ConfigureApiBehaviorOptions(options =>
                 {
-                    return new BadRequestObjectResult(context.ModelState);
-                };
-            });
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+                    options.InvalidModelStateResponseFactory = context =>
+                    {
+                        return new BadRequestObjectResult(context.ModelState);
+                    };
+                });
+
+            // Thêm Swagger
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(option =>
             {
@@ -71,30 +69,30 @@ namespace BeautySky
                                 Id = "Bearer"
                             }
                         },
-                        new string[] { }
+                        Array.Empty<string>()
                     }
                 });
             });
 
-
-
+            // Thêm DbContext
             builder.Services.AddDbContext<ProjectSwpContext>(option =>
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"));
             });
 
-
-            // Authentication configuration
-            builder.Services.AddAuthentication(option =>
+            // Cấu hình Authentication
+            builder.Services.AddAuthentication(options =>
             {
-                option.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                option.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-            }).AddCookie().AddJwtBearer(option =>
+                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+            })
+            .AddCookie()
+            .AddJwtBearer(options =>
             {
-                option.SaveToken = true;
-                option.RequireHttpsMetadata = false;
-                option.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
@@ -102,20 +100,17 @@ namespace BeautySky
                     ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]))
                 };
-            }).AddGoogle(option =>
+            })
+            .AddGoogle(options =>
             {
-                option.ClientId = builder.Configuration["Authentication:Google:ClientId"];
-                option.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-                option.CallbackPath = "/signin-google";
-                //option.CallbackPath = "/google-respone";
-                option.Events.OnCreatingTicket = async context =>
+                options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+                options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+                options.CallbackPath = "/signin-google";
+                options.Events.OnCreatingTicket = async context =>
                 {
                     var dbContext = context.HttpContext.RequestServices.GetService<ProjectSwpContext>();
-
                     var email = context.Principal.FindFirstValue(ClaimTypes.Email);
-
                     var name = context.Principal.FindFirstValue(ClaimTypes.Name);
-
                     var existingUser = dbContext.Users.FirstOrDefault(u => u.Email == email);
 
                     if (existingUser == null)
@@ -137,9 +132,9 @@ namespace BeautySky
                         await dbContext.SaveChangesAsync();
                     }
                 };
-
             });
 
+            // Thêm Amazon S3
             builder.Services.AddSingleton<IAmazonS3>(option =>
             {
                 var configuration = option.GetRequiredService<IConfiguration>();
@@ -150,9 +145,11 @@ namespace BeautySky
                 );
             });
 
+            // Thêm các dịch vụ khác
             builder.Services.AddSingleton<S3Service>();
+            builder.Services.AddScoped<IVnPayService, VnPayService>();
 
-
+            // Thêm CORS
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowAll",
@@ -161,23 +158,20 @@ namespace BeautySky
                                     .AllowAnyHeader());
             });
 
-            builder.Services.AddScoped<IVnPayService, VnPayService>();
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            // Cấu hình pipeline HTTP
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
             app.UseCors("AllowAll");
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
             app.UseSession();
             app.UseAuthorization();
-
-
             app.MapControllers();
 
             app.Run();
