@@ -222,6 +222,11 @@
         "Name": "File",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
         "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Boolean",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": []
@@ -298,6 +303,11 @@
       {
         "Name": "File",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Boolean",
         "IsRequired": false
       }
     ],
@@ -405,8 +415,8 @@
   },
   {
     "ContainingType": "CarePlanController",
-    "Method": "GetUserCarePlan",
-    "RelativePath": "api/CarePlan/GetUserCarePlan/{userId}",
+    "Method": "GetUserCarePlans",
+    "RelativePath": "api/CarePlan/GetUserCarePlans/{userId}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -923,6 +933,11 @@
         "Name": "File",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
         "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Boolean",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -1004,6 +1019,11 @@
       {
         "Name": "File",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Boolean",
         "IsRequired": false
       }
     ],
@@ -1300,6 +1320,11 @@
         "Name": "ImageDescription",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Boolean",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
@@ -1370,6 +1395,11 @@
       {
         "Name": "ImageDescription",
         "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "IsActive",
+        "Type": "System.Boolean",
         "IsRequired": false
       }
     ],
