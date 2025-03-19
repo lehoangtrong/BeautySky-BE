@@ -4288,6 +4288,16 @@
           "orderNumber": {
             "type": "integer",
             "format": "int32"
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Answer"
+            },
+            "nullable": true
+          },
+          "quiz": {
+            "$ref": "#/components/schemas/Quiz"
           }
         },
         "additionalProperties": false
