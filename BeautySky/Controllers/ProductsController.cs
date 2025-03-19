@@ -234,6 +234,9 @@ namespace BeautySky.Controllers
                 product.Ingredient = ProductDTO.Ingredient ?? product.Ingredient;
                 product.CategoryId = ProductDTO.CategoryId ?? product.CategoryId;
                 product.SkinTypeId = ProductDTO.SkinTypeId ?? product.SkinTypeId;
+                product.IsActive = ProductDTO.IsActive ?? product.IsActive;
+
+
 
                 if (ProductDTO.File != null && ProductDTO.File.Length > 0)
                 {

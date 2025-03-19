@@ -10,5 +10,6 @@ public partial class PaymentType
 
     public string PaymentTypeName { get; set; } = null!;
     [JsonIgnore]
+
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }

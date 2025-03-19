@@ -11,6 +11,7 @@ public partial class Product
 
     public string ProductName { get; set; } = null!;
     [Range(0, double.MaxValue, ErrorMessage = "Price cannot be negative")]
+
     public decimal Price { get; set; }
     [Range(0, int.MaxValue, ErrorMessage = "Quantity cannot be negative")]
 

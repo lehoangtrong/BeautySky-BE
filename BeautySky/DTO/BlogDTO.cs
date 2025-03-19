@@ -9,6 +9,6 @@
         public string? SkinType { get; set; }
         public string? Category { get; set; }
         public IFormFile? File { get; set; } // Thêm thuộc tính File để upload hình ảnh
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
     }
 }

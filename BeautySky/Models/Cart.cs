@@ -16,7 +16,9 @@ public partial class Cart
 
     public decimal TotalPrice { get; set; }
     [JsonIgnore]
+
     public virtual Product? Product { get; set; }
     [JsonIgnore]
+
     public virtual User? User { get; set; }
 }

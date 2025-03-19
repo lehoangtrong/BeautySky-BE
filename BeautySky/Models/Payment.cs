@@ -16,6 +16,7 @@ public partial class Payment
 
     public DateTime? PaymentDate { get; set; }
     [JsonIgnore]
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
     [JsonIgnore]
     public virtual PaymentStatus? PaymentStatus { get; set; }

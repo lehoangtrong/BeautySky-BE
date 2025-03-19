@@ -16,5 +16,6 @@ public partial class Answer
 
     public string? Point { get; set; }
     [JsonIgnore]
+
     public virtual Question? Question { get; set; }
 }
