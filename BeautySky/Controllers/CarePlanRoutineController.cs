@@ -169,7 +169,7 @@ public class CarePlanController : ControllerBase
             {
                 var randomProduct = products.OrderBy(x => Guid.NewGuid()).FirstOrDefault();
 
-                var carePlanProduct = new CarePlanProduct
+                var carePlanProduct = new CarePlanProducts
                 {
                     CarePlanId = request.CarePlanId,
                     ProductId = randomProduct.ProductId,
@@ -247,7 +247,7 @@ public class CarePlanController : ControllerBase
                     .FirstOrDefault();
 
                 // Lưu vào DB ngay khi chọn
-                var carePlanProduct = new CarePlanProduct
+                var carePlanProduct = new CarePlanProducts
                 {
                     CarePlanId = carePlan.CarePlanId,
                     ProductId = randomProduct.ProductId,
