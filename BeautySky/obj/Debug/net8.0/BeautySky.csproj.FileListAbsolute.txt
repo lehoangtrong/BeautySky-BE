@@ -1529,4 +1529,3 @@ C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\obj\Debug\net8.0\refint\Be
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.pdb
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.genruntimeconfig.cache
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\obj\Debug\net8.0\ref\BeautySky.dll
-C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\VNPAY.NET.dll
