@@ -171,10 +171,23 @@ namespace BeautySky.Controllers
         }
         private async Task<Payment> CreatePaymentRecord(Order order)
         {
+            // Kiểm tra phương thức thanh toán của đơn hàng, xử lý an toàn
+            int paymentTypeId;
+
+            // Kiểm tra null và gán giá trị mặc định
+            if (order.Payment?.PaymentType?.PaymentTypeId == 1)
+            {
+                paymentTypeId = 1; // VNPay
+            }
+            else
+            {
+                paymentTypeId = 2; // Ship COD
+            }
+
             var payment = new Payment
             {
                 UserId = order.UserId,
-                PaymentTypeId = 1, // VNPay
+                PaymentTypeId = paymentTypeId,
                 PaymentStatusId = 2, // Confirmed
                 PaymentDate = DateTime.Now
             };
@@ -188,7 +201,7 @@ namespace BeautySky.Controllers
             order.PaymentId = payment.PaymentId;
             order.Status = "Completed";
             _context.Entry(order).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();  
         }
 
     }

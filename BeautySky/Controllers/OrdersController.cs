@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using Azure.Core;
 using BeautySky.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace BeautySky.Controllers
 {
@@ -93,6 +94,8 @@ namespace BeautySky.Controllers
                     o.FinalAmount,
                     o.Status,        // Thêm status
                     o.PaymentId,
+                    o.CancelledDate,
+                    o.CancelledReason,
                     User = new
                     {
                         o.User.UserId,
@@ -267,12 +270,18 @@ namespace BeautySky.Controllers
 
         [HttpPost("cancel/{orderId}")]
         [Authorize]
-        public async Task<IActionResult> CancelOrder(int orderId)
+        public async Task<IActionResult> CancelOrder(int orderId, [FromBody] string cancelReason) // Thay đổi parameter
         {
             var userIdClaim = User.FindFirst("userId")?.Value;
             if (string.IsNullOrEmpty(userIdClaim))
             {
                 return Unauthorized("Invalid token or missing userId claim.");
+            }
+
+            // Kiểm tra lý do hủy
+            if (string.IsNullOrEmpty(cancelReason))
+            {
+                return BadRequest("Vui lòng nhập lý do hủy đơn hàng.");
             }
 
             var userId = int.Parse(userIdClaim);
@@ -303,10 +312,10 @@ namespace BeautySky.Controllers
                     }
                 }
 
-                // Cập nhật trạng thái đơn hàng
+                // Cập nhật trạng thái đơn hàng với lý do từ FE
                 order.Status = "Cancelled";
                 order.CancelledDate = DateTime.Now;
-                order.CancelledReason = "Người dùng hủy đơn hàng";
+                order.CancelledReason = cancelReason; // Sử dụng lý do từ request
 
                 await _context.SaveChangesAsync();
 
@@ -315,7 +324,8 @@ namespace BeautySky.Controllers
                     message = "Đơn hàng đã được hủy thành công.",
                     orderId = order.OrderId,
                     status = order.Status,
-                    cancelledDate = order.CancelledDate
+                    cancelledDate = order.CancelledDate,
+                    cancelledReason = order.CancelledReason
                 });
             }
             catch (Exception ex)
