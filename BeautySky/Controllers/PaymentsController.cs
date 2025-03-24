@@ -72,36 +72,46 @@ namespace BeautySky.Controllers
             try
             {
                 var response = _vnPayService.PaymentExecute(Request.Query);
-
-                // Mã hóa các tham số để tránh ký tự không hợp lệ
                 var orderId = WebUtility.UrlEncode(response.OrderId?.ToString() ?? "");
                 var message = WebUtility.UrlEncode(response.OrderDescription ?? "");
 
-                // Kiểm tra mã phản hồi để xác định thành công hay thất bại
                 if (response.Success)
                 {
-                    // Cập nhật trạng thái đơn hàng trong DB
                     if (int.TryParse(response.OrderId, out int orderIdInt))
                     {
                         try
                         {
-                            await ProcessPaymentTransaction(orderIdInt);
-                            _logger.LogInformation($"Payment for Order {orderIdInt} processed successfully via callback");
+                            // Sử dụng ProcessPaymentTransaction đã có
+                            var result = await ProcessPaymentTransaction(orderIdInt);
+
+                            if (result.Result is CreatedResult)
+                            {
+                                _logger.LogInformation($"Payment for Order {orderIdInt} processed successfully via callback");
+                                // Chuyển hướng đến trang thành công với thông tin payment
+                                var payment = (result.Result as CreatedResult)?.Value as Payment;
+                                return Redirect($"http://localhost:5173/paymentsuccess?orderId={orderId}&paymentId={payment?.PaymentId}");
+                            }
+                            else if (result.Result is NotFoundResult)
+                            {
+                                _logger.LogWarning($"Order {orderIdInt} not found during payment processing");
+                                return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={WebUtility.UrlEncode("Không tìm thấy đơn hàng")}");
+                            }
+                            else if (result.Result is BadRequestResult)
+                            {
+                                _logger.LogWarning($"Invalid order state for {orderIdInt} during payment processing");
+                                return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={WebUtility.UrlEncode("Đơn hàng không hợp lệ hoặc đã được thanh toán")}");
+                            }
                         }
                         catch (Exception procEx)
                         {
-                            _logger.LogWarning(procEx, $"Could not process payment for Order {orderIdInt} via callback: {procEx.Message}");
-                            // Vẫn chuyển hướng đến trang thành công vì VNPay đã xác nhận thanh toán
+                            _logger.LogError(procEx, $"Could not process payment for Order {orderIdInt}: {procEx.Message}");
+                            return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={WebUtility.UrlEncode("Lỗi xử lý thanh toán")}");
                         }
                     }
-                    // Redirect to success URL
-                    return Redirect($"http://localhost:5173/paymentsuccess?orderId={orderId}");
                 }
-                else
-                {
-                    // Redirect to failed URL
-                    return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={message}");
-                }
+
+                // Thanh toán thất bại hoặc bị hủy
+                return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={message}");
             }
             catch (Exception ex)
             {
@@ -109,6 +119,7 @@ namespace BeautySky.Controllers
                 return Redirect("http://localhost:5173/paymentfailed?message=" + WebUtility.UrlEncode("Có lỗi xảy ra trong quá trình xử lý thanh toán"));
             }
         }
+
 
         [HttpPost("ProcessAndConfirmPayment/{orderId}")]
         public async Task<ActionResult<Payment>> ProcessAndConfirmPayment(int orderId)
@@ -201,7 +212,7 @@ namespace BeautySky.Controllers
             order.PaymentId = payment.PaymentId;
             order.Status = "Completed";
             _context.Entry(order).State = EntityState.Modified;
-            await _context.SaveChangesAsync();  
+            await _context.SaveChangesAsync();
         }
 
     }
