@@ -202,11 +202,11 @@ namespace BeautySky.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> PutProduct(int id, [FromForm] ProductDTO ProductDTO)
         {
-            var isDuplicate = await _context.Products.AnyAsync(p => p.ProductName == ProductDTO.ProductName);
-            if (isDuplicate)
-            {
-                return BadRequest("Product name already exists.");
-            }
+            //var isDuplicate = await _context.Products.AnyAsync(p => p.ProductName == ProductDTO.ProductName);
+            //if (isDuplicate)
+            //{
+            //    return BadRequest("Product name already exists.");
+            //}
 
             if (!ModelState.IsValid || ProductDTO.Price < 0 || ProductDTO.Quantity < 0)
             {
