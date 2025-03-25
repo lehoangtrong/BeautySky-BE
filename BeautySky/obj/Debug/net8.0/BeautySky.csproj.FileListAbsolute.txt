@@ -1533,3 +1533,4 @@ C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.Ra
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.RazorAssemblyInfo.cs
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.staticwebassets.runtime.json
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\VNPAY.NET.dll
+C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\appsettings.json
