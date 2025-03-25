@@ -1067,6 +1067,11 @@
         "Name": "orderId",
         "Type": "System.Int32",
         "IsRequired": true
+      },
+      {
+        "Name": "cancelReason",
+        "Type": "System.String",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []
