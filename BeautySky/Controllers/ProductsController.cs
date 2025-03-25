@@ -55,6 +55,7 @@ namespace BeautySky.Controllers
                     product.Description,
                     product.Quantity,
                     product.CategoryId,
+                    product.Ingredient,
                     CategoryName = product.Category?.CategoryName,
                     product.SkinTypeId,
                     SkinTypeName = product.SkinType?.SkinTypeName,
@@ -104,6 +105,7 @@ namespace BeautySky.Controllers
                 p.ProductName,
                 p.Price,
                 p.Description,
+                p.Ingredient,
                 p.Quantity,
                 p.CategoryId,
                 CategoryName = p.Category != null ? p.Category.CategoryName : null,
@@ -200,11 +202,11 @@ namespace BeautySky.Controllers
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> PutProduct(int id, [FromForm] ProductDTO ProductDTO)
         {
-            var isDuplicate = await _context.Products.AnyAsync(p => p.ProductName == ProductDTO.ProductName);
-            if (isDuplicate)
-            {
-                return BadRequest("Product name already exists.");
-            }
+            //var isDuplicate = await _context.Products.AnyAsync(p => p.ProductName == ProductDTO.ProductName);
+            //if (isDuplicate)
+            //{
+            //    return BadRequest("Product name already exists.");
+            //}
 
             if (!ModelState.IsValid || ProductDTO.Price < 0 || ProductDTO.Quantity < 0)
             {
