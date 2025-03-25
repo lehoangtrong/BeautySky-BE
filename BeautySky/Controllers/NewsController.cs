@@ -54,7 +54,8 @@ namespace BeautySky.Controllers
                     Content = newsDTO.Content,
                     CreateDate = newsDTO.CreateDate ?? DateTime.Now,
                     StartDate = newsDTO.StartDate,
-                    EndDate = newsDTO.EndDate
+                    EndDate = newsDTO.EndDate,
+                    IsActive = newsDTO.IsActive == true
                 };
 
                 if (newsDTO.File != null && newsDTO.File.Length > 0)
@@ -98,6 +99,7 @@ namespace BeautySky.Controllers
                 news.Content = newsDTO.Content ?? news.Content;
                 news.StartDate = newsDTO.StartDate ?? news.StartDate;
                 news.EndDate = newsDTO.EndDate ?? news.EndDate;
+                news.IsActive = newsDTO.IsActive ?? news.IsActive;
 
                 if (newsDTO.File != null && newsDTO.File.Length > 0)
                 {
@@ -139,17 +141,18 @@ namespace BeautySky.Controllers
             var news = await _context.News.FindAsync(id);
             if (news == null) return NotFound("News not found.");
 
-            if (!string.IsNullOrEmpty(news.ImageUrl))
-            {
-                var deleteRequest = new DeleteObjectRequest
-                {
-                    BucketName = _bucketName,
-                    Key = news.ImageUrl.Replace($"https://{_bucketName}.s3.amazonaws.com/", "")
-                };
-                await _amazonS3.DeleteObjectAsync(deleteRequest);
-            }
+            //if (!string.IsNullOrEmpty(news.ImageUrl))
+            //{
+            //    var deleteRequest = new DeleteObjectRequest
+            //    {
+            //        BucketName = _bucketName,
+            //        Key = news.ImageUrl.Replace($"https://{_bucketName}.s3.amazonaws.com/", "")
+            //    };
+            //    await _amazonS3.DeleteObjectAsync(deleteRequest);
+            //}
 
-            _context.News.Remove(news);
+            news.IsActive = false;
+            _context.News.Update(news);
             await _context.SaveChangesAsync();
             return Ok("News deleted successfully");
 

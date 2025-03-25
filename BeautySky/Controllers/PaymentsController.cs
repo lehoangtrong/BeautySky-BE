@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using BeautySky.Library;
 using BeautySky.Models;
 using BeautySky.Models.Vnpay;
 using BeautySky.Services.Vnpay;
-using BeautySky.Library;
-using BeautySky.Service.Vnpay;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace BeautySky.Controllers
 {
@@ -52,8 +54,8 @@ namespace BeautySky.Controllers
                     return BadRequest(new { success = false, message = "Không tìm thấy đơn hàng" });
                 }
 
-                // Xử lý thanh toán VNPay
-                var paymentUrl = await CreateVnPayRequest(request);
+                // Tạo URL thanh toán bằng VnPayService
+                var paymentUrl = _vnPayService.CreatePaymentUrl(request, HttpContext);
 
                 return Ok(new { success = true, paymentUrl });
             }
@@ -70,15 +72,54 @@ namespace BeautySky.Controllers
             try
             {
                 var response = _vnPayService.PaymentExecute(Request.Query);
-                var redirectUrl = GetRedirectUrl(response);
-                return Redirect(redirectUrl);
+                var orderId = WebUtility.UrlEncode(response.OrderId?.ToString() ?? "");
+                var message = WebUtility.UrlEncode(response.OrderDescription ?? "");
+
+                if (response.Success)
+                {
+                    if (int.TryParse(response.OrderId, out int orderIdInt))
+                    {
+                        try
+                        {
+                            // Sử dụng ProcessPaymentTransaction đã có
+                            var result = await ProcessPaymentTransaction(orderIdInt);
+
+                            if (result.Result is CreatedResult)
+                            {
+                                _logger.LogInformation($"Payment for Order {orderIdInt} processed successfully via callback");
+                                // Chuyển hướng đến trang thành công với thông tin payment
+                                var payment = (result.Result as CreatedResult)?.Value as Payment;
+                                return Redirect($"http://localhost:5173/paymentsuccess?orderId={orderId}&paymentId={payment?.PaymentId}");
+                            }
+                            else if (result.Result is NotFoundResult)
+                            {
+                                _logger.LogWarning($"Order {orderIdInt} not found during payment processing");
+                                return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={WebUtility.UrlEncode("Không tìm thấy đơn hàng")}");
+                            }
+                            else if (result.Result is BadRequestResult)
+                            {
+                                _logger.LogWarning($"Invalid order state for {orderIdInt} during payment processing");
+                                return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={WebUtility.UrlEncode("Đơn hàng không hợp lệ hoặc đã được thanh toán")}");
+                            }
+                        }
+                        catch (Exception procEx)
+                        {
+                            _logger.LogError(procEx, $"Could not process payment for Order {orderIdInt}: {procEx.Message}");
+                            return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={WebUtility.UrlEncode("Lỗi xử lý thanh toán")}");
+                        }
+                    }
+                }
+
+                // Thanh toán thất bại hoặc bị hủy
+                return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={message}");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing payment callback");
-                return Redirect("https://localhost:5173/paymentfailed?message=Có lỗi xảy ra trong quá trình xử lý thanh toán");
+                return Redirect("http://localhost:5173/paymentfailed?message=" + WebUtility.UrlEncode("Có lỗi xảy ra trong quá trình xử lý thanh toán"));
             }
         }
+
 
         [HttpPost("ProcessAndConfirmPayment/{orderId}")]
         public async Task<ActionResult<Payment>> ProcessAndConfirmPayment(int orderId)
@@ -99,7 +140,6 @@ namespace BeautySky.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePayment(int id)
         {
@@ -113,44 +153,6 @@ namespace BeautySky.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
-
-        #region Private Methods
-
-        private async Task<string> CreateVnPayRequest(PaymentInformationModel request)
-        {
-            var vnPayLibrary = new VnPayLibrary();
-            decimal amount = (decimal)request.Amount;
-            long amountInVnd = (long)(amount * 100); // Đảm bảo số tiền được chuyển đổi đúng
-            string transactionRef = $"{DateTime.Now:yyyyMMddHHmmss}_{request.OrderId}";
-
-            vnPayLibrary.AddRequestData("vnp_Version", "2.1.0");
-            vnPayLibrary.AddRequestData("vnp_Command", "pay");
-            vnPayLibrary.AddRequestData("vnp_TmnCode", _configuration["VnPay:TmnCode"]);
-            vnPayLibrary.AddRequestData("vnp_Amount", amountInVnd.ToString());
-            vnPayLibrary.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
-            vnPayLibrary.AddRequestData("vnp_CurrCode", "VND");
-            vnPayLibrary.AddRequestData("vnp_IpAddr", vnPayLibrary.GetIpAddress(HttpContext));
-            vnPayLibrary.AddRequestData("vnp_Locale", "vn");
-            vnPayLibrary.AddRequestData("vnp_OrderInfo", $"Thanh toan don hang #{request.OrderId}");
-            vnPayLibrary.AddRequestData("vnp_OrderType", "other"); // Thay đổi thành "other"
-            vnPayLibrary.AddRequestData("vnp_ReturnUrl", _configuration["VnPay:ReturnUrl"]);
-            vnPayLibrary.AddRequestData("vnp_TxnRef", transactionRef);
-
-            var paymentUrl = vnPayLibrary.CreateRequestUrl(
-                _configuration["VnPay:BaseUrl"],
-                _configuration["VnPay:HashSecret"]
-            );
-
-            return paymentUrl;
-        }
-
-        private string GetRedirectUrl(PaymentResponseModel response)
-        {
-            return response.Success
-                ? $"https://localhost:5173/paymentsuccess?orderId={response.OrderId}"
-                : $"https://localhost:5173/paymentfailed?orderId={response.OrderId}&message={response.OrderDescription}";
-        }
-
         private async Task<ActionResult<Payment>> ProcessPaymentTransaction(int orderId)
         {
             var order = await _context.Orders.FindAsync(orderId);
@@ -178,13 +180,25 @@ namespace BeautySky.Controllers
             _logger.LogInformation($"Payment {payment.PaymentId} processed successfully.");
             return Created($"api/Payments/{payment.PaymentId}", payment);
         }
-
         private async Task<Payment> CreatePaymentRecord(Order order)
         {
+            // Kiểm tra phương thức thanh toán của đơn hàng, xử lý an toàn
+            int paymentTypeId;
+
+            // Kiểm tra null và gán giá trị mặc định
+            if (order.Payment?.PaymentType?.PaymentTypeId == 1)
+            {
+                paymentTypeId = 1; // VNPay
+            }
+            else
+            {
+                paymentTypeId = 2; // Ship COD
+            }
+
             var payment = new Payment
             {
                 UserId = order.UserId,
-                PaymentTypeId = 1, // VNPay
+                PaymentTypeId = paymentTypeId,
                 PaymentStatusId = 2, // Confirmed
                 PaymentDate = DateTime.Now
             };
@@ -193,7 +207,6 @@ namespace BeautySky.Controllers
             await _context.SaveChangesAsync();
             return payment;
         }
-
         private async Task UpdateOrderStatus(Order order, Payment payment)
         {
             order.PaymentId = payment.PaymentId;
@@ -202,11 +215,5 @@ namespace BeautySky.Controllers
             await _context.SaveChangesAsync();
         }
 
-        private bool PaymentExists(int id)
-        {
-            return _context.Payments.Any(e => e.PaymentId == id);
-        }
-
-        #endregion
     }
 }

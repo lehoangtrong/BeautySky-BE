@@ -355,6 +355,9 @@
                   "File": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -378,6 +381,9 @@
                   "style": "form"
                 },
                 "File": {
+                  "style": "form"
+                },
+                "IsActive": {
                   "style": "form"
                 }
               }
@@ -473,6 +479,9 @@
                   "File": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -496,6 +505,9 @@
                   "style": "form"
                 },
                 "File": {
+                  "style": "form"
+                },
+                "IsActive": {
                   "style": "form"
                 }
               }
@@ -647,7 +659,7 @@
         }
       }
     },
-    "/api/CarePlan/GetUserCarePlan/{userId}": {
+    "/api/CarePlan/GetUserCarePlans/{userId}": {
       "get": {
         "tags": [
           "CarePlan"
@@ -1506,6 +1518,9 @@
                   "File": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -1526,6 +1541,9 @@
                   "style": "form"
                 },
                 "File": {
+                  "style": "form"
+                },
+                "IsActive": {
                   "style": "form"
                 }
               }
@@ -1637,6 +1655,9 @@
                   "File": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -1657,6 +1678,9 @@
                   "style": "form"
                 },
                 "File": {
+                  "style": "form"
+                },
+                "IsActive": {
                   "style": "form"
                 }
               }
@@ -1847,6 +1871,25 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "string"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success"
@@ -2093,6 +2136,9 @@
                   },
                   "ImageDescription": {
                     "type": "string"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -2122,6 +2168,9 @@
                   "style": "form"
                 },
                 "ImageDescription": {
+                  "style": "form"
+                },
+                "IsActive": {
                   "style": "form"
                 }
               }
@@ -2205,6 +2254,9 @@
                   },
                   "ImageDescription": {
                     "type": "string"
+                  },
+                  "IsActive": {
+                    "type": "boolean"
                   }
                 }
               },
@@ -2234,6 +2286,9 @@
                   "style": "form"
                 },
                 "ImageDescription": {
+                  "style": "form"
+                },
+                "IsActive": {
                   "style": "form"
                 }
               }
@@ -3827,6 +3882,9 @@
           "imgUrl": {
             "type": "string",
             "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -3994,6 +4052,9 @@
           "imageUrl": {
             "type": "string",
             "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -4165,6 +4226,9 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false
@@ -4299,6 +4363,9 @@
           "comment": {
             "type": "string",
             "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
           },
           "reviewDate": {
             "type": "string",
