@@ -29,7 +29,7 @@ public partial class ProjectSwpContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
-    public virtual DbSet<Cart> Carts { get; set; }
+    public virtual DbSet<Cart> Cart { get; set; }
 
     public virtual DbSet<News> News { get; set; }
 
