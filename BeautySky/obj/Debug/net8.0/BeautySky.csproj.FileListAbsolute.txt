@@ -66,6 +66,7 @@ C:\Users\ToanDev\WorkSpace\SWP\BeautySky\BeautySky\BeautySky\obj\Debug\net8.0\re
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky\BeautySky\BeautySky\obj\Debug\net8.0\BeautySky.pdb
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky\BeautySky\BeautySky\obj\Debug\net8.0\BeautySky.genruntimeconfig.cache
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky\BeautySky\BeautySky\obj\Debug\net8.0\ref\BeautySky.dll
+C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\appsettings.json
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.staticwebassets.endpoints.json
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.exe
 C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.deps.json
@@ -1531,6 +1532,4 @@ C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.st
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\bin\Debug\net8.0\VNPAY.NET.dll
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.RazorAssemblyInfo.cache
 C:\Users\danht\Source\Repos\BeautySky-BE\BeautySky\obj\Debug\net8.0\BeautySky.RazorAssemblyInfo.cs
-C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\BeautySky.staticwebassets.runtime.json
-C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\VNPAY.NET.dll
-C:\Users\ToanDev\WorkSpace\SWP\BeautySky-BE\BeautySky\bin\Debug\net8.0\appsettings.json
+D:\SWP_BE\BeautySky\bin\Debug\net8.0\VNPAY.NET.dll
