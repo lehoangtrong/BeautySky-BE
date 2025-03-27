@@ -304,6 +304,30 @@ namespace BeautySky.Controllers
             }
         }
 
+        [HttpPut("reactivate/{id}")]
+        public async Task<IActionResult> ReactivateProduct(int id)
+        {
+            try
+            {
+                var product = await _context.Products.FindAsync(id);
+                if (product == null)
+                {
+                    return NotFound("Product not found.");
+                }
+
+                // Cập nhật trạng thái IsActive
+                product.IsActive = true;
+
+                await _context.SaveChangesAsync();
+                return Ok("Product reactivated successfully");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error reactivating product: {ex}");
+                return StatusCode(500, "An error occurred while reactivating the product.");
+            }
+        }
+
 
 
         [HttpDelete("{id}")]
