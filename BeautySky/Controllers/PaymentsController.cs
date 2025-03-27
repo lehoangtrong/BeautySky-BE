@@ -1,6 +1,7 @@
 ﻿using BeautySky.Library;
 using BeautySky.Models;
 using BeautySky.Models.Vnpay;
+using BeautySky.Service;
 using BeautySky.Services.Vnpay;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -81,14 +82,21 @@ namespace BeautySky.Controllers
                     {
                         try
                         {
-                            // Sử dụng ProcessPaymentTransaction đã có
                             var result = await ProcessPaymentTransaction(orderIdInt);
 
                             if (result.Result is CreatedResult)
                             {
                                 _logger.LogInformation($"Payment for Order {orderIdInt} processed successfully via callback");
-                                // Chuyển hướng đến trang thành công với thông tin payment
                                 var payment = (result.Result as CreatedResult)?.Value as Payment;
+                                var order = await _context.Orders
+                                    .Include(o => o.User)
+                                    .FirstOrDefaultAsync(o => o.OrderId == orderIdInt);
+
+                                if (order != null && order.User != null)
+                                {
+                                    var emailBody = GenerateOrderEmailBody(order);
+                                    await _emailService.SendEmailAsync(order.User.Email, "Đặt hàng thành công - BeautySky", emailBody);
+                                }
                                 return Redirect($"http://localhost:5173/paymentsuccess?orderId={orderId}&paymentId={payment?.PaymentId}");
                             }
                             else if (result.Result is NotFoundResult)
@@ -110,7 +118,6 @@ namespace BeautySky.Controllers
                     }
                 }
 
-                // Thanh toán thất bại hoặc bị hủy
                 return Redirect($"http://localhost:5173/paymentfailed?orderId={orderId}&message={message}");
             }
             catch (Exception ex)
@@ -130,6 +137,29 @@ namespace BeautySky.Controllers
             try
             {
                 var result = await ProcessPaymentTransaction(orderId);
+                if (result.Result is CreatedResult)
+                {
+                    var payment = (result.Result as CreatedResult).Value as Payment;
+                    var order = await _context.Orders
+                        .Include(o => o.User)
+                        .FirstOrDefaultAsync(o => o.OrderId == orderId);
+
+                    if (order != null && order.User != null)
+                    {
+                        var emailBody = GenerateOrderEmailBody(order);
+                        try
+                        {
+                            await _emailService.SendEmailAsync(order.User.Email, "Đặt hàng thành công - BeautySky", emailBody);
+                            _logger.LogInformation($"Email sent successfully to {order.User.Email} for Order ID: {orderId}");
+                        }
+                        catch (Exception emailEx)
+                        {
+                            _logger.LogError(emailEx, $"Error sending email for Order ID: {orderId}");
+                            // Không rollback transaction vì lỗi gửi email không ảnh hưởng đến giao dịch chính
+                        }
+                    }
+                }
+
                 await transaction.CommitAsync();
                 return result;
             }
@@ -140,6 +170,10 @@ namespace BeautySky.Controllers
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
         }
+
+
+        
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePayment(int id)
         {
@@ -215,5 +249,32 @@ namespace BeautySky.Controllers
             await _context.SaveChangesAsync();
         }
 
+        private string GenerateOrderEmailBody(Order order)
+        {
+            var body = $@"
+    <h1>Đặt hàng thành công!</h1>
+    <p>Cảm ơn bạn đã đặt hàng tại BeautySky. Mã đơn hàng của bạn là: {order.OrderId}</p>
+    <p>Tổng tiền: {order.TotalAmount}</p>
+    <p>Phương thức thanh toán: {(order.Payment?.PaymentType?.PaymentTypeId == 1 ? "VNPay" : "Thanh toán khi nhận hàng (COD)")}</p>
+    <p>Chúng tôi sẽ xử lý đơn hàng của bạn sớm nhất có thể.</p>
+    ";
+            return body;
+        }
+
+        private readonly IEmailService _emailService;
+
+        public PaymentsController(
+            ProjectSwpContext context,
+            IVnPayService vnPayService,
+            ILogger<PaymentsController> logger,
+            IConfiguration configuration,
+            IEmailService emailService)
+        {
+            _context = context;
+            _vnPayService = vnPayService;
+            _logger = logger;
+            _configuration = configuration;
+            _emailService = emailService;
+        }
     }
 }

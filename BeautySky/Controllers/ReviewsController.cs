@@ -25,8 +25,9 @@ namespace BeautySky.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetReviews()
         {
             var reviews = await _context.Reviews
-                .Include(r => r.Product) // Lấy thông tin sản phẩm
-                .Include(r => r.User)    // Lấy thông tin người dùng
+                .Where(r => r.IsActive != false) // Chỉ lấy các review chưa bị ẩn
+                .Include(r => r.Product)
+                .Include(r => r.User)
                 .Select(r => new {
                     r.ReviewId,
                     r.ProductId,
@@ -35,7 +36,8 @@ namespace BeautySky.Controllers
                     UserName = r.User != null ? r.User.FullName : "Không xác định",
                     r.Rating,
                     r.Comment,
-                    r.ReviewDate
+                    r.ReviewDate,
+                    r.IsActive // Thêm trường IsActive vào response
                 })
                 .ToListAsync();
 
@@ -61,10 +63,47 @@ namespace BeautySky.Controllers
         [HttpPost]
         public async Task<ActionResult<Review>> PostReview(Review review)
         {
-            _context.Reviews.Add(review);
-            await _context.SaveChangesAsync();
+            try
+            {
+                // Set IsActive = true cho review mới
+                review.IsActive = true;
+                review.ReviewDate = DateTime.Now; // Thêm ngày tạo review
 
-            return Ok("Review success");
+                _context.Reviews.Add(review);
+                await _context.SaveChangesAsync();
+
+                // Trả về thông tin chi tiết của review vừa tạo
+                var newReview = await _context.Reviews
+                    .Include(r => r.Product)
+                    .Include(r => r.User)
+                    .Where(r => r.ReviewId == review.ReviewId)
+                    .Select(r => new {
+                        r.ReviewId,
+                        r.ProductId,
+                        ProductName = r.Product != null ? r.Product.ProductName : "Không xác định",
+                        r.UserId,
+                        UserName = r.User != null ? r.User.FullName : "Không xác định",
+                        r.Rating,
+                        r.Comment,
+                        r.ReviewDate,
+                        r.IsActive
+                    })
+                    .FirstOrDefaultAsync();
+
+                return Ok(new
+                {
+                    message = "Review created successfully",
+                    data = newReview
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    message = "An error occurred while creating the review",
+                    error = ex.Message
+                });
+            }
         }
 
         // DELETE: api/Reviews/5

@@ -135,7 +135,7 @@ public class CarePlanController : ControllerBase
         {
             UserId = request.UserId,
             CarePlanId = request.CarePlanId,
-            DateCreate = DateTime.Now
+            DateCreate = DateTime.UtcNow
         };
         _context.UserCarePlans.Add(userCarePlan);
         await _context.SaveChangesAsync();
@@ -267,48 +267,76 @@ public class CarePlanController : ControllerBase
         return Ok(result);
     }
 
-
-    //private void DeleteOldUserCarePlan(int userId)
-    //{
-    //    var oldCarePlanProducts = _context.CarePlanProducts
-    //        .Where(cp => cp.UserId == userId)
-    //        .ToList();
-    //    _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
-
-    //    var oldUserCarePlan = _context.UserCarePlans
-    //        .Where(u => u.UserId == userId)
-    //        .ToList();
-    //    _context.UserCarePlans.RemoveRange(oldUserCarePlan);
-
-    //    _context.SaveChanges();
-    //}
-
-    private void SaveUserCarePlan(int userId, int carePlanId, int skinTypeId)
+    [HttpDelete("DeleteUserCarePlan/{userId}")]
+    public async Task<IActionResult> DeleteUserCarePlan(int userId)
     {
-        var existingCarePlan = _context.UserCarePlans
-            .FirstOrDefault(u => u.UserId == userId && u.CarePlan.SkinTypeId == skinTypeId);
+        try
+        {
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return NotFound("Không tìm thấy người dùng");
+            }
+
+            // Lấy tất cả lộ trình của user
+            var userCarePlans = await _context.UserCarePlans
+                .Where(ucp => ucp.UserId == userId)
+                .ToListAsync();
+
+            if (!userCarePlans.Any())
+            {
+                return NotFound("Không tìm thấy lộ trình nào của người dùng này");
+            }
+
+            // Xóa tất cả sản phẩm trong lộ trình
+            var carePlanProducts = await _context.CarePlanProducts
+                .Where(cpp => cpp.UserId == userId)
+                .ToListAsync();
+
+            _context.CarePlanProducts.RemoveRange(carePlanProducts);
+
+            // Xóa lộ trình
+            _context.UserCarePlans.RemoveRange(userCarePlans);
+
+            await _context.SaveChangesAsync();
+
+            return Ok("Đã xóa lộ trình thành công!");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"Lỗi khi xóa lộ trình: {ex.Message}");
+        }
+    }
+
+    private async Task SaveUserCarePlan(int userId, int carePlanId, int skinTypeId)
+    {
+        var existingCarePlan = await _context.UserCarePlans
+            .FirstOrDefaultAsync(u => u.UserId == userId && u.CarePlan.SkinTypeId == skinTypeId);
 
         if (existingCarePlan != null)
         {
-            // Xóa các sản phẩm cũ trong lộ trình của loại da này
-            var oldCarePlanProducts = _context.CarePlanProducts
-                .Where(cp => cp.UserId == userId && cp.CarePlanId == existingCarePlan.CarePlanId)
-                .ToList();
-            _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
+            // Cập nhật ngày tạo mới
+            existingCarePlan.DateCreate = DateTime.UtcNow; // Sử dụng UTC time
 
-            _context.SaveChanges(); // Lưu thay đổi trước khi cập nhật
+            // Xóa các sản phẩm cũ trong lộ trình
+            var oldCarePlanProducts = await _context.CarePlanProducts
+                .Where(cp => cp.UserId == userId && cp.CarePlanId == existingCarePlan.CarePlanId)
+                .ToListAsync();
+
+            _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
+            await _context.SaveChangesAsync();
         }
         else
         {
-            // Nếu chưa có lộ trình cũ cho loại da này, tạo mới
+            // Tạo lộ trình mới với ngày tạo hiện tại
             var userCarePlan = new UserCarePlan
             {
                 UserId = userId,
                 CarePlanId = carePlanId,
-                DateCreate = DateTime.Now
+                DateCreate = DateTime.UtcNow // Sử dụng UTC time
             };
             _context.UserCarePlans.Add(userCarePlan);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 
