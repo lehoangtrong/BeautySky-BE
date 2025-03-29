@@ -322,6 +322,7 @@ public class CarePlanController : ControllerBase
                 .ToList();
             _context.CarePlanProducts.RemoveRange(oldCarePlanProducts);
             existingCarePlan.DateCreate = DateTime.UtcNow;
+
             _context.SaveChanges(); // Lưu thay đổi trước khi cập nhật
         }
         else
