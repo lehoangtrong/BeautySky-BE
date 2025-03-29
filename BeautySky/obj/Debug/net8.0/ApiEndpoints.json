@@ -1244,6 +1244,16 @@
     ]
   },
   {
+    "ContainingType": "BeautySky.Controllers.PaymentsController",
+    "Method": "TestEmail",
+    "RelativePath": "api/Payments/test-email",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "BeautySky.Controllers.ProductsController",
     "Method": "GetProducts",
     "RelativePath": "api/Products",
