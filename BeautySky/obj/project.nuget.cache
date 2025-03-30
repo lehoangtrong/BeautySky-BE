@@ -176,12 +176,5 @@
     "C:\\Users\\ToanDev\\.nuget\\packages\\system.windows.extensions\\7.0.0\\system.windows.extensions.7.0.0.nupkg.sha512",
     "C:\\Users\\ToanDev\\.nuget\\packages\\vnpay.net\\8.5.0\\vnpay.net.8.5.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Problem reading the cache file C:\\Users\\ToanDev\\WorkSpace\\SWP\\BeautySky-BE\\BeautySky\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
-    }
-  ]
+  "logs": []
 }
