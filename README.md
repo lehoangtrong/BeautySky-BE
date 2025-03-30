@@ -1,7 +1,7 @@
 # BeatySkyShop Backend - Skincare E-commerce API
 <div align="center">
      <picture>
-    <img alt="BeautySky Logo" src="BeautySky-BE\logo.png" width="200">
+    <img alt="BeautySky Logo" src="https://www.google.com/url?sa=i&url=https%3A%2F%2Fbaophapluat.vn%2Fxam-minh-khong-chi-la-trao-luu-post371229.html&psig=AOvVaw0he43LrwXjBSnPVoZ1aUc1&ust=1743446737303000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCOCNtcu7sowDFQAAAAAdAAAAABAE" width="200">
   </picture>
 </div> 
 
