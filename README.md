@@ -1,7 +1,7 @@
 # BeatySkyShop Backend - Skincare E-commerce API
 <div align="center">
      <picture>
-    <img alt="BeautySky Logo" src="https://beautysky.s3.ap-southeast-2.amazonaws.com/Logo/z6458891377962_ab698edab8b61bba3d6c2e06baefcca4.jpg" width="200">
+    <img alt="BeautySky Logo" src="https://beautysky.s3.ap-southeast-2.amazonaws.com/Logo/SkyBeauty-removebg-preview.png" width="200">
   </picture>
 </div> 
 
@@ -52,6 +52,7 @@ Backend API service for BeatySkyShop, a skincare e-commerce system managing prod
 - Database: Microsoft SQL Server
 - Amazon S3 Account
 - VNPAY Developer Account
+- Email Account
 
 ### Installation
 
@@ -135,19 +136,14 @@ Backend API service for BeatySkyShop, a skincare e-commerce system managing prod
 - Order management workflows
 - Payment processing (successful and failed transactions)
 - Skin type assessment logic
-- API rate limiting & security enforcement
 
 ## 🔒 Security
 
 This API implements several security measures:
 - JWT authentication & role-based authorization
-- Request rate limiting
 - SQL injection protection
 - Secure payment handling
 - Input validation
-- CORS configuration
-- XSS protection
-
 
 ## 👥 Contributing
 
