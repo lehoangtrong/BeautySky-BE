@@ -1,7 +1,7 @@
 # BeatySkyShop Backend - Skincare E-commerce API
 <div align="center">
      <picture>
-    <img alt="BeautySky Logo" src="https://s3.ap-southeast-1.amazonaws.com/cdn.vntre.vn/default/anh-anime-nam-cute-01-1725377826.jpg" width="200">
+    <img alt="BeautySky Logo" src="https://beautysky.s3.ap-southeast-2.amazonaws.com/Logo/z6458891377962_ab698edab8b61bba3d6c2e06baefcca4.jpg" width="200">
   </picture>
 </div> 
 
@@ -41,6 +41,7 @@ Backend API service for BeatySkyShop, a skincare e-commerce system managing prod
 - **Authentication:** JWT (JSON Web Tokens)
 - **Cloud Storage:** Amazon S3
 - **Payment Processing:** VNPAY
+- **Email Sending** SMTP
 - **Documentation:** Swagger/OpenAPI
 
 ## 🚀 Getting Started
@@ -106,6 +107,12 @@ Backend API service for BeatySkyShop, a skincare e-commerce system managing prod
     "SecretKey": "",
     "Region": "ap-southeast-2"
   },
+ "Smtp": {
+   "Server": "smtp.gmail.com",
+   "Port": "465",
+   "User": "YourEmail",
+   "Pass": "Passwork Key"
+ },
   "Vnpay": {
     "TmnCode": "",
     "HashSecret": "",
