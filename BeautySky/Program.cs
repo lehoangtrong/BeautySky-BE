@@ -77,7 +77,7 @@ namespace BeautySky
             // Thêm DbContext
             builder.Services.AddDbContext<ProjectSwpContext>(option =>
             {
-                option.UseSqlServer(builder.Configuration.GetConnectionString("MyDBConnection"));
+                option.UseNpgsql(builder.Configuration.GetConnectionString("MyDBConnection"));
             });
 
             // Cấu hình Authentication
